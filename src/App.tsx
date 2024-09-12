@@ -8,7 +8,7 @@ function App() {
   const [userSelect, setUserSelect] = useState<string[]>([])
   const [bufferSize, setBufferSize] = useState(5)
   const [matrixSize, setMatrixSize] = useState(6)
-  const [solutionString, setSolutionString] = useState("")
+  const [solutionString, setSolutionString] = useState<string[]>([])
 
   return (
     <>

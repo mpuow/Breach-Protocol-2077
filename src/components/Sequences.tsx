@@ -1,6 +1,6 @@
 
 interface Props {
-  solutionString: string
+  solutionString: string[]
 }
 
 function Sequences(props: Props) {

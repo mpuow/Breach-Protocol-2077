@@ -4,7 +4,7 @@ interface Props {
     userSelect: string[]
     setUserSelect: React.Dispatch<React.SetStateAction<string[]>>
     bufferSize: number
-    setSolutionString: React.Dispatch<React.SetStateAction<string>>
+    setSolutionString: React.Dispatch<React.SetStateAction<string[]>>
     matrixSize: number
 }
 
@@ -64,40 +64,59 @@ export default function CodeMatrix(props: Props) {
     }
 
     function generateSolutionString() {
-        // {combinationBoard.map((row, rowIndex) => {
-        //     row.map((val, colIndex) => {
-        //         if (rowIndex === 0 && colIndex === 5) {
-        //             console.log(val)
-        //         }
-        //     })
-        // })}
-
         const solutionStringLength = 7
-        const solutionStringCoords = []
-        let colIndex
-        let rowIndex
+        const solutionStringCoords: number[][] = []
+        const localSolutionString:string[] = []
+        let colIndex:number = -1
+        let rowIndex:number = -1
+        let prevColIndex:number
+        let prevRowIndex:number
         let selectRow = false
-        
-        // column = randomNumber(props.matrixSize)
-        // solutionStringCoords.push([0, column])
-        
-        for (let i = 0; i < solutionStringLength - 1; i++) {
 
+        /*
+            Generates the coordinates for the solution sequence
+
+            How the algorithm works:
+                1. First run forces the rowIndex to be 0 and selectRow to be false (as we are selecting a column)
+                2. Sets the prevIndex for either col or row
+                3. Generates a random index
+                4. Ensures no unlucky backtracking with the while loop
+                5. Pushes the coords to the array
+                6. Updates selectRow to alternate between selecting a new column or row
+                7. Repeat
+
+            This works because all we need to do to find a valid path is change one index at a time, while ensuring we do not backtrack along the path
+            Eg: [0,5] -> [4,5] -> [4,2] -> [0,2]
+
+        */
+        for (let i = 0; i < solutionStringLength; i++) {
             if (selectRow) {
-                rowIndex = randomNumber(props.matrixSize)
+                prevRowIndex = rowIndex
+                while (rowIndex === prevRowIndex) { rowIndex = randomNumber(props.matrixSize) }
                 solutionStringCoords.push([rowIndex, colIndex])
                 selectRow = false
             } else {
-                colIndex = randomNumber(props.matrixSize)
-                if (rowIndex === undefined) { rowIndex = 0 }
+                prevColIndex = colIndex
+                while (colIndex === prevColIndex) { colIndex = randomNumber(props.matrixSize) }
+                if (rowIndex === -1) { rowIndex = 0 }
                 solutionStringCoords.push([rowIndex, colIndex])
                 selectRow = true
             }
-            
         }
 
-        console.log(solutionStringCoords)
+        // Adds generated coordinates to localSolutionString array
+        for (let i = 0; i < solutionStringCoords.length; i++) {
+            {combinationBoard.map((row, rowIndex) => {
+                row.map((val, colIndex) => {
+                    if (rowIndex === solutionStringCoords[i][0] && colIndex === solutionStringCoords[i][1]) {
+                        localSolutionString.push(val)
+                    }
+                })
+            })}
+        }
 
+        // Sets solutionString with the local generated string
+        props.setSolutionString(localSolutionString)
     }
 
     function clickCell(val: string, rowIndex:number, colIndex:number) {
@@ -117,7 +136,7 @@ export default function CodeMatrix(props: Props) {
                     {displayCodeMatrix()}
                 </tbody>
             </table>
-            <span onClick={() => generateSolutionString()}>eroghun</span>
+            <span onClick={() => generateSolutionString()}>Generate Solution String</span>
         </div>
     )
 }
