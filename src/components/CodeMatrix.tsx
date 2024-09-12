@@ -4,8 +4,13 @@ interface Props {
     userSelect: string[]
     setUserSelect: React.Dispatch<React.SetStateAction<string[]>>
     bufferSize: number
-    setSolutionString: React.Dispatch<React.SetStateAction<string[]>>
+    solutionStringArray: string[]
+    setSolutionStringArray: React.Dispatch<React.SetStateAction<string[]>>
     matrixSize: number
+}
+
+export function randomNumber(length:number) {
+    return Math.floor(Math.random() * length)
 }
 
 export default function CodeMatrix(props: Props) {
@@ -21,14 +26,10 @@ export default function CodeMatrix(props: Props) {
 
     }, [])
 
-    function randomNumber(length:number) {
-        return Math.floor(Math.random() * length)
-    }
-
     function generateCombination() {
         const possibleCombinations = ["E9", "55", "BD", "1C", "7A", "FF"]
         const combination: string[] = []
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < possibleCombinations.length; i++) {
             combination.push(possibleCombinations[randomNumber(props.matrixSize)])
         }
         return combination
@@ -40,7 +41,7 @@ export default function CodeMatrix(props: Props) {
         }
     }
 
-    function displayCodeMatrix() {
+    function DisplayCodeMatrix() {
         return (
             <>
                 {combinationBoard.map((row, rowIndex) => (
@@ -116,7 +117,8 @@ export default function CodeMatrix(props: Props) {
         }
 
         // Sets solutionString with the local generated string
-        props.setSolutionString(localSolutionString)
+        props.setSolutionStringArray(localSolutionString)
+
     }
 
     function clickCell(val: string, rowIndex:number, colIndex:number) {
@@ -133,7 +135,7 @@ export default function CodeMatrix(props: Props) {
             <div className="border-t-[1px] border-[#CEEC58] bg-[#CEEC58] text-black p-2">CODE MATRIX</div>
             <table className="border-2 flex justify-center">
                 <tbody className='hover:bg-purple-900'>
-                    {displayCodeMatrix()}
+                    <DisplayCodeMatrix />
                 </tbody>
             </table>
             <span onClick={() => generateSolutionString()}>Generate Solution String</span>
