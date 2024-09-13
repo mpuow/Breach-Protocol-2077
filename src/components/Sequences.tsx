@@ -57,7 +57,7 @@ export function splitSolutionStringArray(solutionStringArray:string[]) {
 
 export default function Sequences(props: Props) {
 
-    // const [finalSequenceArray, setFinalSequenceArray] = useState<string[][]>(splitSolutionStringArray(props.solutionStringArray))
+    // const [finalSequenceArray, setFinalSequenceArray] = useState<string[][]>([])
     let finalSequenceArray = splitSolutionStringArray(props.solutionStringArray)
 
     // function splitSolutionStringArray(solutionStringArray:string[]) {
@@ -123,11 +123,12 @@ export default function Sequences(props: Props) {
         <div className='border-2 border-[#5873ec]'>
             <div className="border-2 border-[#CEEC58] text-[#C8D1A6] p-2">SEQUENCE REQUIRED TO UPLOAD</div>
             <DisplaySequences />
+            {/* <span>{props.solutionStringArray}</span> */}
 
 
             {/* <span onClick={() => splitSolutionStringArray(props.solutionStringArray)}> eroign</span> */}
             {/* <span onClick={() => console.log(finalSequenceArray)}> 22222222</span> */}
-            <span onClick={() => {console.log(finalSequenceArray)}}>aaaaaaa</span>
+            {/* <span onClick={() => {console.log(finalSequenceArray)}}>aaaaaaa</span> */}
         </div>
     )
 }

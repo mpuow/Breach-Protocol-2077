@@ -18,7 +18,9 @@ export default function CodeMatrix(props: Props) {
     const [combinationBoard, setCombinationBoard] = useState<string[][]>([])
 
     useEffect(() => {
-        generateCodeMatrix()
+        // generateCodeMatrix()
+        
+        generateSolutionString(generateCodeMatrix())
 
         return () => {
             setCombinationBoard([])
@@ -36,35 +38,16 @@ export default function CodeMatrix(props: Props) {
     }
 
     function generateCodeMatrix() {
-        for (let i = 0; i < 6; i++) {
-            setCombinationBoard((prevRow) => [...prevRow, generateCombination()])
+        let localCombinationBoard = []
+        for (let i = 0; i < props.matrixSize; i++) {
+            // setCombinationBoard((prevRow) => [...prevRow, generateCombination()])
+            localCombinationBoard.push(generateCombination())
         }
+
+        return localCombinationBoard
     }
 
-    function DisplayCodeMatrix() {
-        return (
-            <>
-                {combinationBoard.map((row, rowIndex) => (
-                    <tr
-                        key={rowIndex}
-                        className="hover:bg-red-500 table-auto">
-                        {row.map((val, colIndex) => (
-                            <td
-                                key={colIndex}
-                                className={`p-4 select-none ${colIndex === selection ? 'bg-blue-500' : ''} hover:bg-[#CEEC58] text-[#C8D1A6]`}
-                                onClick={() => clickCell(val, rowIndex, colIndex)}
-                                onMouseEnter={() => setSelection(colIndex)}
-                                onMouseLeave={() => setSelection(-1)}>
-                                {val}
-                            </td>
-                        ))}
-                    </tr>
-                ))}
-            </>
-        )
-    }
-
-    function generateSolutionString() {
+    function generateSolutionString(localCombinationBoard:string[][]) {
         const solutionStringLength = 7
         const solutionStringCoords: number[][] = []
         const localSolutionString:string[] = []
@@ -107,7 +90,7 @@ export default function CodeMatrix(props: Props) {
 
         // Adds generated coordinates to localSolutionString array
         for (let i = 0; i < solutionStringCoords.length; i++) {
-            {combinationBoard.map((row, rowIndex) => {
+            {localCombinationBoard.map((row, rowIndex) => {
                 row.map((val, colIndex) => {
                     if (rowIndex === solutionStringCoords[i][0] && colIndex === solutionStringCoords[i][1]) {
                         localSolutionString.push(val)
@@ -119,6 +102,9 @@ export default function CodeMatrix(props: Props) {
         // Sets solutionString with the local generated string
         props.setSolutionStringArray(localSolutionString)
 
+        // console.log(localCombinationBoard)
+        setCombinationBoard(localCombinationBoard)
+        console.log(localSolutionString)
     }
 
     function clickCell(val: string, rowIndex:number, colIndex:number) {
@@ -130,6 +116,29 @@ export default function CodeMatrix(props: Props) {
         }
     }
 
+    function DisplayCodeMatrix() {
+        return (
+            <>
+                {combinationBoard.map((row, rowIndex) => (
+                    <tr
+                        key={rowIndex}
+                        className="hover:bg-red-500 table-auto">
+                        {row.map((val, colIndex) => (
+                            <td
+                                key={colIndex}
+                                className={`p-4 select-none ${colIndex === selection ? 'bg-blue-500' : ''} hover:bg-[#CEEC58] text-[#C8D1A6]`}
+                                onClick={() => clickCell(val, rowIndex, colIndex)}
+                                onMouseEnter={() => setSelection(colIndex)}
+                                onMouseLeave={() => setSelection(-1)}>
+                                {val}
+                            </td>
+                        ))}
+                    </tr>
+                ))}
+            </>
+        )
+    }
+
     return (
         <div className='border-t-[1px] border-[#CEEC58]'>
             <div className="border-t-[1px] border-[#CEEC58] bg-[#CEEC58] text-black p-2">CODE MATRIX</div>
@@ -138,7 +147,7 @@ export default function CodeMatrix(props: Props) {
                     <DisplayCodeMatrix />
                 </tbody>
             </table>
-            <span onClick={() => generateSolutionString()}>Generate Solution String</span>
+            {/* <span onClick={() => generateSolutionString()}>Generate Solution String</span> */}
         </div>
     )
 }

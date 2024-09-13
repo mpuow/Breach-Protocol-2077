@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import CodeMatrix from "./components/CodeMatrix"
 import Sequences from "./components/Sequences"
 import Buffer from "./components/Buffer"
@@ -6,7 +6,7 @@ import BreachTime from "./components/BreachTime"
 
 function App() {
   const [userSelect, setUserSelect] = useState<string[]>([])
-  const [bufferSize, setBufferSize] = useState(6)
+  const [bufferSize, setBufferSize] = useState(8)
   const [matrixSize, setMatrixSize] = useState(6)
   const [solutionStringArray, setSolutionStringArray] = useState<string[]>([])
 
@@ -26,6 +26,10 @@ function App() {
           <CodeMatrix userSelect={userSelect} setUserSelect={setUserSelect} bufferSize={bufferSize} solutionStringArray={solutionStringArray} setSolutionStringArray={setSolutionStringArray} matrixSize={matrixSize} />
         </div>
         <div className="w-2/3 mx-5"><Sequences solutionStringArray={solutionStringArray} /></div>
+      </div>
+
+      <div>
+        edorign
       </div>
       
     </>

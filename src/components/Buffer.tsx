@@ -16,7 +16,7 @@ function displayBuffer(bufferSize:number, userSelect:string[]) {
 
 export default function Buffer(props: Props) {
     return (
-        <div className="border-2 border-[#CEEC58] mt-2 p-2 w-1/4 container">
+        <div className="border-2 border-[#CEEC58] mt-2 p-2 w-1/2 container">
             <div className="space-x-2 flex flex-row">
                 {displayBuffer(props.bufferSize, props.userSelect)}
             </div>
