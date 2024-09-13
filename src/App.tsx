@@ -21,6 +21,7 @@ function App() {
                         <BreachTime />
                     </div>
                 </div>
+                {/* border issue is with the 2/3 here */}
                 <div className="w-2/3 mx-5">
                     <h1 className="text-xl text-cyber-lightgreen">BUFFER</h1>
                     <Buffer userSelect={userSelect} bufferSize={bufferSize} />
