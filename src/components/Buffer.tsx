@@ -4,10 +4,14 @@ interface Props {
     bufferSize: number
 }
 
-function displayBuffer(bufferSize:number, userSelect:string[]) {
+function displayBuffer(bufferSize: number, userSelect: string[]) {
     let elements = []
     for (let i = 0; i < bufferSize; i++) {
-        elements.push(<div key={i} className="border-dashed border-2 border-[#C8D1A6] size-8 flex flex-grow items-center justify-center">{userSelect[i]}</div>)
+        elements.push(
+            <div key={i} className="border-dashed border-2 border-cyber-lightgreen h-8 flex flex-grow items-center justify-center border-opacity-30">
+                <span className="opacity-100">{userSelect[i]}</span>
+            </div>
+        )
     }
     // console.log(elements)
 
@@ -16,10 +20,12 @@ function displayBuffer(bufferSize:number, userSelect:string[]) {
 
 export default function Buffer(props: Props) {
     return (
-        <div className="border-2 border-[#CEEC58] mt-2 p-2 w-1/2 container">
-            <div className="space-x-2 flex flex-row">
-                {displayBuffer(props.bufferSize, props.userSelect)}
+        <>
+            <div className="border-2 border-cyber-green p-2 w-1/2">
+                <div className="space-x-2 flex flex-row p-2">
+                    {displayBuffer(props.bufferSize, props.userSelect)}
+                </div>
             </div>
-        </div>
+        </>
     )
 }

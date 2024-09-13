@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import "./CodeMatrix.css"
 
 interface Props {
     userSelect: string[]
@@ -122,11 +123,12 @@ export default function CodeMatrix(props: Props) {
                 {combinationBoard.map((row, rowIndex) => (
                     <tr
                         key={rowIndex}
-                        className="hover:bg-red-500 table-auto">
+                        className="table-auto hover:bg-[#292C39]">
                         {row.map((val, colIndex) => (
                             <td
                                 key={colIndex}
-                                className={`p-4 select-none ${colIndex === selection ? 'bg-blue-500' : ''} hover:bg-[#CEEC58] text-[#C8D1A6]`}
+                                // className={`p-4 select-none text-cyber-lightgreen ${colIndex === selection ? 'bg-[#1F2019]' : ''} hover:inner-border-2 inner-border-cyber-blue`}
+                                className={`p-3 select-none text-cyber-lightgreen ${colIndex === selection ? 'bg-[#1F2019]' : ''} hover:double-border hover:text-cyber-blue hoverGlow text-xl`}
                                 onClick={() => clickCell(val, rowIndex, colIndex)}
                                 onMouseEnter={() => setSelection(colIndex)}
                                 onMouseLeave={() => setSelection(-1)}>
@@ -140,10 +142,10 @@ export default function CodeMatrix(props: Props) {
     }
 
     return (
-        <div className='border-t-[1px] border-[#CEEC58]'>
-            <div className="border-t-[1px] border-[#CEEC58] bg-[#CEEC58] text-black p-2">CODE MATRIX</div>
-            <table className="border-2 flex justify-center">
-                <tbody className='hover:bg-purple-900'>
+        <div className='border-[1px] border-cyber-green'>
+            <div className="bg-cyber-green text-black p-2 text-xl">CODE MATRIX</div>
+            <table className="flex justify-center my-2" onMouseLeave={() => setSelection(-1)}>
+                <tbody>
                     <DisplayCodeMatrix />
                 </tbody>
             </table>

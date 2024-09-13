@@ -1,0 +1,16 @@
+
+.hoverGlow {
+    box-shadow: none;
+}
+
+.hoverGlow:hover {
+    box-shadow: 0px 0px 20px 5px rgba(52,129,132, 0.5) inset;
+}
+
+/* .hoverGlow {
+box-shadow: none;
+}
+
+.hoverGlow:hover {
+box-shadow: 0px 0px 50px 5px rgba(52,129,132, 0.5);
+} */
