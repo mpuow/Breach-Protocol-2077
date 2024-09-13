@@ -1,8 +1,11 @@
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import { randomNumber } from "./CodeMatrix"
 
 interface Props {
     solutionStringArray: string[]
+    combinationHover: string
+    setCombinationHover: React.Dispatch<React.SetStateAction<string>>
+    matrixHover: string
 }
 
 // Fisher-Yates Shuffle
@@ -20,6 +23,8 @@ function shuffleArray(array:number[]) {
 export default function Sequences(props: Props) {
 
     // const [finalSequenceArray, setFinalSequenceArray] = useState<string[][]>([])
+    // const [combinationHover, setCombinationHover] = useState<string>("")
+
     const cachedFinalSequenceArray = useMemo(() => splitSolutionStringArray(props.solutionStringArray), [props.solutionStringArray])
 
     function splitSolutionStringArray(solutionStringArray:string[]) {
@@ -59,24 +64,52 @@ export default function Sequences(props: Props) {
         // Push results to finalSequenceArray
         finalSequenceArray.push(split1, split2, split3)
     
-        console.log(finalSequenceArray)
-
-        console.log("I AM THE PROBLEM")
+        // console.log(finalSequenceArray)
     
         return(finalSequenceArray)
     }
 
-    function displaySequenceRow(rowNum: number) {
+    function displaySequenceRow() {
         return (
             <tr className="text-xl">
-                <td className="w-1/2 space-x-2 pl-4 text-white flex">
-                    {cachedFinalSequenceArray.map((_val, key) => (
-                        <span key={key} className="hover:text-cyber-blue hover:inner-border-2 inner-border-cyber-blue p-2 w-10 h-auto flex items-center justify-center">{cachedFinalSequenceArray[rowNum][key]}</span>
+                <td className="w-1/2 pl-4 text-white">
+                    {/* {cachedFinalSequenceArray.map((row, key) => (
+                        <>
+                            <span
+                                key={key}
+                                className={`hover:text-cyber-blue hover:inner-border-2 inner-border-cyber-blue p-2 w-10 h-auto flex items-center justify-center`}>
+                                {cachedFinalSequenceArray[rowNum][key]}
+                            </span>
+                            {row}
+                        </>
+                    ))} */}
+
+                    {cachedFinalSequenceArray.map((row, rowIndex) => (
+                        <span key={rowIndex} className="flex flex-row mb-2 space-x-2">
+                            {row.map((val, colIndex) => (
+                                <span
+                                    key={colIndex}
+                                    className={`hover:text-cyber-blue hover:inner-border-2 inner-border-cyber-blue p-2 w-10 h-auto flex items-center justify-center 
+                                        ${val == props.combinationHover || val === props.matrixHover ? "inner-border-2 inner-border-cyber-blue text-cyber-blue" : ""}`}
+                                    onMouseEnter={() => props.setCombinationHover(val)}
+                                    onMouseLeave={() => props.setCombinationHover("")}>
+                                    {val}
+                                </span>
+                            ))}
+                        </span>
                     ))}
                 </td>
-                <td>
+                <td className="text-lg">
                     <ul>
-                        <li>DATAMINE_V{rowNum + 1}</li>
+                        <li>DATAMINE_V1</li>
+                        <li className="text-cyber-green text-base">Flavour text</li>
+                    </ul>
+                    <ul>
+                        <li>DATAMINE_V2</li>
+                        <li className="text-cyber-green text-base">Flavour text</li>
+                    </ul>
+                    <ul>
+                        <li>DATAMINE_V3</li>
                         <li className="text-cyber-green text-base">Flavour text</li>
                     </ul>
                 </td>
@@ -87,11 +120,11 @@ export default function Sequences(props: Props) {
     function DisplaySequences() {
 
         return (
-            <table className="w-full">
+            <table className="w-full mb-8">
                 <tbody className="select-none">
-                    {displaySequenceRow(0)}
-                    {displaySequenceRow(1)}
-                    {displaySequenceRow(2)}
+                    {displaySequenceRow()}
+                    {/* {displaySequenceRow(1)}
+                    {displaySequenceRow(2)} */}
                 </tbody>
             </table>
         )

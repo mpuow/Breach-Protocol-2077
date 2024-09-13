@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import CodeMatrix from "./components/CodeMatrix"
 import Sequences from "./components/Sequences"
 import Buffer from "./components/Buffer"
@@ -6,9 +6,11 @@ import BreachTime from "./components/BreachTime"
 
 function App() {
     const [userSelect, setUserSelect] = useState<string[]>([])
-    const [bufferSize, setBufferSize] = useState(8)
-    const [matrixSize, setMatrixSize] = useState(6)
+    const [bufferSize, _setBufferSize] = useState(8)
+    const [matrixSize, _setMatrixSize] = useState(6)
     const [solutionStringArray, setSolutionStringArray] = useState<string[]>([])
+    const [combinationHover, setCombinationHover] = useState<string>("")
+    const [matrixHover, setMatrixHover] = useState<string>("")
 
     return (
         <>
@@ -30,10 +32,23 @@ function App() {
 
             <div className="w-full flex flex-row">
                 <div className="w-1/3 mx-5">
-                    <CodeMatrix userSelect={userSelect} setUserSelect={setUserSelect} bufferSize={bufferSize} solutionStringArray={solutionStringArray} setSolutionStringArray={setSolutionStringArray} matrixSize={matrixSize} />
+                    <CodeMatrix
+                        userSelect={userSelect}
+                        setUserSelect={setUserSelect}
+                        bufferSize={bufferSize}
+                        solutionStringArray={solutionStringArray}
+                        setSolutionStringArray={setSolutionStringArray}
+                        matrixSize={matrixSize}
+                        combinationHover={combinationHover}
+                        setCombinationHover={setCombinationHover} 
+                        setMatrixHover={setMatrixHover} />
                 </div>
                 <div className="w-2/3 mx-5">
-                    <Sequences solutionStringArray={solutionStringArray} />
+                    <Sequences 
+                    solutionStringArray={solutionStringArray} 
+                    combinationHover={combinationHover} 
+                    setCombinationHover={setCombinationHover} 
+                    matrixHover={matrixHover} />
                 </div>
             </div>
 

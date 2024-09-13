@@ -8,6 +8,9 @@ interface Props {
     solutionStringArray: string[]
     setSolutionStringArray: React.Dispatch<React.SetStateAction<string[]>>
     matrixSize: number
+    combinationHover: string
+    setCombinationHover: React.Dispatch<React.SetStateAction<string>>
+    setMatrixHover: React.Dispatch<React.SetStateAction<string>>
 }
 
 export function randomNumber(length:number) {
@@ -117,21 +120,33 @@ export default function CodeMatrix(props: Props) {
         }
     }
 
+    function onHover(colIndex:number, val:string) {
+        setSelection(colIndex)
+        props.setMatrixHover(val)
+    }
+
+    function stopHover() {
+        setSelection(-1)
+        props.setCombinationHover("")
+        props.setMatrixHover("")
+    }
+
     function DisplayCodeMatrix() {
         return (
             <>
                 {combinationBoard.map((row, rowIndex) => (
-                    <tr
-                        key={rowIndex}
-                        className="table-auto hover:bg-[#292C39]">
+                    <tr key={rowIndex} className="table-auto hover:bg-[#292C39]">
                         {row.map((val, colIndex) => (
                             <td
                                 key={colIndex}
                                 // className={`p-4 select-none text-cyber-lightgreen ${colIndex === selection ? 'bg-[#1F2019]' : ''} hover:inner-border-2 inner-border-cyber-blue`}
-                                className={`p-3 select-none text-cyber-lightgreen ${colIndex === selection ? 'bg-[#1F2019]' : ''} hover:double-border hover:text-cyber-blue hoverGlow text-xl`}
+                                className={`p-3 select-none text-cyber-lightgreen 
+                                    ${colIndex === selection ? 'bg-[#1F2019]' : ''} 
+                                    hover:double-border hover:text-cyber-blue hoverGlow text-xl 
+                                    ${val == props.combinationHover ? "inner-border-2 inner-border-cyber-lightgreen" : ""}`}
                                 onClick={() => clickCell(val, rowIndex, colIndex)}
-                                onMouseEnter={() => setSelection(colIndex)}
-                                onMouseLeave={() => setSelection(-1)}>
+                                onMouseEnter={() => onHover(colIndex, val)}
+                                onMouseLeave={() => stopHover()}>
                                 {val}
                             </td>
                         ))}
