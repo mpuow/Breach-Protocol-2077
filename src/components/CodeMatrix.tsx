@@ -13,6 +13,7 @@ interface Props {
     setMatrixHover: React.Dispatch<React.SetStateAction<string>>
 }
 
+// Generates a random number
 export function randomNumber(length:number) {
     return Math.floor(Math.random() * length)
 }
@@ -21,9 +22,8 @@ export default function CodeMatrix(props: Props) {
     const [selection, setSelection] = useState<number>()
     const [combinationBoard, setCombinationBoard] = useState<string[][]>([])
 
+    // Generates the code matrix and solution string, also loads the code matrix on mount
     useEffect(() => {
-        // generateCodeMatrix()
-        
         generateSolutionString(generateCodeMatrix())
 
         return () => {
@@ -32,6 +32,7 @@ export default function CodeMatrix(props: Props) {
 
     }, [])
 
+    // Generates random rows of combinations for the code matrix
     function generateCombination() {
         const possibleCombinations = ["E9", "55", "BD", "1C", "7A", "FF"]
         const combination: string[] = []
@@ -41,6 +42,7 @@ export default function CodeMatrix(props: Props) {
         return combination
     }
 
+    // Pushes the generates rows into the code matrix
     function generateCodeMatrix() {
         let localCombinationBoard = []
         for (let i = 0; i < props.matrixSize; i++) {
@@ -51,6 +53,7 @@ export default function CodeMatrix(props: Props) {
         return localCombinationBoard
     }
 
+    // Generates the solution string based on the code matrix
     function generateSolutionString(localCombinationBoard:string[][]) {
         const solutionStringLength = 7
         const solutionStringCoords: number[][] = []
@@ -106,11 +109,10 @@ export default function CodeMatrix(props: Props) {
         // Sets solutionString with the local generated string
         props.setSolutionStringArray(localSolutionString)
 
-        // console.log(localCombinationBoard)
         setCombinationBoard(localCombinationBoard)
-        console.log(localSolutionString)
     }
 
+    // Handles when a cell in the code matrix is clicked
     function clickCell(val: string, rowIndex:number, colIndex:number) {
         if (props.userSelect.length != props.bufferSize) {
             props.setUserSelect((prevSelection) => [...prevSelection, val])
@@ -120,17 +122,20 @@ export default function CodeMatrix(props: Props) {
         }
     }
 
+    // Handles the hover event for the cells
     function onHover(colIndex:number, val:string) {
         setSelection(colIndex)
         props.setMatrixHover(val)
     }
 
+    // Resets the state after the hover event
     function stopHover() {
         setSelection(-1)
         props.setCombinationHover("")
         props.setMatrixHover("")
     }
 
+    // Maps through the board and each row to display the code matrix
     function DisplayCodeMatrix() {
         return (
             <>
@@ -139,7 +144,6 @@ export default function CodeMatrix(props: Props) {
                         {row.map((val, colIndex) => (
                             <td
                                 key={colIndex}
-                                // className={`p-4 select-none text-cyber-lightgreen ${colIndex === selection ? 'bg-[#1F2019]' : ''} hover:inner-border-2 inner-border-cyber-blue`}
                                 className={`p-3 select-none text-cyber-lightgreen 
                                     ${colIndex === selection ? 'bg-[#1F2019]' : ''} 
                                     hover:double-border hover:text-cyber-blue hoverGlow text-xl 
@@ -164,7 +168,6 @@ export default function CodeMatrix(props: Props) {
                     <DisplayCodeMatrix />
                 </tbody>
             </table>
-            {/* <span onClick={() => generateSolutionString()}>Generate Solution String</span> */}
         </div>
     )
 }

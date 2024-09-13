@@ -4,6 +4,7 @@ interface Props {
     bufferSize: number
 }
 
+// Display and load the empty buffer squares once user clicks
 function displayBuffer(bufferSize: number, userSelect: string[]) {
     let elements = []
     for (let i = 0; i < bufferSize; i++) {
@@ -13,7 +14,6 @@ function displayBuffer(bufferSize: number, userSelect: string[]) {
             </div>
         )
     }
-
     return elements
 }
 
