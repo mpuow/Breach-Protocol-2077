@@ -6,6 +6,8 @@ interface Props {
     combinationHover: string
     setCombinationHover: React.Dispatch<React.SetStateAction<string>>
     matrixHover: string
+    userSelect: string[]
+    currentSequenceIndex: number
 }
 
 // Fisher-Yates Shuffle
@@ -54,12 +56,10 @@ export default function Sequences(props: Props) {
                 splitSolutionStringArray(split3)
             }
         }
-
     
         // Recursion to prevent 2 identical combinations. Eg: ['FF', 'FF'] and ['FF', 'FF']
         if (JSON.stringify(split1) === JSON.stringify(split2) && split1.length > 2 ) {
             splitSolutionStringArray(solutionStringArray)
-            console.log(JSON.stringify(split1))
         }
     
         // Push results to finalSequenceArray
@@ -71,9 +71,9 @@ export default function Sequences(props: Props) {
     // Display the contents of the sequence section
     function DisplaySequences() {
         return (
-            <table className="w-full mb-8">
+            <table className="w-full mb-8" onMouseLeave={() => props.setCombinationHover("")}>
                 <tbody className="select-none">
-                    <tr className="text-xl">
+                    <tr className={`text-xl`}>{/* ${JSON.stringify(props.userSelect).includes("FF")  ? "bg-white" : ""} */}
                         <td className="w-1/2 pl-4 text-white">
                             {cachedFinalSequenceArray.map((row, rowIndex) => (
                                 <span key={rowIndex} className="flex flex-row mb-2 space-x-2">
@@ -81,7 +81,9 @@ export default function Sequences(props: Props) {
                                         <span
                                             key={colIndex}
                                             className={`hover:text-cyber-blue hover:inner-border-2 inner-border-cyber-blue p-2 w-10 h-auto flex items-center justify-center 
-                                            ${val == props.combinationHover || val === props.matrixHover && colIndex === 0 ? "inner-border-2 inner-border-cyber-blue text-cyber-blue" : ""}`}
+                                            ${val === props.matrixHover && colIndex === props.currentSequenceIndex ? "inner-border-2 inner-border-cyber-blue text-cyber-blue" : ""}
+                                            ${val === props.userSelect[colIndex] ? "inner-border-2 inner-border-cyber-lightgreen text-cyber-lightgreen" : ""}
+                                            ${colIndex === props.currentSequenceIndex ? "bg-cyber-purple" : ""}`}
                                             onMouseEnter={() => props.setCombinationHover(val)}
                                             onMouseLeave={() => props.setCombinationHover("")}>
                                             {val}

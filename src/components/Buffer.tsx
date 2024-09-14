@@ -1,20 +1,21 @@
+import "./Buffer.css"
 
 interface Props {
-    userSelect: string[];
+    userSelect: string[]
     bufferSize: number
     matrixHover: string
 }
 
-// Display and load the empty buffer squares once user clicks
+// Display and load the empty buffer squares, change on hover or click
 function displayBuffer(bufferSize: number, userSelect: string[], matrixHover:string) {
 
     let elements = []
     for (let i = 0; i < bufferSize; i++) {
         elements.push(
-            <div key={i} className={`border-2 h-8 min-w-8 flex items-center justify-center border-opacity-30 
-                ${userSelect[i] !== undefined ? "border-cyber-green border-solid border-opacity-100 text-cyber-green" 
-                : userSelect.length === i && matrixHover ? "border-cyber-blue border-solid border-opacity-100 text-cyber-blue" 
-                : "border-cyber-lightgreen border-dashed"}`}>
+            <div key={i} className={`border-2 h-8 min-w-8 flex items-center justify-center 
+                ${userSelect[i] !== undefined ? "border-cyber-lightgreen border-solid border-opacity-100 text-cyber-lightgreen" 
+                : userSelect.length === i && matrixHover ? "border-cyber-blue border-solid border-opacity-100 text-cyber-blue underline-animation" 
+                : "border-cyber-lightgreen border-dashed border-opacity-30"}`}>
                 <span>{userSelect[i] !== undefined ? userSelect[i] : userSelect.length === i ? matrixHover : ""}</span>
             </div>
         )

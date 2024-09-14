@@ -11,6 +11,8 @@ interface Props {
     combinationHover: string
     setCombinationHover: React.Dispatch<React.SetStateAction<string>>
     setMatrixHover: React.Dispatch<React.SetStateAction<string>>
+    currentSequenceIndex: number
+    setCurrentSequenceIndex: React.Dispatch<React.SetStateAction<number>>
 }
 
 // Generates a random number
@@ -116,9 +118,13 @@ export default function CodeMatrix(props: Props) {
     function clickCell(val: string) {
         if (props.userSelect.length != props.bufferSize) {
             props.setUserSelect((prevSelection) => [...prevSelection, val])
+            console.log("clicked")
         } else {
             console.log("out of buffer")
         }
+
+        let setVariable = props.currentSequenceIndex + 1
+        props.setCurrentSequenceIndex(setVariable)
     }
 
     // Handles the hover event for the cells
@@ -143,10 +149,10 @@ export default function CodeMatrix(props: Props) {
                         {row.map((val, colIndex) => (
                             <td
                                 key={colIndex}
-                                className={`p-3 select-none text-cyber-lightgreen text-center
+                                className={`size-12 select-none text-cyber-lightgreen text-center
                                     ${colIndex === selection ? 'bg-[#1F2019]' : ''} 
                                     hover:double-border hover:text-cyber-blue hoverGlow text-xl 
-                                    ${val == props.combinationHover ? "inner-border-2 inner-border-cyber-lightgreen" : ""}`}
+                                    ${val == props.combinationHover ? "inner-cell" : ""}`}
                                 onClick={() => clickCell(val)}
                                 onMouseEnter={() => onHover(colIndex, val)}
                                 onMouseLeave={() => stopHover()}>
