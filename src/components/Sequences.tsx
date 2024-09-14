@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { randomNumber } from "./CodeMatrix"
 
 interface Props {
@@ -7,6 +7,7 @@ interface Props {
     setCombinationHover: React.Dispatch<React.SetStateAction<string>>
     matrixHover: string
     userSelect: string[]
+    setUserSelect: React.Dispatch<React.SetStateAction<string[]>>
     currentSequenceIndex: number
 }
 
@@ -26,6 +27,47 @@ export default function Sequences(props: Props) {
 
     // useMemo prevents the sequence from being rewritten every render
     const cachedFinalSequenceArray = useMemo(() => splitSolutionStringArray(props.solutionStringArray), [props.solutionStringArray])
+
+    /*
+        Check answer algorithm works by:
+            1. Converting the buffer array and sequence row array to strings
+            2. Inverting the strings
+            3. Checking if the buffer starts with a valid sequence
+
+        This allows dead inputs into the buffer before the sequence for tactical play
+        Eg: ['7A', 'E9', '1C']  -> C1,9E,A7
+            ['E9', '1C']        -> C1,9E
+            = True
+
+    */
+    function checkUserAnswer(cachedFinalSequenceArray:string[][], userSelect:string[]) {
+
+        function bufferContainsSequence(sequence:string[], buffer:string[]) {
+            // Turn arrays into strings
+            const sequenceString = sequence.join()
+            const bufferString = buffer.join()
+        
+            // Reverse the strings
+            const reverseSequenceString = sequenceString.split('').reverse().join('')
+            const reverseBufferString = bufferString.split('').reverse().join('')
+    
+            // Return true if the user has selected a valid sequence
+            return reverseBufferString.startsWith(reverseSequenceString)
+        }
+    
+        // Loop through and check each row
+        for (let i = 0; i < cachedFinalSequenceArray.length; i++) {
+            if (bufferContainsSequence(cachedFinalSequenceArray[i], userSelect) && userSelect.length > 1) {
+                console.log("TRUE : " + i)
+            }
+        }
+    
+    }
+    
+    useEffect(() => {
+        checkUserAnswer(cachedFinalSequenceArray, props.userSelect)
+
+    }, [props.userSelect])
 
     // Splits the solution string into 3 parts
     function splitSolutionStringArray(solutionStringArray:string[]) {
@@ -82,7 +124,7 @@ export default function Sequences(props: Props) {
                                             key={colIndex}
                                             className={`hover:text-cyber-blue hover:inner-border-2 inner-border-cyber-blue p-2 w-10 h-auto flex items-center justify-center 
                                             ${val === props.matrixHover && colIndex === props.currentSequenceIndex ? "inner-border-2 inner-border-cyber-blue text-cyber-blue" : ""}
-                                            ${val === props.userSelect[colIndex] ? "inner-border-2 inner-border-cyber-lightgreen text-cyber-lightgreen" : ""}
+                                            ${val === props.userSelect[colIndex] ? "inner-border-2 inner-border-cyber-lightgreen text-cyber-lightgreen hover:text-cyber-lightgreen" : ""}
                                             ${colIndex === props.currentSequenceIndex ? "bg-cyber-purple" : ""}`}
                                             onMouseEnter={() => props.setCombinationHover(val)}
                                             onMouseLeave={() => props.setCombinationHover("")}>

@@ -56,6 +56,7 @@ function App() {
                     setCombinationHover={setCombinationHover} 
                     matrixHover={matrixHover}
                     userSelect={userSelect}
+                    setUserSelect={setUserSelect}
                     currentSequenceIndex={currentSequenceIndex} />
                 </div>
             </div>

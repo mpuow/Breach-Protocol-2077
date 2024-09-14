@@ -118,7 +118,6 @@ export default function CodeMatrix(props: Props) {
     function clickCell(val: string) {
         if (props.userSelect.length != props.bufferSize) {
             props.setUserSelect((prevSelection) => [...prevSelection, val])
-            console.log("clicked")
         } else {
             console.log("out of buffer")
         }
