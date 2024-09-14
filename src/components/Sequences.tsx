@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { randomNumber } from "./CodeMatrix"
 
 interface Props {
@@ -25,8 +25,9 @@ function shuffleArray(array:number[]) {
 
 export default function Sequences(props: Props) {
 
-    // useMemo prevents the sequence from being rewritten every render
+    // useMemo prevents the sequence array from being rewritten every render
     const cachedFinalSequenceArray = useMemo(() => splitSolutionStringArray(props.solutionStringArray), [props.solutionStringArray])
+    const [rowComplete, setRowComplete] = useState([-1,-1,-1])
 
     /*
         Check answer algorithm works by:
@@ -59,9 +60,22 @@ export default function Sequences(props: Props) {
         for (let i = 0; i < cachedFinalSequenceArray.length; i++) {
             if (bufferContainsSequence(cachedFinalSequenceArray[i], userSelect) && userSelect.length > 1) {
                 console.log("TRUE : " + i)
+
+                // Set with the row that has been completed
+                let newRowComplete = [...rowComplete]
+                newRowComplete[i] = i
+                setRowComplete(newRowComplete)
+
+                // Check if all rows are complete using local array to avoid render delay issues
+                checkGameWin(newRowComplete)
             }
         }
-    
+    }
+
+    function checkGameWin(newRowComplete:number[]) {
+        if(JSON.stringify(newRowComplete) === "[0,1,2]") {
+            alert("You have won the game")
+        }
     }
     
     useEffect(() => {
@@ -135,18 +149,12 @@ export default function Sequences(props: Props) {
                             ))}
                         </td>
                         <td className="text-lg">
-                            <ul>
-                                <li>DATAMINE_V1</li>
-                                <li className="text-cyber-green text-base">Flavour text</li>
-                            </ul>
-                            <ul>
-                                <li>DATAMINE_V2</li>
-                                <li className="text-cyber-green text-base">Flavour text</li>
-                            </ul>
-                            <ul>
-                                <li>DATAMINE_V3</li>
-                                <li className="text-cyber-green text-base">Flavour text</li>
-                            </ul>
+                            {cachedFinalSequenceArray.map((_row, rowIndex) => (
+                                <ul key={rowIndex}>
+                                    <li>DATAMINE_V{rowIndex + 1}</li>
+                                    <li className={`text-cyber-green text-base ${rowIndex === rowComplete[rowIndex] ? "bg-cyber-blue" : ""}`}>Flavour text</li>
+                                </ul>
+                            ))}
                         </td>
                     </tr>
                 </tbody>

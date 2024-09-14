@@ -116,10 +116,12 @@ export default function CodeMatrix(props: Props) {
 
     // Handles when a cell in the code matrix is clicked
     function clickCell(val: string) {
-        if (props.userSelect.length != props.bufferSize) {
+        if (props.userSelect.length + 1 != props.bufferSize) {
             props.setUserSelect((prevSelection) => [...prevSelection, val])
         } else {
-            console.log("out of buffer")
+            // console.log("out of buffer")
+            props.setUserSelect((prevSelection) => [...prevSelection, val])
+            // alert("Out of buffer. Lose game")
         }
 
         let setVariable = props.currentSequenceIndex + 1
