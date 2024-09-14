@@ -54,10 +54,12 @@ export default function Sequences(props: Props) {
                 splitSolutionStringArray(split3)
             }
         }
+
     
         // Recursion to prevent 2 identical combinations. Eg: ['FF', 'FF'] and ['FF', 'FF']
-        if (split1 === split2) {
+        if (JSON.stringify(split1) === JSON.stringify(split2) && split1.length > 2 ) {
             splitSolutionStringArray(solutionStringArray)
+            console.log(JSON.stringify(split1))
         }
     
         // Push results to finalSequenceArray
@@ -79,7 +81,7 @@ export default function Sequences(props: Props) {
                                         <span
                                             key={colIndex}
                                             className={`hover:text-cyber-blue hover:inner-border-2 inner-border-cyber-blue p-2 w-10 h-auto flex items-center justify-center 
-                                        ${val == props.combinationHover || val === props.matrixHover ? "inner-border-2 inner-border-cyber-blue text-cyber-blue" : ""}`}
+                                            ${val == props.combinationHover || val === props.matrixHover && colIndex === 0 ? "inner-border-2 inner-border-cyber-blue text-cyber-blue" : ""}`}
                                             onMouseEnter={() => props.setCombinationHover(val)}
                                             onMouseLeave={() => props.setCombinationHover("")}>
                                             {val}

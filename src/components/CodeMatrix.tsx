@@ -113,10 +113,9 @@ export default function CodeMatrix(props: Props) {
     }
 
     // Handles when a cell in the code matrix is clicked
-    function clickCell(val: string, rowIndex:number, colIndex:number) {
+    function clickCell(val: string) {
         if (props.userSelect.length != props.bufferSize) {
             props.setUserSelect((prevSelection) => [...prevSelection, val])
-            console.log("Row key: " + rowIndex + "     Col Key: " + colIndex)
         } else {
             console.log("out of buffer")
         }
@@ -144,11 +143,11 @@ export default function CodeMatrix(props: Props) {
                         {row.map((val, colIndex) => (
                             <td
                                 key={colIndex}
-                                className={`p-3 select-none text-cyber-lightgreen 
+                                className={`p-3 select-none text-cyber-lightgreen text-center
                                     ${colIndex === selection ? 'bg-[#1F2019]' : ''} 
                                     hover:double-border hover:text-cyber-blue hoverGlow text-xl 
                                     ${val == props.combinationHover ? "inner-border-2 inner-border-cyber-lightgreen" : ""}`}
-                                onClick={() => clickCell(val, rowIndex, colIndex)}
+                                onClick={() => clickCell(val)}
                                 onMouseEnter={() => onHover(colIndex, val)}
                                 onMouseLeave={() => stopHover()}>
                                 {val}
