@@ -6,12 +6,12 @@ import BreachTime from "./components/BreachTime"
 
 function App() {
     const [userSelect, setUserSelect] = useState<string[]>([])
-    const [bufferSize, _setBufferSize] = useState(8)
-    const [matrixSize, _setMatrixSize] = useState(6)
+    const [bufferSize, _setBufferSize] = useState<number>(8)
+    const [matrixSize, _setMatrixSize] = useState<number>(6)
     const [solutionStringArray, setSolutionStringArray] = useState<string[]>([])
     const [combinationHover, setCombinationHover] = useState<string>("")
     const [matrixHover, setMatrixHover] = useState<string>("")
-    const [currentSequenceIndex, setCurrentSequenceIndex] = useState(0)
+    const [currentSequenceIndex, setCurrentSequenceIndex] = useState<number>(0)
 
     return (
         <>
@@ -57,7 +57,8 @@ function App() {
                     matrixHover={matrixHover}
                     userSelect={userSelect}
                     setUserSelect={setUserSelect}
-                    currentSequenceIndex={currentSequenceIndex} />
+                    currentSequenceIndex={currentSequenceIndex}
+                    bufferSize={bufferSize} />
                 </div>
             </div>
 

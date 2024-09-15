@@ -9,6 +9,7 @@ interface Props {
     userSelect: string[]
     setUserSelect: React.Dispatch<React.SetStateAction<string[]>>
     currentSequenceIndex: number
+    bufferSize: number
 }
 
 // Fisher-Yates Shuffle
@@ -27,7 +28,9 @@ export default function Sequences(props: Props) {
 
     // useMemo prevents the sequence array from being rewritten every render
     const cachedFinalSequenceArray = useMemo(() => splitSolutionStringArray(props.solutionStringArray), [props.solutionStringArray])
-    const [rowComplete, setRowComplete] = useState([-1,-1,-1])
+
+    // Valid status: atstart, inprogress, completed, failed
+    const [rowStatus, setRowStatus] = useState(["atstart", "atstart", "atstart"])
 
     /*
         Check answer algorithm works by:
@@ -39,14 +42,22 @@ export default function Sequences(props: Props) {
         Eg: ['7A', 'E9', '1C']  -> C1,9E,A7
             ['E9', '1C']        -> C1,9E
             = True
-
     */
     function checkUserAnswer(cachedFinalSequenceArray:string[][], userSelect:string[]) {
 
-        function bufferContainsSequence(sequence:string[], buffer:string[]) {
+        function bufferContainsSequence(sequence:string[], buffer:string[], progressCheckIndex:number) {
+
             // Turn arrays into strings
             const sequenceString = sequence.join()
-            const bufferString = buffer.join()
+            let bufferString = ""
+            
+            // Checking for completion or progress 
+            if (progressCheckIndex > -1) {
+                bufferString = buffer[progressCheckIndex]
+                return sequenceString.startsWith(bufferString)
+            } else {
+                bufferString = buffer.join()
+            }
         
             // Reverse the strings
             const reverseSequenceString = sequenceString.split('').reverse().join('')
@@ -55,29 +66,64 @@ export default function Sequences(props: Props) {
             // Return true if the user has selected a valid sequence
             return reverseBufferString.startsWith(reverseSequenceString)
         }
-    
+
+        // Declare tempStatus outside of the loop to avoid rewriting on subsequent loops
+        let tempStatus = [...rowStatus]
+
         // Loop through and check each row
         for (let i = 0; i < cachedFinalSequenceArray.length; i++) {
-            if (bufferContainsSequence(cachedFinalSequenceArray[i], userSelect) && userSelect.length > 1) {
-                console.log("TRUE : " + i)
+
+            // Skip unnecessary loop iterations
+            if (tempStatus[i] === "completed") {
+                // Check if all rows are complete using local array to avoid render delay issues
+                checkGameWin(tempStatus)
+                continue
+            }
+            
+            // To set if row is in progress
+            if (bufferContainsSequence(cachedFinalSequenceArray[i], userSelect, userSelect.length - 1) && userSelect.length > 0) {
+                tempStatus[i] = "inprogress"
+            }
+
+            // To set if row is completed
+            if (bufferContainsSequence(cachedFinalSequenceArray[i], userSelect, -1) && userSelect.length > 1) {
 
                 // Set with the row that has been completed
-                let newRowComplete = [...rowComplete]
-                newRowComplete[i] = i
-                setRowComplete(newRowComplete)
+                if (tempStatus[i] === "inprogress") {
+                    tempStatus[i] = "completed"
+                }
 
-                // Check if all rows are complete using local array to avoid render delay issues
-                checkGameWin(newRowComplete)
+                // Check immediately in case of finishing a sequence with the last user select
+                checkGameWin(tempStatus)
+            }
+
+            // To set if row has failed
+            if (props.bufferSize - props.userSelect.length  === cachedFinalSequenceArray[i].length - 1) {
+
+                // Check if last select was valid before failing the row
+                if (!bufferContainsSequence(cachedFinalSequenceArray[i], userSelect, userSelect.length - 1) && userSelect.length > 0) {
+                    tempStatus[i] = "failed"
+                }
             }
         }
+        // Set the state outside the loop to avoid re-render issues
+        setRowStatus(tempStatus)
     }
 
-    function checkGameWin(newRowComplete:number[]) {
-        if(JSON.stringify(newRowComplete) === "[0,1,2]") {
-            alert("You have won the game")
+    // Check if player has solved the puzzle and to what degree
+    function checkGameWin(rowStatus:string[]) {
+        // Check if all sequences have been completed
+        if(JSON.stringify(rowStatus) === `["completed","completed","completed"]`) {
+            alert("ALL sequences have been completed!")
         }
+        // Check if any rows have been completed
+        if(JSON.stringify(rowStatus).includes("completed") && props.bufferSize === props.userSelect.length) {
+            alert("You have completed some sequences.")
+        }
+
     }
     
+    // Check answers after every user select
     useEffect(() => {
         checkUserAnswer(cachedFinalSequenceArray, props.userSelect)
 
@@ -112,10 +158,14 @@ export default function Sequences(props: Props) {
                 splitSolutionStringArray(split3)
             }
         }
-    
+        
         // Recursion to prevent 2 identical combinations. Eg: ['FF', 'FF'] and ['FF', 'FF']
-        if (JSON.stringify(split1) === JSON.stringify(split2) && split1.length > 2 ) {
-            splitSolutionStringArray(solutionStringArray)
+        if (split1.length > 2) {
+            split1.map((val, index) => {
+                if (val !== split2[index]) {
+                    splitSolutionStringArray(solutionStringArray)
+                }
+            })
         }
     
         // Push results to finalSequenceArray
@@ -150,9 +200,13 @@ export default function Sequences(props: Props) {
                         </td>
                         <td className="text-lg">
                             {cachedFinalSequenceArray.map((_row, rowIndex) => (
-                                <ul key={rowIndex}>
+                                <ul key={rowIndex} className={`text-base 
+                                ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
+                                : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60" 
+                                : rowStatus[rowIndex] === "inprogress" ? "bg-cyber-yellow text-black text-opacity-60" 
+                                : ""}`}>
                                     <li>DATAMINE_V{rowIndex + 1}</li>
-                                    <li className={`text-cyber-green text-base ${rowIndex === rowComplete[rowIndex] ? "bg-cyber-blue" : ""}`}>Flavour text</li>
+                                    <li className={`text-base ${rowStatus[rowIndex] === "completed" ? "" : rowStatus[rowIndex] === "failed" ? "" : rowStatus[rowIndex] === "inprogress" ? "" : "text-cyber-green"}`}>Flavour text</li>
                                 </ul>
                             ))}
                         </td>

@@ -14,6 +14,9 @@ export default {
         "cyber-green" : "#CEEC58",
         "cyber-lightgreen" : "#D8DF97", // #C8D1A6 cyber-lightgreen old
         "cyber-purple" : "#1A182A",
+        "cyber-red" : "#FF5750",
+        "cyber-yellow" : "#FCEE0A",
+        "cyber-success" : "#1BD576",
       },
     },
   },

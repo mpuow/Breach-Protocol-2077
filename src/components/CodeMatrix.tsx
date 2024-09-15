@@ -150,7 +150,7 @@ export default function CodeMatrix(props: Props) {
                         {row.map((val, colIndex) => (
                             <td
                                 key={colIndex}
-                                className={`size-12 select-none text-cyber-lightgreen text-center
+                                className={`size-12 p-2 select-none text-cyber-lightgreen text-center
                                     ${colIndex === selection ? 'bg-[#1F2019]' : ''} 
                                     hover:double-border hover:text-cyber-blue hoverGlow text-xl 
                                     ${val == props.combinationHover ? "inner-cell" : ""}`}
