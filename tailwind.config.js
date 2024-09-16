@@ -33,7 +33,7 @@ export default {
             right: '0px',
             bottom: '0px',
             left: '0px',
-            border: '4px double #89E5E6', // Adjust border width, style, and color
+            border: '4px double #89E5E6',
           },
         },
       });
@@ -49,8 +49,43 @@ export default {
             right: '2px',
             bottom: '2px',
             left: '2px',
-            border: '2px double #D8DF97', // Adjust border width, style, and color
+            border: '2px double #D8DF97',
           },
+        },
+      });
+    }),
+    plugin(function({ addComponents }) {
+      addComponents({
+        '.inner-sequence': {
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: '8px',
+            right: '8px',
+            bottom: '8px',
+            left: '8px',
+            border: '2px double #89E5E6',
+          },
+        },
+      });
+    }),
+    plugin(function({ addComponents }) {
+      addComponents({
+        '.inner-sequence-selected': {
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: '8px',
+            right: '8px',
+            bottom: '8px',
+            left: '8px',
+            border: '2px double #D8DF97',
+          },
+          '&:hover:before': {
+            border: '2px double #D8DF97'
+          }
         },
       });
     }),

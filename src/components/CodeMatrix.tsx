@@ -11,8 +11,6 @@ interface Props {
     combinationHover: string
     setCombinationHover: React.Dispatch<React.SetStateAction<string>>
     setMatrixHover: React.Dispatch<React.SetStateAction<string>>
-    currentSequenceIndex: number
-    setCurrentSequenceIndex: React.Dispatch<React.SetStateAction<number>>
 }
 
 // Generates a random number
@@ -121,11 +119,7 @@ export default function CodeMatrix(props: Props) {
         } else {
             // console.log("out of buffer")
             props.setUserSelect((prevSelection) => [...prevSelection, val])
-            // alert("Out of buffer. Lose game")
         }
-
-        let setVariable = props.currentSequenceIndex + 1
-        props.setCurrentSequenceIndex(setVariable)
     }
 
     // Handles the hover event for the cells

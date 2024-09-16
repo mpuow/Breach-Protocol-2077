@@ -11,7 +11,6 @@ function App() {
     const [solutionStringArray, setSolutionStringArray] = useState<string[]>([])
     const [combinationHover, setCombinationHover] = useState<string>("")
     const [matrixHover, setMatrixHover] = useState<string>("")
-    const [currentSequenceIndex, setCurrentSequenceIndex] = useState<number>(0)
 
     return (
         <>
@@ -45,9 +44,7 @@ function App() {
                         matrixSize={matrixSize}
                         combinationHover={combinationHover}
                         setCombinationHover={setCombinationHover} 
-                        setMatrixHover={setMatrixHover}
-                        currentSequenceIndex={currentSequenceIndex}
-                        setCurrentSequenceIndex={setCurrentSequenceIndex} />
+                        setMatrixHover={setMatrixHover} />
                 </div>
                 <div className="w-2/3 mx-5">
                     <Sequences 
@@ -57,7 +54,6 @@ function App() {
                     matrixHover={matrixHover}
                     userSelect={userSelect}
                     setUserSelect={setUserSelect}
-                    currentSequenceIndex={currentSequenceIndex}
                     bufferSize={bufferSize} />
                 </div>
             </div>

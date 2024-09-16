@@ -8,7 +8,6 @@ interface Props {
 
 // Display and load the empty buffer squares, change on hover or click
 function displayBuffer(bufferSize: number, userSelect: string[], matrixHover:string) {
-
     let elements = []
     for (let i = 0; i < bufferSize; i++) {
         elements.push(

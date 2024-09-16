@@ -8,7 +8,6 @@ interface Props {
     matrixHover: string
     userSelect: string[]
     setUserSelect: React.Dispatch<React.SetStateAction<string[]>>
-    currentSequenceIndex: number
     bufferSize: number
 }
 
@@ -32,6 +31,8 @@ export default function Sequences(props: Props) {
     // Valid status: atstart, inprogress, completed, failed
     const [rowStatus, setRowStatus] = useState(["atstart", "atstart", "atstart"])
     const [sequenceIndex, setSequenceIndex] = useState([0,0,0])
+    const [spaceIndex, setSpaceIndex] = useState([0,0,0])
+    const [lineIndex, setLineIndex] = useState<number[]>([0,0,0])
 
     function checkUserAnswer(sequences:string[][], userSelect:string[]) {
         /*
@@ -68,30 +69,32 @@ export default function Sequences(props: Props) {
             return reverseBufferString.startsWith(reverseSequenceString)
         }
 
-        // Declare tempStatus outside of the loop to avoid rewriting on subsequent loops
+        // Declare outside of the loop to avoid rewriting on subsequent loops
         let tempStatus = [...rowStatus]
         let tempSequenceIndex = [... sequenceIndex]
+        let bufferRemaining = props.bufferSize - userSelect.length
 
         // Loop through and check each row
         for (let i = 0; i < sequences.length; i++) {
 
             // Skip unnecessary loop iterations
             if (tempStatus[i] === "completed" || tempStatus[i] === "failed") {
-                // Check if all rows are complete using local array to avoid render delay issues
+                // Check if all rows are complete
                 checkGameWin(tempStatus)
                 continue
             }
 
-            // Check if inprogress or to set inprogress
+            // Check if inprogress or set inprogress
             if (tempStatus[i] === "inprogress") {
                 // Increase row index to check if row is still inprogress
                 tempSequenceIndex[i] = tempSequenceIndex[i] + 1
 
+                checkInProgress(tempStatus)
+
                 // If the last user entry is not equal to the next combination in the sequence
                 if (userSelect[userSelect.length - 1] !== sequences[i][tempSequenceIndex[i]]) {
-                    // Check if there is space left in the buffer
-                    if (props.bufferSize - userSelect.length <= sequences[i].length - 1) {
-                        // Set row failed
+                    // Check if there is no space left in the buffer
+                    if (bufferRemaining <= sequences[i].length - 1) {
                         tempStatus[i] = "failed"
                     } else {
                         // Reset row and row index
@@ -102,8 +105,8 @@ export default function Sequences(props: Props) {
             } else {
                 // Check if last entry into buffer is start of a sequence
                 if (bufferContainsSequence(sequences[i], userSelect, userSelect.length - 1) && userSelect.length > 0) {
-                    // Set to inprogress
                     tempStatus[i] = "inprogress"
+                    checkInProgress(tempStatus)
                 }
             }
 
@@ -117,10 +120,13 @@ export default function Sequences(props: Props) {
 
                 // Check immediately in case of finishing a sequence with the last user select
                 checkGameWin(tempStatus)
+
+                // Skip the last part of failure checking
+                continue
             }
 
             // Set row to failed if not inprogress and not enough buffer
-            if (props.bufferSize - userSelect.length < sequences[i].length && tempStatus[i] !== "inprogress") {
+            if (bufferRemaining < sequences[i].length && tempStatus[i] === "atstart") {
                 tempStatus[i] = "failed"
             }
 
@@ -128,6 +134,26 @@ export default function Sequences(props: Props) {
         // Set the state outside the loop to avoid re-render issues
         setRowStatus(tempStatus)
         setSequenceIndex(tempSequenceIndex)
+
+    }
+
+    function checkInProgress(rowStatus: string[]) {
+        let tempSpaceIndex = [...spaceIndex]
+        let tempLineIndex = [...lineIndex]
+
+        rowStatus.map((val, index) => {
+            if (val !== "completed" && val !== "failed") {
+                if (val === "inprogress") {
+                    console.log(index)
+                    tempLineIndex[index] = tempLineIndex[index] + 1
+                } else {
+                    tempSpaceIndex[index] = tempSpaceIndex[index] + 1
+                }
+            }
+        })
+
+        setLineIndex(tempLineIndex)
+        setSpaceIndex(tempSpaceIndex)
     }
 
     // Check if player has solved the puzzle and to what degree
@@ -144,7 +170,7 @@ export default function Sequences(props: Props) {
         // if(JSON.stringify(rowStatus) === `["failed","failed","failed"]`) {
         //     alert("All sequences have failed!")
         // }
-        console.log("check game win" + rowStatus)
+        console.log(rowStatus)
     }
     
     // Check answers after every user select
@@ -166,30 +192,51 @@ export default function Sequences(props: Props) {
         let split1 = (split3.splice(0, posibleIndexVariations[0]))
         let split2 = (split3.splice(0, posibleIndexVariations[1]))
     
-        // Recursion to prevent 3 of the same combination. Eg: ['FF', 'FF', 'FF']
-        if (split1.length > 2) {
-            if (split1[0] === split1[1] && split1[1] === split1[2]) {
-                splitSolutionStringArray(split3)
-            }
-            [split1, split3] = [split3, split1]
-        } else if (split2.length > 2) {
-            if (split2[0] === split2[1] && split2[1] === split2[2]) {
-                splitSolutionStringArray(split3)
-            }
-            [split2, split3] = [split3, split2]
-        } else if (split3.length > 2) {
-            if (split3[0] === split3[1] && split3[1] === split3[2]) {
-                splitSolutionStringArray(split3)
-            }
-        }
+
         
-        // Recursion to prevent 2 identical combinations. Eg: ['FF', 'FF'] and ['FF', 'FF']
+        // // Recursion to prevent 3 of the same combination. Eg: ['FF', 'FF', 'FF']
+        // if (split1.length > 2) {
+        //     if (split1[0] === split1[1] && split1[1] === split1[2]) {
+        //         splitSolutionStringArray(split3)
+        //     }
+        //     [split1, split3] = [split3, split1]
+        // } else if (split2.length > 2) {
+        //     if (split2[0] === split2[1] && split2[1] === split2[2]) {
+        //         splitSolutionStringArray(split3)
+        //     }
+        //     [split2, split3] = [split3, split2]
+        // } else if (split3.length > 2) {
+        //     if (split3[0] === split3[1] && split3[1] === split3[2]) {
+        //         splitSolutionStringArray(split3)
+        //     }
+        // }
+        
+        // // Recursion to prevent 2 identical combinations. Eg: ['FF', 'FF'] and ['FF', 'FF']
+        // if (split1.length > 2) {
+        //     split1.map((val, index) => {
+        //         if (val !== split2[index]) {
+        //             splitSolutionStringArray(solutionStringArray)
+        //         }
+        //     })
+        // }
+
+        /* BETTER VERSION of above */
         if (split1.length > 2) {
+            // Shuffle around sequences
+            [split1, split3] = [split3, split1];
+            [split2, split3] = [split3, split2];
+            
+            // Recursion to prevent 2 identical combinations. Eg: ['FF', 'FF'] and ['FF', 'FF']
             split1.map((val, index) => {
                 if (val !== split2[index]) {
                     splitSolutionStringArray(solutionStringArray)
                 }
             })
+
+            // Recursion to prevent 3 of the same combination. Eg: ['FF', 'FF', 'FF']
+            if (split3[0] === split3[1] && split3[1] === split3[2]) {
+                splitSolutionStringArray(solutionStringArray)
+            }
         }
     
         // Push results to finalSequenceArray
@@ -198,28 +245,49 @@ export default function Sequences(props: Props) {
         return(finalSequenceArray)
     }
 
+    // Load and display invis spans to push certain sequences to stay in the select line
+    function displayInvisSequence(lineIndex:number) {
+        let elements = []
+        for (let i = 0; i < lineIndex; i++) {
+            elements.push(
+                <span key={i} className="size-12 p-2 flex items-center justify-center text-xl"></span>
+            )
+        }
+        return elements
+    } // currentSequenceIndex[colIndex]
+
     // Display the contents of the sequence section
     function DisplaySequences() {
         return (
             <table className="w-full mb-8" onMouseLeave={() => props.setCombinationHover("")}>
                 <tbody className="select-none">
-                    <tr className={`text-xl`}>{/* ${JSON.stringify(props.userSelect).includes("FF")  ? "bg-white" : ""} */}
-                        <td className="w-1/2 pl-4 text-white">
+                    <tr className={`text-xl`}>
+                        <td className="w-2/3 pl-4 text-white">
                             {cachedFinalSequenceArray.map((row, rowIndex) => (
-                                <span key={rowIndex} className="flex flex-row mb-2 space-x-2">
-                                    {row.map((val, colIndex) => (
-                                        <span
-                                            key={colIndex}
-                                            className={`hover:text-cyber-blue hover:inner-border-2 inner-border-cyber-blue p-2 w-10 h-auto flex items-center justify-center 
-                                            ${val === props.matrixHover && colIndex === props.currentSequenceIndex ? "inner-border-2 inner-border-cyber-blue text-cyber-blue" : ""}
-                                            ${val === props.userSelect[colIndex] ? "inner-border-2 inner-border-cyber-lightgreen text-cyber-lightgreen hover:text-cyber-lightgreen" : ""}
-                                            ${colIndex === props.currentSequenceIndex ? "bg-cyber-purple" : ""}`}
-                                            onMouseEnter={() => props.setCombinationHover(val)}
-                                            onMouseLeave={() => props.setCombinationHover("")}>
-                                            {val}
-                                        </span>
-                                    ))}
-                                </span>
+                                <div key={rowIndex + 10} className={`flex flex-row`}>
+                                    {/* ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
+                                    : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60" 
+                                    : ""} */}
+                                    
+                                    <span key={rowIndex + 100} className="flex flex-row">
+                                        {displayInvisSequence(spaceIndex[rowIndex])}
+                                    </span>
+
+                                    <span key={rowIndex} className="flex flex-row">
+                                        {row.map((val, colIndex) => (
+                                            <span
+                                                key={colIndex}
+                                                className={`hover:text-cyber-blue hover:inner-sequence p-2 size-12 flex items-center justify-center 
+                                                ${val === props.matrixHover && colIndex === lineIndex[rowIndex] ? "inner-sequence text-cyber-blue" : ""}
+                                                ${val === props.userSelect[colIndex] ? "inner-sequence-selected text-cyber-lightgreen hover:text-cyber-lightgreen hover:inner-sequence-selected" : ""}
+                                                ${colIndex === lineIndex[rowIndex] ? "bg-cyber-purple" : ""}`}
+                                                onMouseEnter={() => props.setCombinationHover(val)}
+                                                onMouseLeave={() => props.setCombinationHover("")}>
+                                                {val}
+                                            </span>
+                                        ))}
+                                    </span>
+                                </div>
                             ))}
                         </td>
                         <td className="text-lg">
