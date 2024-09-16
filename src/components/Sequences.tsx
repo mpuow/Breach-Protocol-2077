@@ -31,20 +31,20 @@ export default function Sequences(props: Props) {
 
     // Valid status: atstart, inprogress, completed, failed
     const [rowStatus, setRowStatus] = useState(["atstart", "atstart", "atstart"])
+    const [sequenceIndex, setSequenceIndex] = useState([0,0,0])
 
-    /*
-        Check answer algorithm works by:
-            1. Converting the buffer array and sequence row array to strings
-            2. Inverting the strings
-            3. Checking if the buffer starts with a valid sequence
-
-        This allows dead inputs into the buffer before the sequence for tactical play
-        Eg: ['7A', 'E9', '1C']  -> C1,9E,A7
-            ['E9', '1C']        -> C1,9E
-            = True
-    */
-    function checkUserAnswer(cachedFinalSequenceArray:string[][], userSelect:string[]) {
-
+    function checkUserAnswer(sequences:string[][], userSelect:string[]) {
+        /*
+            Buffer-Contains-Sequence algorithm works by:
+                1. Converting the buffer array and sequence row array to strings
+                2. Inverting the strings
+                3. Checking if the buffer starts with a valid sequence
+    
+            This allows dead inputs into the buffer before the sequence for tactical play
+            Eg: ['7A', 'E9', '1C']  -> C1,9E,A7
+                ['E9', '1C']        -> C1,9E
+                = True
+        */
         function bufferContainsSequence(sequence:string[], buffer:string[], progressCheckIndex:number) {
 
             // Turn arrays into strings
@@ -53,6 +53,7 @@ export default function Sequences(props: Props) {
             
             // Checking for completion or progress 
             if (progressCheckIndex > -1) {
+                // Only check the most recent input into buffer
                 bufferString = buffer[progressCheckIndex]
                 return sequenceString.startsWith(bufferString)
             } else {
@@ -69,24 +70,45 @@ export default function Sequences(props: Props) {
 
         // Declare tempStatus outside of the loop to avoid rewriting on subsequent loops
         let tempStatus = [...rowStatus]
+        let tempSequenceIndex = [... sequenceIndex]
 
         // Loop through and check each row
-        for (let i = 0; i < cachedFinalSequenceArray.length; i++) {
+        for (let i = 0; i < sequences.length; i++) {
 
             // Skip unnecessary loop iterations
-            if (tempStatus[i] === "completed") {
+            if (tempStatus[i] === "completed" || tempStatus[i] === "failed") {
                 // Check if all rows are complete using local array to avoid render delay issues
                 checkGameWin(tempStatus)
                 continue
             }
-            
-            // To set if row is in progress
-            if (bufferContainsSequence(cachedFinalSequenceArray[i], userSelect, userSelect.length - 1) && userSelect.length > 0) {
-                tempStatus[i] = "inprogress"
+
+            // Check if inprogress or to set inprogress
+            if (tempStatus[i] === "inprogress") {
+                // Increase row index to check if row is still inprogress
+                tempSequenceIndex[i] = tempSequenceIndex[i] + 1
+
+                // If the last user entry is not equal to the next combination in the sequence
+                if (userSelect[userSelect.length - 1] !== sequences[i][tempSequenceIndex[i]]) {
+                    // Check if there is space left in the buffer
+                    if (props.bufferSize - userSelect.length <= sequences[i].length - 1) {
+                        // Set row failed
+                        tempStatus[i] = "failed"
+                    } else {
+                        // Reset row and row index
+                        tempStatus[i] = "atstart"
+                        tempSequenceIndex[i] = 0
+                    }
+                }
+            } else {
+                // Check if last entry into buffer is start of a sequence
+                if (bufferContainsSequence(sequences[i], userSelect, userSelect.length - 1) && userSelect.length > 0) {
+                    // Set to inprogress
+                    tempStatus[i] = "inprogress"
+                }
             }
 
-            // To set if row is completed
-            if (bufferContainsSequence(cachedFinalSequenceArray[i], userSelect, -1) && userSelect.length > 1) {
+            // Check if buffer contains complete sequence in order
+            if (bufferContainsSequence(sequences[i], userSelect, -1) && userSelect.length > 1) {
 
                 // Set with the row that has been completed
                 if (tempStatus[i] === "inprogress") {
@@ -97,30 +119,32 @@ export default function Sequences(props: Props) {
                 checkGameWin(tempStatus)
             }
 
-            // To set if row has failed
-            if (props.bufferSize - props.userSelect.length  === cachedFinalSequenceArray[i].length - 1) {
-
-                // Check if last select was valid before failing the row
-                if (!bufferContainsSequence(cachedFinalSequenceArray[i], userSelect, userSelect.length - 1) && userSelect.length > 0) {
-                    tempStatus[i] = "failed"
-                }
+            // Set row to failed if not inprogress and not enough buffer
+            if (props.bufferSize - userSelect.length < sequences[i].length && tempStatus[i] !== "inprogress") {
+                tempStatus[i] = "failed"
             }
+
         }
         // Set the state outside the loop to avoid re-render issues
         setRowStatus(tempStatus)
+        setSequenceIndex(tempSequenceIndex)
     }
 
     // Check if player has solved the puzzle and to what degree
     function checkGameWin(rowStatus:string[]) {
-        // Check if all sequences have been completed
-        if(JSON.stringify(rowStatus) === `["completed","completed","completed"]`) {
-            alert("ALL sequences have been completed!")
-        }
-        // Check if any rows have been completed
-        if(JSON.stringify(rowStatus).includes("completed") && props.bufferSize === props.userSelect.length) {
-            alert("You have completed some sequences.")
-        }
-
+        // // Check if all sequences have been completed
+        // if(JSON.stringify(rowStatus) === `["completed","completed","completed"]`) {
+        //     alert("ALL sequences have been completed!")
+        // }
+        // // Check if any sequences have been completed
+        // if(!JSON.stringify(rowStatus).includes("inprogress") && !JSON.stringify(rowStatus).includes("atstart")) {
+        //     alert("You have completed some sequences.")
+        // }
+        // // Check if all sequences have failed
+        // if(JSON.stringify(rowStatus) === `["failed","failed","failed"]`) {
+        //     alert("All sequences have failed!")
+        // }
+        console.log("check game win" + rowStatus)
     }
     
     // Check answers after every user select
