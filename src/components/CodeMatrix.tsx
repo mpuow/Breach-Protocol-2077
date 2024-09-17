@@ -21,6 +21,7 @@ export function randomNumber(length:number) {
 export default function CodeMatrix(props: Props) {
     const [selection, setSelection] = useState<number>()
     const [combinationBoard, setCombinationBoard] = useState<string[][]>([])
+    const selectPlaceholder = "[ ]"
 
     // Generates the code matrix and solution string, also loads the code matrix on mount
     useEffect(() => {
@@ -42,11 +43,10 @@ export default function CodeMatrix(props: Props) {
         return combination
     }
 
-    // Pushes the generates rows into the code matrix
+    // Pushes the generated rows into the code matrix
     function generateCodeMatrix() {
         let localCombinationBoard = []
         for (let i = 0; i < props.matrixSize; i++) {
-            // setCombinationBoard((prevRow) => [...prevRow, generateCombination()])
             localCombinationBoard.push(generateCombination())
         }
 
@@ -113,19 +113,28 @@ export default function CodeMatrix(props: Props) {
     }
 
     // Handles when a cell in the code matrix is clicked
-    function clickCell(val: string) {
-        if (props.userSelect.length + 1 != props.bufferSize) {
-            props.setUserSelect((prevSelection) => [...prevSelection, val])
-        } else {
-            // console.log("out of buffer")
+    function clickCell(val: string, rowIndex:number, colIndex:number) {
+        // if (props.userSelect.length + 1 != props.bufferSize) {
+        //     props.setUserSelect((prevSelection) => [...prevSelection, val])
+        // } else {
+        //     // console.log("out of buffer")
+        //     props.setUserSelect((prevSelection) => [...prevSelection, val])
+        // }
+        if (val !== selectPlaceholder) {
             props.setUserSelect((prevSelection) => [...prevSelection, val])
         }
+
+        let tempCombinationBoard = [...combinationBoard]
+        tempCombinationBoard[rowIndex][colIndex] = selectPlaceholder
+        setCombinationBoard(tempCombinationBoard)
     }
 
     // Handles the hover event for the cells
     function onHover(colIndex:number, val:string) {
         setSelection(colIndex)
-        props.setMatrixHover(val)
+        if (val != selectPlaceholder) {
+            props.setMatrixHover(val)
+        }
     }
 
     // Resets the state after the hover event
@@ -135,20 +144,22 @@ export default function CodeMatrix(props: Props) {
         props.setMatrixHover("")
     }
 
+    let selectRow = 0
+
     // Maps through the board and each row to display the code matrix
     function DisplayCodeMatrix() {
         return (
             <>
                 {combinationBoard.map((row, rowIndex) => (
-                    <tr key={rowIndex} className="table-auto hover:bg-[#292C39]">
+                    <tr key={rowIndex} className={`table-auto ${rowIndex === selectRow ? "bg-matrix-select" : ""}`}>
                         {row.map((val, colIndex) => (
                             <td
                                 key={colIndex}
                                 className={`size-12 p-2 select-none text-cyber-lightgreen text-center
-                                    ${colIndex === selection ? 'bg-[#1F2019]' : ''} 
-                                    hover:double-border hover:text-cyber-blue hoverGlow text-xl 
-                                    ${val == props.combinationHover ? "inner-cell" : ""}`}
-                                onClick={() => clickCell(val)}
+                                    ${colIndex === selection ? 'bg-matrix-preview' : ''} 
+                                    ${val === props.combinationHover ? "inner-cell" : ""}
+                                    ${val === selectPlaceholder ? "text-white text-opacity-20 text-xl" : "hover:double-border hover:text-cyber-blue hoverGlow text-xl"}`}
+                                onClick={() => clickCell(val, rowIndex, colIndex)}
                                 onMouseEnter={() => onHover(colIndex, val)}
                                 onMouseLeave={() => stopHover()}>
                                 {val}

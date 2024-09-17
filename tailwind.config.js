@@ -17,6 +17,8 @@ export default {
         "cyber-red" : "#FF5750",
         "cyber-yellow" : "#FCEE0A",
         "cyber-success" : "#1BD576",
+        "matrix-select" : "#292C39",
+        "matrix-preview" : "#1F2019",
       },
     },
   },

@@ -89,8 +89,6 @@ export default function Sequences(props: Props) {
                 // Increase row index to check if row is still inprogress
                 tempSequenceIndex[i] = tempSequenceIndex[i] + 1
 
-                // checkInProgress(tempStatus)
-
                 // If the last user entry is not equal to the next combination in the sequence
                 if (userSelect[userSelect.length - 1] !== sequences[i][tempSequenceIndex[i]]) {
                     // Check if there is no space left in the buffer
@@ -103,10 +101,9 @@ export default function Sequences(props: Props) {
                     }
                 }
             } else {
-                // Check if last entry into buffer is start of a sequence
+                // Check if last entry into buffer is the start of a sequence
                 if (bufferContainsSequence(sequences[i], userSelect, userSelect.length - 1) && userSelect.length > 0) {
                     tempStatus[i] = "inprogress"
-                    // checkInProgress(tempStatus)
                 }
             }
 
@@ -116,7 +113,6 @@ export default function Sequences(props: Props) {
                 // Set with the row that has been completed
                 if (tempStatus[i] === "inprogress") {
                     tempStatus[i] = "completed"
-                    // checkInProgress(tempStatus)
                 }
 
                 // Check immediately in case of finishing a sequence with the last user select
@@ -131,7 +127,7 @@ export default function Sequences(props: Props) {
                 tempStatus[i] = "failed"
             }
 
-            // Check 
+            // Set line and space indexes
             checkInProgress(tempStatus)
 
         }
@@ -145,6 +141,7 @@ export default function Sequences(props: Props) {
     function checkInProgress(rowStatus: string[]) {
         // Return if user hasn't selected anything
         if (props.userSelect.length < 1) {
+            console.log(JSON.stringify(rowStatus))
             return
         }
 
@@ -163,6 +160,11 @@ export default function Sequences(props: Props) {
                     if (tempLineIndex[index] !== 0) {
                         tempSpaceIndex[index] = tempSpaceIndex[index] + tempLineIndex[index]
                         tempLineIndex[index] = 0
+                    }
+
+                    // Skips adding space if user input doesn't change row status
+                    if (JSON.stringify(rowStatus) === '["atstart","atstart","atstart"]') {
+                        return
                     }
 
                     // Add one space if not inprogress
@@ -264,9 +266,12 @@ export default function Sequences(props: Props) {
                                     {/* ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
                                     : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60" 
                                     : ""} */}
-                                    <div className={`w-full z-100 absolute top-0 left-0 h-full flex items-center pl-4 ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
-                                    : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60" 
-                                    : ""}`}>{ rowStatus[rowIndex] === "completed" ? "INSTALLED" : rowStatus[rowIndex] === "failed" ? "FAILED" : ""}</div>
+                                    <div className={`w-full absolute flex items-center pl-4 
+                                    ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60 z-100 top-0 left-0 h-full" 
+                                    : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60 z-100 top-0 left-0 h-full" 
+                                    : ""}`}>
+                                        { rowStatus[rowIndex] === "completed" ? "INSTALLED" : rowStatus[rowIndex] === "failed" ? "FAILED" : ""}
+                                    </div>
                                     
                                     <span key={rowIndex + 100} className="flex flex-row">
                                         {displayInvisSequence(spaceIndex[rowIndex])}
@@ -279,7 +284,7 @@ export default function Sequences(props: Props) {
                                                 className={`hover:text-cyber-blue hover:inner-sequence p-2 size-12 flex items-center justify-center 
                                                 ${val === props.matrixHover && colIndex === lineIndex[rowIndex] ? "inner-sequence text-cyber-blue" : ""}
                                                 ${colIndex < lineIndex[rowIndex] ? "inner-sequence-selected text-cyber-lightgreen hover:text-cyber-lightgreen hover:inner-sequence-selected" : ""}
-                                                ${colIndex === lineIndex[rowIndex] ? "bg-cyber-purple" : ""}`}
+                                                ${colIndex === lineIndex[rowIndex] ? "bg-cyber-purple" : "bg-red-500"}`}
                                                 onMouseEnter={() => props.setCombinationHover(val)}
                                                 onMouseLeave={() => props.setCombinationHover("")}>
                                                 {val}
