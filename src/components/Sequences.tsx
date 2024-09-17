@@ -89,7 +89,7 @@ export default function Sequences(props: Props) {
                 // Increase row index to check if row is still inprogress
                 tempSequenceIndex[i] = tempSequenceIndex[i] + 1
 
-                checkInProgress(tempStatus)
+                // checkInProgress(tempStatus)
 
                 // If the last user entry is not equal to the next combination in the sequence
                 if (userSelect[userSelect.length - 1] !== sequences[i][tempSequenceIndex[i]]) {
@@ -106,7 +106,7 @@ export default function Sequences(props: Props) {
                 // Check if last entry into buffer is start of a sequence
                 if (bufferContainsSequence(sequences[i], userSelect, userSelect.length - 1) && userSelect.length > 0) {
                     tempStatus[i] = "inprogress"
-                    checkInProgress(tempStatus)
+                    // checkInProgress(tempStatus)
                 }
             }
 
@@ -116,6 +116,7 @@ export default function Sequences(props: Props) {
                 // Set with the row that has been completed
                 if (tempStatus[i] === "inprogress") {
                     tempStatus[i] = "completed"
+                    // checkInProgress(tempStatus)
                 }
 
                 // Check immediately in case of finishing a sequence with the last user select
@@ -130,6 +131,9 @@ export default function Sequences(props: Props) {
                 tempStatus[i] = "failed"
             }
 
+            // Check 
+            checkInProgress(tempStatus)
+
         }
         // Set the state outside the loop to avoid re-render issues
         setRowStatus(tempStatus)
@@ -137,21 +141,43 @@ export default function Sequences(props: Props) {
 
     }
 
+    // Check and change the select line index and the spacing of the sequences
     function checkInProgress(rowStatus: string[]) {
+        // Return if user hasn't selected anything
+        if (props.userSelect.length < 1) {
+            return
+        }
+
+        // Declare local versions of useState
         let tempSpaceIndex = [...spaceIndex]
         let tempLineIndex = [...lineIndex]
 
+        // Map through all rows
         rowStatus.map((val, index) => {
             if (val !== "completed" && val !== "failed") {
+                // If the line is inprogress, only the select line index should change
                 if (val === "inprogress") {
-                    console.log(index)
                     tempLineIndex[index] = tempLineIndex[index] + 1
                 } else {
+                    // If the row has been started, but not completed or failed, add the extra spacing to the space index
+                    if (tempLineIndex[index] !== 0) {
+                        tempSpaceIndex[index] = tempSpaceIndex[index] + tempLineIndex[index]
+                        tempLineIndex[index] = 0
+                    }
+
+                    // Add one space if not inprogress
                     tempSpaceIndex[index] = tempSpaceIndex[index] + 1
                 }
             }
+
+            // If completed, move select line off the last combination in the row
+            if (val === "completed" || val === "failed") {
+                // tempLineIndex[index] = val.length
+                tempLineIndex[index] = -1
+            }
         })
 
+        // Set useState to the updated version
         setLineIndex(tempLineIndex)
         setSpaceIndex(tempSpaceIndex)
     }
@@ -191,50 +217,20 @@ export default function Sequences(props: Props) {
         let split3 = solutionStringArray.slice(0)
         let split1 = (split3.splice(0, posibleIndexVariations[0]))
         let split2 = (split3.splice(0, posibleIndexVariations[1]))
-    
 
-        
-        // // Recursion to prevent 3 of the same combination. Eg: ['FF', 'FF', 'FF']
-        // if (split1.length > 2) {
-        //     if (split1[0] === split1[1] && split1[1] === split1[2]) {
-        //         splitSolutionStringArray(split3)
-        //     }
-        //     [split1, split3] = [split3, split1]
-        // } else if (split2.length > 2) {
-        //     if (split2[0] === split2[1] && split2[1] === split2[2]) {
-        //         splitSolutionStringArray(split3)
-        //     }
-        //     [split2, split3] = [split3, split2]
-        // } else if (split3.length > 2) {
-        //     if (split3[0] === split3[1] && split3[1] === split3[2]) {
-        //         splitSolutionStringArray(split3)
-        //     }
-        // }
-        
-        // // Recursion to prevent 2 identical combinations. Eg: ['FF', 'FF'] and ['FF', 'FF']
-        // if (split1.length > 2) {
-        //     split1.map((val, index) => {
-        //         if (val !== split2[index]) {
-        //             splitSolutionStringArray(solutionStringArray)
-        //         }
-        //     })
-        // }
-
-        /* BETTER VERSION of above */
+        // Ensuring that sequences are different
         if (split1.length > 2) {
             // Shuffle around sequences
             [split1, split3] = [split3, split1];
             [split2, split3] = [split3, split2];
-            
-            // Recursion to prevent 2 identical combinations. Eg: ['FF', 'FF'] and ['FF', 'FF']
-            split1.map((val, index) => {
-                if (val !== split2[index]) {
-                    splitSolutionStringArray(solutionStringArray)
-                }
-            })
 
             // Recursion to prevent 3 of the same combination. Eg: ['FF', 'FF', 'FF']
             if (split3[0] === split3[1] && split3[1] === split3[2]) {
+                splitSolutionStringArray(solutionStringArray)
+            }
+
+            // Recursion to prevent 2 identical combinations. Eg: ['FF', 'FF'] and ['FF', 'FF']
+            if (split1[0] === split2[0] && split1[1] === split2[1]) {
                 splitSolutionStringArray(solutionStringArray)
             }
         }
@@ -245,7 +241,7 @@ export default function Sequences(props: Props) {
         return(finalSequenceArray)
     }
 
-    // Load and display invis spans to push certain sequences to stay in the select line
+    // Load and display extra spans to push certain sequences to stay in the select line
     function displayInvisSequence(lineIndex:number) {
         let elements = []
         for (let i = 0; i < lineIndex; i++) {
@@ -254,20 +250,23 @@ export default function Sequences(props: Props) {
             )
         }
         return elements
-    } // currentSequenceIndex[colIndex]
+    }
 
     // Display the contents of the sequence section
     function DisplaySequences() {
         return (
             <table className="w-full mb-8" onMouseLeave={() => props.setCombinationHover("")}>
                 <tbody className="select-none">
-                    <tr className={`text-xl`}>
+                    <tr className="text-xl">
                         <td className="w-2/3 pl-4 text-white">
                             {cachedFinalSequenceArray.map((row, rowIndex) => (
-                                <div key={rowIndex + 10} className={`flex flex-row`}>
+                                <div key={rowIndex + 10} className="flex flex-row relative">
                                     {/* ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
                                     : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60" 
                                     : ""} */}
+                                    <div className={`w-full z-100 absolute top-0 left-0 h-full flex items-center pl-4 ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
+                                    : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60" 
+                                    : ""}`}>{ rowStatus[rowIndex] === "completed" ? "INSTALLED" : rowStatus[rowIndex] === "failed" ? "FAILED" : ""}</div>
                                     
                                     <span key={rowIndex + 100} className="flex flex-row">
                                         {displayInvisSequence(spaceIndex[rowIndex])}
@@ -279,7 +278,7 @@ export default function Sequences(props: Props) {
                                                 key={colIndex}
                                                 className={`hover:text-cyber-blue hover:inner-sequence p-2 size-12 flex items-center justify-center 
                                                 ${val === props.matrixHover && colIndex === lineIndex[rowIndex] ? "inner-sequence text-cyber-blue" : ""}
-                                                ${val === props.userSelect[colIndex] ? "inner-sequence-selected text-cyber-lightgreen hover:text-cyber-lightgreen hover:inner-sequence-selected" : ""}
+                                                ${colIndex < lineIndex[rowIndex] ? "inner-sequence-selected text-cyber-lightgreen hover:text-cyber-lightgreen hover:inner-sequence-selected" : ""}
                                                 ${colIndex === lineIndex[rowIndex] ? "bg-cyber-purple" : ""}`}
                                                 onMouseEnter={() => props.setCombinationHover(val)}
                                                 onMouseLeave={() => props.setCombinationHover("")}>
@@ -290,7 +289,7 @@ export default function Sequences(props: Props) {
                                 </div>
                             ))}
                         </td>
-                        <td className="text-lg">
+                        <td className="text-lg pr-4">
                             {cachedFinalSequenceArray.map((_row, rowIndex) => (
                                 <ul key={rowIndex} className={`text-base 
                                 ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
