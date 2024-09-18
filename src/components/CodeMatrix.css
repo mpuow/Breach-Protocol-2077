@@ -7,10 +7,7 @@
     box-shadow: 0px 0px 20px 5px rgba(52,129,132, 0.5) inset;
 }
 
-/* .hoverGlow {
-box-shadow: none;
+.hoverGlowNoHover {
+    box-shadow: 0px 0px 20px 5px rgba(52,129,132, 0.5) inset;
+    color: #89E5E6 !important
 }
-
-.hoverGlow:hover {
-box-shadow: 0px 0px 50px 5px rgba(52,129,132, 0.5);
-} */

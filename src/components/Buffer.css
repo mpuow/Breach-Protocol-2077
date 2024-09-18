@@ -22,10 +22,10 @@
     content: '';
     position: absolute;
     left: 10%;
-    bottom: 5px; /* Adjust as needed */
-    height: 2px; /* Adjust as needed */
+    bottom: 5px;
+    height: 2px;
     width: 0;
-    background-color: #CEEC58; /* Tailwind's bg-blue-500 color */
-    animation: underline 1s infinite; /* Adjust duration as needed */
+    background-color: #CEEC58;
+    animation: underline 1s infinite;
     width: 80%;
 }

@@ -19,9 +19,13 @@ export function randomNumber(length:number) {
 }
 
 export default function CodeMatrix(props: Props) {
-    const [selection, setSelection] = useState<number>()
+    const [columnHover, setColumnHover] = useState<number>()
+    const [rowHover, setRowHover] = useState<number>()
     const [combinationBoard, setCombinationBoard] = useState<string[][]>([])
     const selectPlaceholder = "[ ]"
+    const [selectRow, setSelectRow] = useState<number>(0)
+    const [selectColumn, setSelectColumn] = useState<number>(0)
+    const [isRowTurn, setIsRowTurn] = useState<boolean>(true)
 
     // Generates the code matrix and solution string, also loads the code matrix on mount
     useEffect(() => {
@@ -120,6 +124,29 @@ export default function CodeMatrix(props: Props) {
         //     // console.log("out of buffer")
         //     props.setUserSelect((prevSelection) => [...prevSelection, val])
         // }
+
+        // Check if it is a row or column turn
+        if (isRowTurn) {
+            // Disable clicking cells outside of the row
+            if (rowIndex !== selectRow) {
+                return
+            }
+
+            // Set next turn column and change isRowTurn state
+            setSelectColumn(colIndex)
+            setIsRowTurn(false)
+        } else {
+            // Disable clicking cells outside of the column
+            if (colIndex !== selectColumn) {
+                return
+            }
+
+            // Set next turn row and change isRowTurn state
+            setSelectRow(rowIndex)
+            setIsRowTurn(true)
+        }
+
+
         if (val !== selectPlaceholder) {
             props.setUserSelect((prevSelection) => [...prevSelection, val])
         }
@@ -130,8 +157,9 @@ export default function CodeMatrix(props: Props) {
     }
 
     // Handles the hover event for the cells
-    function onHover(colIndex:number, val:string) {
-        setSelection(colIndex)
+    function onHover(colIndex:number, val:string, rowIndex:number) {
+        setColumnHover(colIndex)
+        setRowHover(rowIndex)
         if (val != selectPlaceholder) {
             props.setMatrixHover(val)
         }
@@ -139,31 +167,55 @@ export default function CodeMatrix(props: Props) {
 
     // Resets the state after the hover event
     function stopHover() {
-        setSelection(-1)
+        setColumnHover(-1)
+        setRowHover(-1)
         props.setCombinationHover("")
         props.setMatrixHover("")
     }
 
-    let selectRow = 0
+    // Reset hover styles
+    function resetHover() {
+        setColumnHover(-1)
+        setRowHover(-1)
+    }
+
+    // Swap board style depending on row or column turn
+    function swapBoardStyle(colIndex:number, rowIndex:number, val:string) {
+        let styleString = ""
+        if (isRowTurn) {
+            // Row Style
+            styleString = `size-12 p-2 select-none text-center text-xl
+            ${colIndex === columnHover ? 'bg-matrix-preview' : ''} 
+            ${val === props.combinationHover ? "inner-cell" : ""}
+            ${val === selectPlaceholder ? "text-white text-opacity-20" : "text-cyber-lightgreen"}
+            ${rowIndex === selectRow && columnHover === colIndex ? "double-border hoverGlowNoHover" : ""}`
+        } else {
+            // Column Style
+            styleString = `size-12 p-2 select-none text-center text-xl
+            ${colIndex === selectColumn ? 'bg-matrix-select' : ''}
+            ${val === props.combinationHover ? "inner-cell" : ""}
+            ${val === selectPlaceholder ? "text-white text-opacity-20" : "text-cyber-lightgreen"}
+            ${colIndex === selectColumn && rowHover === rowIndex ? "double-border hoverGlowNoHover" : ""}`
+        }
+
+        return styleString
+    }
 
     // Maps through the board and each row to display the code matrix
     function DisplayCodeMatrix() {
         return (
             <>
                 {combinationBoard.map((row, rowIndex) => (
-                    <tr key={rowIndex} className={`table-auto ${rowIndex === selectRow ? "bg-matrix-select" : ""}`}>
+                    <tr key={rowIndex} className={`table-auto ${rowIndex === selectRow && isRowTurn ? "bg-matrix-select" : !isRowTurn ? "hover:bg-matrix-preview" : ""}`}>
                         {row.map((val, colIndex) => (
                             <td
                                 key={colIndex}
-                                className={`size-12 p-2 select-none text-cyber-lightgreen text-center
-                                    ${colIndex === selection ? 'bg-matrix-preview' : ''} 
-                                    ${val === props.combinationHover ? "inner-cell" : ""}
-                                    ${val === selectPlaceholder ? "text-white text-opacity-20 text-xl" : "hover:double-border hover:text-cyber-blue hoverGlow text-xl"}`}
+                                className={swapBoardStyle(colIndex, rowIndex, val)}
                                 onClick={() => clickCell(val, rowIndex, colIndex)}
-                                onMouseEnter={() => onHover(colIndex, val)}
+                                onMouseEnter={() => onHover(colIndex, val, rowIndex)}
                                 onMouseLeave={() => stopHover()}>
                                 {val}
-                            </td>
+                            </td> 
                         ))}
                     </tr>
                 ))}
@@ -174,7 +226,7 @@ export default function CodeMatrix(props: Props) {
     return (
         <div className='border-[1px] border-cyber-green'>
             <div className="bg-cyber-green text-black p-2 text-xl">CODE MATRIX</div>
-            <table className="flex justify-center my-2" onMouseLeave={() => setSelection(-1)}>
+            <table className="flex justify-center my-2" onMouseLeave={() => resetHover()}>
                 <tbody>
                     <DisplayCodeMatrix />
                 </tbody>

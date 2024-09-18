@@ -113,6 +113,8 @@ export default function Sequences(props: Props) {
                 // Set with the row that has been completed
                 if (tempStatus[i] === "inprogress") {
                     tempStatus[i] = "completed"
+                    // Check here to update lineIndex properly
+                    checkInProgress(tempStatus)
                 }
 
                 // Check immediately in case of finishing a sequence with the last user select
@@ -141,7 +143,6 @@ export default function Sequences(props: Props) {
     function checkInProgress(rowStatus: string[]) {
         // Return if user hasn't selected anything
         if (props.userSelect.length < 1) {
-            console.log(JSON.stringify(rowStatus))
             return
         }
 
@@ -232,7 +233,7 @@ export default function Sequences(props: Props) {
             }
 
             // Recursion to prevent 2 identical combinations. Eg: ['FF', 'FF'] and ['FF', 'FF']
-            if (split1[0] === split2[0] && split1[1] === split2[1]) {
+            if (JSON.stringify(split1) === JSON.stringify(split2)) {
                 splitSolutionStringArray(solutionStringArray)
             }
         }
@@ -284,7 +285,7 @@ export default function Sequences(props: Props) {
                                                 className={`hover:text-cyber-blue hover:inner-sequence p-2 size-12 flex items-center justify-center 
                                                 ${val === props.matrixHover && colIndex === lineIndex[rowIndex] ? "inner-sequence text-cyber-blue" : ""}
                                                 ${colIndex < lineIndex[rowIndex] ? "inner-sequence-selected text-cyber-lightgreen hover:text-cyber-lightgreen hover:inner-sequence-selected" : ""}
-                                                ${colIndex === lineIndex[rowIndex] ? "bg-cyber-purple" : "bg-red-500"}`}
+                                                ${colIndex === lineIndex[rowIndex] ? "bg-cyber-purple" : ""}`}
                                                 onMouseEnter={() => props.setCombinationHover(val)}
                                                 onMouseLeave={() => props.setCombinationHover("")}>
                                                 {val}
