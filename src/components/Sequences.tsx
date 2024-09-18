@@ -9,6 +9,7 @@ interface Props {
     userSelect: string[]
     setUserSelect: React.Dispatch<React.SetStateAction<string[]>>
     bufferSize: number
+    gameStatus: React.MutableRefObject<string>
 }
 
 // Fisher-Yates Shuffle
@@ -199,6 +200,15 @@ export default function Sequences(props: Props) {
         // if(JSON.stringify(rowStatus) === `["failed","failed","failed"]`) {
         //     alert("All sequences have failed!")
         // }
+
+        if(JSON.stringify(rowStatus) === `["completed","completed","completed"]`) {
+            props.gameStatus.current = "win"
+        }
+
+        if(JSON.stringify(rowStatus) === `["failed","failed","failed"]`) {
+            props.gameStatus.current = "lose"
+        }
+
         console.log(rowStatus)
     }
     

@@ -11,6 +11,8 @@ interface Props {
     combinationHover: string
     setCombinationHover: React.Dispatch<React.SetStateAction<string>>
     setMatrixHover: React.Dispatch<React.SetStateAction<string>>
+    gameStart: React.MutableRefObject<boolean>
+    gameStatus: React.MutableRefObject<string>
 }
 
 // Generates a random number
@@ -124,6 +126,8 @@ export default function CodeMatrix(props: Props) {
         //     // console.log("out of buffer")
         //     props.setUserSelect((prevSelection) => [...prevSelection, val])
         // }
+        
+        props.gameStart.current = true
 
         // Check if it is a row or column turn
         if (isRowTurn) {
@@ -226,7 +230,7 @@ export default function CodeMatrix(props: Props) {
     return (
         <div className='border-[1px] border-cyber-green'>
             <div className="bg-cyber-green text-black p-2 text-xl">CODE MATRIX</div>
-            <table className="flex justify-center my-2" onMouseLeave={() => resetHover()}>
+            <table className="flex justify-center py-2" onMouseLeave={() => resetHover()}>
                 <tbody>
                     <DisplayCodeMatrix />
                 </tbody>

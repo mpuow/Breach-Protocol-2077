@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import CodeMatrix from "./components/CodeMatrix"
 import Sequences from "./components/Sequences"
 import Buffer from "./components/Buffer"
@@ -11,20 +11,24 @@ function App() {
     const [solutionStringArray, setSolutionStringArray] = useState<string[]>([])
     const [combinationHover, setCombinationHover] = useState<string>("")
     const [matrixHover, setMatrixHover] = useState<string>("")
+    const [initialTime, _setInitialTime] = useState<number>(30000)
+    const gameStart = useRef(false)
+    const gameStatus = useRef("")
 
     return (
-        <>
+        <div className="border-2 border-cyber-green p-2 pb-[20vh] m-12">
             <h1 className="font-bold text-3xl mb-6">Breach Protocol</h1>
 
             <div className="w-full flex flex-row h-[10vh] mb-6">
-                <div className="w-1/3 mx-5">
+                <div className="w-1/3 mx-4 pr-16">
                     <div className="w-full">
                         <h1 className="text-xl invisible">BUFFER</h1>
-                        <BreachTime />
+                        <BreachTime 
+                        initialTime={initialTime}
+                        gameStart={gameStart} />
                     </div>
                 </div>
-                {/* border issue is with the 2/3 here */}
-                <div className="w-2/3 mx-5">
+                <div className="">
                     <h1 className="text-xl text-cyber-lightgreen">BUFFER</h1>
                     <Buffer 
                         userSelect={userSelect} 
@@ -44,7 +48,9 @@ function App() {
                         matrixSize={matrixSize}
                         combinationHover={combinationHover}
                         setCombinationHover={setCombinationHover} 
-                        setMatrixHover={setMatrixHover} />
+                        setMatrixHover={setMatrixHover}
+                        gameStart={gameStart}
+                        gameStatus={gameStatus} />
                 </div>
                 <div className="w-2/3 mx-5">
                     <Sequences 
@@ -54,11 +60,12 @@ function App() {
                     matrixHover={matrixHover}
                     userSelect={userSelect}
                     setUserSelect={setUserSelect}
-                    bufferSize={bufferSize} />
+                    bufferSize={bufferSize}
+                    gameStatus={gameStatus} />
                 </div>
             </div>
 
-        </>
+        </div>
     )
 }
 
