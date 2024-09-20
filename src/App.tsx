@@ -13,10 +13,10 @@ function App() {
     const [matrixHover, setMatrixHover] = useState<string>("")
     const [initialTime, _setInitialTime] = useState<number>(30000)
     const gameStart = useRef(false)
-    const gameStatus = useRef("")
+    const [gameStatus, setGameStatus] = useState<string>("")
 
     return (
-        <div className="border-2 border-cyber-green p-2 pb-[20vh] m-12">
+        <div className="border-2 border-cyber-green p-2 pb-[15vh] m-12">
             <h1 className="font-bold text-3xl mb-6">Breach Protocol</h1>
 
             <div className="w-full flex flex-row h-[10vh] mb-6">
@@ -25,7 +25,8 @@ function App() {
                         <h1 className="text-xl invisible">BUFFER</h1>
                         <BreachTime 
                         initialTime={initialTime}
-                        gameStart={gameStart} />
+                        gameStart={gameStart}
+                        setGameStatus={setGameStatus} />
                     </div>
                 </div>
                 <div className="">
@@ -61,7 +62,7 @@ function App() {
                     userSelect={userSelect}
                     setUserSelect={setUserSelect}
                     bufferSize={bufferSize}
-                    gameStatus={gameStatus} />
+                    setGameStatus={setGameStatus} />
                 </div>
             </div>
 

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 interface Props {
     initialTime: number
     gameStart: React.MutableRefObject<boolean>
+    setGameStatus: React.Dispatch<React.SetStateAction<string>>
 }
 
 export default function BreachTime(props: Props) {
@@ -15,6 +16,7 @@ export default function BreachTime(props: Props) {
             // End game when time runs out
             if (timeLeft <= 0) {
                 console.log("Time ran out")
+                props.setGameStatus("lose")
                 return
             }
     

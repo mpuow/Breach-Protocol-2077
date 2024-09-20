@@ -12,7 +12,7 @@ interface Props {
     setCombinationHover: React.Dispatch<React.SetStateAction<string>>
     setMatrixHover: React.Dispatch<React.SetStateAction<string>>
     gameStart: React.MutableRefObject<boolean>
-    gameStatus: React.MutableRefObject<string>
+    gameStatus: string
 }
 
 // Generates a random number
@@ -236,13 +236,79 @@ export default function CodeMatrix(props: Props) {
     }
 
     return (
-        <div className='border-[1px] border-cyber-green'>
-            <div className="bg-cyber-green text-black p-2 text-xl">CODE MATRIX</div>
-            <table className="flex justify-center py-2" onMouseLeave={() => resetHover()}>
-                <tbody>
-                    <DisplayCodeMatrix />
-                </tbody>
-            </table>
-        </div>
+        <>
+            <div className={`${props.gameStatus === "win" ? "border-[1px] border-cyber-green" : props.gameStatus === "lose" ? "border-[1px] border-cyber-red" : "border-[1px] border-cyber-green"}`}>
+                <div className='relative'>
+                    <div className="bg-cyber-green text-black p-2 text-xl">CODE MATRIX</div>
+                    {props.gameStatus ?
+                        <div className={`text-black p-2 text-xl absolute top-0 left-0 w-full h-full ${props.gameStatus === "win" ? "bg-cyber-success" : props.gameStatus === "lose" ? "bg-cyber-red" : ""}`}></div>
+                        : ""}
+                </div>
+                <table className={`flex justify-center py-2 ${props.gameStatus === "win" ? "bg-success-green" : props.gameStatus === "lose" ? "bg-fail-red" : ""}`} onMouseLeave={() => resetHover()}>
+                    <tbody>
+
+                        {props.gameStatus === "win" ?
+                            <tr>
+                                <td>
+                                    <div className='text-cyber-success font-semibold'>
+                                        //ROOT <br />
+                                        //ACCESS_REQUEST <br />
+                                        //ACCESS_REQUEST_SUCCESS <br />
+                                        //COLLECTING PACKET_1.......................COMPLETE <br />
+                                        //COLLECTING PACKET_2.......................COMPLETE <br />
+                                        //COLLECTING PACKET_3.......................COMPLETE <br />
+                                        //COLLECTING PACKET_4.......................COMPLETE <br />
+                                        //LOGIN <br />
+                                        //LOGIN_SUCCESS <br />
+                                        // <br />
+                                        //UPLOAD_IN_PROGRESS <br />
+                                        //UPLOAD_COMPLETE! <br />
+                                    </div>
+                                </td>
+                            </tr>
+                        : props.gameStatus === "lose" ?
+                            <tr>
+                                <td>
+                                    <div className='text-cyber-red font-semibold'>
+                                        //ROOT_ATTEMPT_1<br />
+                                        //ROOT_ATTEMPT_2<br />
+                                        //ROOT_ATTEMPT_3<br />
+                                        //ROOT_FAILED<br />
+                                        //ROOT_REBOOT<br />
+                                        //ACCESSING...............................FAILED<br />
+                                        //ACCESSING...............................FAILED<br />
+                                        //ACCESSING...............................FAILED<br />
+                                        //ACCESSING...............................FAILED<br />
+                                        //ACCESSING...............................FAILED<br />
+                                        <br />
+                                    </div>
+                                </td>
+                            </tr>
+                        : <DisplayCodeMatrix />}
+                    </tbody>
+                </table>
+
+                {props.gameStatus ?
+                    <>
+                        {props.gameStatus === "win" ?
+                            <div className='bg-cyber-success h-20 flex items-center justify-center text-success-green'>
+                                DAEMONS UPLOADED
+                            </div>
+                            : props.gameStatus === 'lose' ?
+                            <div className='bg-cyber-red h-20 flex items-center justify-center text-fail-red'>
+                                USER TERMINATED PROCESS
+                            </div>
+                            :
+                            <div></div>}
+                    </>
+                : <div></div>}
+            </div>
+            {props.gameStatus ?
+                <div className={`${props.gameStatus === "win" ? "bg-success-green border-[1px] border-cyber-success text-cyber-success" : props.gameStatus === "lose" ? "bg-fail-red border-[1px] border-cyber-red text-cyber-red" : ""} flex items-center p-2 mt-6 w-2/5 mr-0 ml-auto`}>
+                    EXIT INTERFACE
+                </div>
+            : <div></div>}
+
+        </>
     )
 }

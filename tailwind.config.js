@@ -12,13 +12,15 @@ export default {
       colors: {
         "cyber-blue" : "#89E5E6",
         "cyber-green" : "#CEEC58",
-        "cyber-lightgreen" : "#D8DF97", // #C8D1A6 cyber-lightgreen old
+        "cyber-lightgreen" : "#D8DF97",
         "cyber-purple" : "#1A182A",
-        "cyber-red" : "#FF5750",
+        "cyber-red" : "#F1524C",
         "cyber-yellow" : "#FCEE0A",
         "cyber-success" : "#1BD576",
         "matrix-select" : "#292C39",
         "matrix-preview" : "#1F2019",
+        "fail-red" : "#2B0605",
+        "success-green" : "#14251A",
       },
     },
   },

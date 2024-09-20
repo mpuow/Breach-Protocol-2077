@@ -9,7 +9,7 @@ interface Props {
     userSelect: string[]
     setUserSelect: React.Dispatch<React.SetStateAction<string[]>>
     bufferSize: number
-    gameStatus: React.MutableRefObject<string>
+    setGameStatus: React.Dispatch<React.SetStateAction<string>>
 }
 
 // Fisher-Yates Shuffle
@@ -202,12 +202,15 @@ export default function Sequences(props: Props) {
         // }
 
         if(JSON.stringify(rowStatus) === `["completed","completed","completed"]`) {
-            props.gameStatus.current = "win"
+            props.setGameStatus("win")
         }
+        // else if(JSON.stringify(rowStatus) === `["failed","failed","failed"]`) {
+        //     props.gameStatus.current = "lose"
+        // } else {
+        //     props.gameStatus.current = "over"
+        // }
 
-        if(JSON.stringify(rowStatus) === `["failed","failed","failed"]`) {
-            props.gameStatus.current = "lose"
-        }
+        props.setGameStatus("win")
 
         console.log(rowStatus)
     }
@@ -259,7 +262,7 @@ export default function Sequences(props: Props) {
         let elements = []
         for (let i = 0; i < lineIndex; i++) {
             elements.push(
-                <span key={i} className="size-12 p-2 flex items-center justify-center text-xl"></span>
+                <span key={i} className="size-12 flex items-center justify-center text-xl"></span>
             )
         }
         return elements
@@ -267,6 +270,9 @@ export default function Sequences(props: Props) {
 
     // Display the contents of the sequence section
     function DisplaySequences() {
+        const datamineType = ["BASIC DATAMINE", "ADVANCED DATAMINE", "EXPERT DATAMINE"]
+        const datamineFlavourText = ["Extract eurodollars", "Extract eurodollars and quickhack crafting components", "Extract quickhacks and quickhack crafting specs"]
+
         return (
             <table className="w-full mb-8" onMouseLeave={() => props.setCombinationHover("")}>
                 <tbody className="select-none">
@@ -292,7 +298,7 @@ export default function Sequences(props: Props) {
                                         {row.map((val, colIndex) => (
                                             <span
                                                 key={colIndex}
-                                                className={`hover:text-cyber-blue hover:inner-sequence p-2 size-12 flex items-center justify-center 
+                                                className={`hover:text-cyber-blue hover:inner-sequence size-12 flex items-center justify-center 
                                                 ${val === props.matrixHover && colIndex === lineIndex[rowIndex] ? "inner-sequence text-cyber-blue" : ""}
                                                 ${colIndex < lineIndex[rowIndex] ? "inner-sequence-selected text-cyber-lightgreen hover:text-cyber-lightgreen hover:inner-sequence-selected" : ""}
                                                 ${colIndex === lineIndex[rowIndex] ? "bg-cyber-purple" : ""}`}
@@ -309,11 +315,12 @@ export default function Sequences(props: Props) {
                             {cachedFinalSequenceArray.map((_row, rowIndex) => (
                                 <ul key={rowIndex} className={`text-base 
                                 ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
-                                : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60" 
-                                : rowStatus[rowIndex] === "inprogress" ? "bg-cyber-yellow text-black text-opacity-60" 
+                                : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60"
                                 : ""}`}>
-                                    <li>DATAMINE_V{rowIndex + 1}</li>
-                                    <li className={`text-base ${rowStatus[rowIndex] === "completed" ? "" : rowStatus[rowIndex] === "failed" ? "" : rowStatus[rowIndex] === "inprogress" ? "" : "text-cyber-green"}`}>Flavour text</li>
+                                    <li>{datamineType[rowIndex]}</li>
+                                    <li className={`text-base ${rowStatus[rowIndex] === "completed" ? "" : rowStatus[rowIndex] === "failed" ? "" : rowStatus[rowIndex] === "inprogress" ? "" : "text-cyber-green"}`}>
+                                        <span className="line-clamp-1">{datamineFlavourText[rowIndex]}</span>
+                                    </li>
                                 </ul>
                             ))}
                         </td>
