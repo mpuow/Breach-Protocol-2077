@@ -4,6 +4,7 @@ interface Props {
     initialTime: number
     gameStart: React.MutableRefObject<boolean>
     setGameStatus: React.Dispatch<React.SetStateAction<string>>
+    gameReset: React.MutableRefObject<boolean>
 }
 
 export default function BreachTime(props: Props) {
@@ -16,6 +17,7 @@ export default function BreachTime(props: Props) {
             // End game when time runs out
             if (timeLeft <= 0) {
                 console.log("Time ran out")
+                props.gameStart.current = false
                 props.setGameStatus("lose")
                 return
             }
@@ -30,8 +32,12 @@ export default function BreachTime(props: Props) {
             }, 10)
             
             return () => clearInterval(timer)
+        } else if (props.gameReset.current) {
+            setTimeLeft(props.initialTime)
+            setBarPercent(100)
+            props.gameReset.current = false
         }
-    }, [timeLeft, props.gameStart.current])
+    }, [timeLeft, props.gameStart.current, props.gameReset.current])
 
     function formatTime (timeLeft: number) {
         const seconds = Math.floor(timeLeft / 1000) % 60;

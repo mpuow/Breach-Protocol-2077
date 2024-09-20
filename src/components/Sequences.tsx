@@ -10,6 +10,8 @@ interface Props {
     setUserSelect: React.Dispatch<React.SetStateAction<string[]>>
     bufferSize: number
     setGameStatus: React.Dispatch<React.SetStateAction<string>>
+    gameStart: React.MutableRefObject<boolean>
+    gameReset: React.MutableRefObject<boolean>
 }
 
 // Fisher-Yates Shuffle
@@ -34,6 +36,19 @@ export default function Sequences(props: Props) {
     const [sequenceIndex, setSequenceIndex] = useState([0,0,0])
     const [spaceIndex, setSpaceIndex] = useState([0,0,0])
     const [lineIndex, setLineIndex] = useState<number[]>([0,0,0])
+    const [invisElements, setInvisElements] = useState([<span key={-1}></span>])
+
+    const handleReset = useMemo(() => {
+        if (props.gameReset.current) {
+            setRowStatus(["atstart", "atstart", "atstart"])
+            setSequenceIndex([0,0,0])
+            setSpaceIndex([0,0,0])
+            setLineIndex([0,0,0])
+            setInvisElements([<span key={-1}></span>])
+            console.log("Reset")
+        }
+      }, [props.gameReset.current])
+
 
     function checkUserAnswer(sequences:string[][], userSelect:string[]) {
         /*
@@ -188,36 +203,46 @@ export default function Sequences(props: Props) {
 
     // Check if player has solved the puzzle and to what degree
     function checkGameWin(rowStatus:string[]) {
-        // // Check if all sequences have been completed
-        // if(JSON.stringify(rowStatus) === `["completed","completed","completed"]`) {
-        //     alert("ALL sequences have been completed!")
-        // }
-        // // Check if any sequences have been completed
-        // if(!JSON.stringify(rowStatus).includes("inprogress") && !JSON.stringify(rowStatus).includes("atstart")) {
-        //     alert("You have completed some sequences.")
-        // }
-        // // Check if all sequences have failed
-        // if(JSON.stringify(rowStatus) === `["failed","failed","failed"]`) {
-        //     alert("All sequences have failed!")
-        // }
 
-        if(JSON.stringify(rowStatus) === `["completed","completed","completed"]`) {
+        // Case of completing all sequences
+        if (JSON.stringify(rowStatus) === `["completed","completed","completed"]`) {
             props.setGameStatus("win")
+            // stop timer, set gameStatus
+            return
         }
-        // else if(JSON.stringify(rowStatus) === `["failed","failed","failed"]`) {
-        //     props.gameStatus.current = "lose"
-        // } else {
-        //     props.gameStatus.current = "over"
-        // }
 
-        props.setGameStatus("win")
+        // Case of not completing all sequences
+        if (!JSON.stringify(rowStatus).includes("atstart") && !JSON.stringify(rowStatus).includes("inprogress")) {
+            // Case of completing some sequences
+            if (JSON.stringify(rowStatus).includes("completed")) {
+                console.log("handle half complete here")
+                // stop timer, set gameStatus
+            }
+            // Case of failing all sequences
+            else {
+                console.log("handle fail here")
+                // stop timer, set gameStatus
+            }
+            return
+        }
 
-        console.log(rowStatus)
+        // Case of no buffer remaining
+        if (props.userSelect.length >= props.bufferSize) {
+            console.log("iwengjiwog")
+            // stop timer, set gameStatus
+            return
+        }
+
+        // props.gameStart.current = false
+        // props.setGameStatus("win")
     }
     
     // Check answers after every user select
     useEffect(() => {
         checkUserAnswer(cachedFinalSequenceArray, props.userSelect)
+
+        // Reset variables upon game reset
+        handleReset
 
     }, [props.userSelect])
 
@@ -259,7 +284,7 @@ export default function Sequences(props: Props) {
 
     // Load and display extra spans to push certain sequences to stay in the select line
     function displayInvisSequence(lineIndex:number) {
-        let elements = []
+        let elements = [...invisElements]
         for (let i = 0; i < lineIndex; i++) {
             elements.push(
                 <span key={i} className="size-12 flex items-center justify-center text-xl"></span>
@@ -273,6 +298,8 @@ export default function Sequences(props: Props) {
         const datamineType = ["BASIC DATAMINE", "ADVANCED DATAMINE", "EXPERT DATAMINE"]
         const datamineFlavourText = ["Extract eurodollars", "Extract eurodollars and quickhack crafting components", "Extract quickhacks and quickhack crafting specs"]
 
+        // resetSequences()
+
         return (
             <table className="w-full mb-8" onMouseLeave={() => props.setCombinationHover("")}>
                 <tbody className="select-none">
@@ -280,9 +307,6 @@ export default function Sequences(props: Props) {
                         <td className="w-2/3 pl-4 text-white">
                             {cachedFinalSequenceArray.map((row, rowIndex) => (
                                 <div key={rowIndex + 10} className="flex flex-row relative">
-                                    {/* ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
-                                    : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60" 
-                                    : ""} */}
                                     <div className={`w-full absolute flex items-center pl-4 
                                     ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60 z-100 top-0 left-0 h-full" 
                                     : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60 z-100 top-0 left-0 h-full" 
@@ -318,7 +342,7 @@ export default function Sequences(props: Props) {
                                 : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60"
                                 : ""}`}>
                                     <li>{datamineType[rowIndex]}</li>
-                                    <li className={`text-base ${rowStatus[rowIndex] === "completed" ? "" : rowStatus[rowIndex] === "failed" ? "" : rowStatus[rowIndex] === "inprogress" ? "" : "text-cyber-green"}`}>
+                                    <li className={`text-base ${rowStatus[rowIndex] === "completed" ? "" : rowStatus[rowIndex] === "failed" ? "" : "text-cyber-green"}`}>
                                         <span className="line-clamp-1">{datamineFlavourText[rowIndex]}</span>
                                     </li>
                                 </ul>

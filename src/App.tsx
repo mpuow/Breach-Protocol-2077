@@ -14,6 +14,7 @@ function App() {
     const [initialTime, _setInitialTime] = useState<number>(30000)
     const gameStart = useRef(false)
     const [gameStatus, setGameStatus] = useState<string>("")
+    const gameReset = useRef(false)
 
     return (
         <div className="border-2 border-cyber-green p-2 pb-[15vh] m-12">
@@ -26,7 +27,8 @@ function App() {
                         <BreachTime 
                         initialTime={initialTime}
                         gameStart={gameStart}
-                        setGameStatus={setGameStatus} />
+                        setGameStatus={setGameStatus}
+                        gameReset={gameReset} />
                     </div>
                 </div>
                 <div className="">
@@ -51,7 +53,9 @@ function App() {
                         setCombinationHover={setCombinationHover} 
                         setMatrixHover={setMatrixHover}
                         gameStart={gameStart}
-                        gameStatus={gameStatus} />
+                        gameStatus={gameStatus}
+                        setGameStatus={setGameStatus}
+                        gameReset={gameReset} />
                 </div>
                 <div className="w-2/3 mx-8">
                     <Sequences 
@@ -62,7 +66,9 @@ function App() {
                     userSelect={userSelect}
                     setUserSelect={setUserSelect}
                     bufferSize={bufferSize}
-                    setGameStatus={setGameStatus} />
+                    setGameStatus={setGameStatus}
+                    gameStart={gameStart}
+                    gameReset={gameReset} />
                 </div>
             </div>
 

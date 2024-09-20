@@ -13,6 +13,8 @@ interface Props {
     setMatrixHover: React.Dispatch<React.SetStateAction<string>>
     gameStart: React.MutableRefObject<boolean>
     gameStatus: string
+    setGameStatus: React.Dispatch<React.SetStateAction<string>>
+    gameReset: React.MutableRefObject<boolean>
 }
 
 // Generates a random number
@@ -21,8 +23,8 @@ export function randomNumber(length:number) {
 }
 
 export default function CodeMatrix(props: Props) {
-    const [columnHover, setColumnHover] = useState<number>()
-    const [rowHover, setRowHover] = useState<number>()
+    const [columnHover, setColumnHover] = useState<number>(-1)
+    const [rowHover, setRowHover] = useState<number>(-1)
     const [combinationBoard, setCombinationBoard] = useState<string[][]>([])
     const selectPlaceholder = "[ ]"
     const [selectRow, setSelectRow] = useState<number>(0)
@@ -38,6 +40,27 @@ export default function CodeMatrix(props: Props) {
         }
 
     }, [])
+
+    // Reset game state
+    function resetGame() {
+        // Generate a new matrix and solution
+        generateSolutionString(generateCodeMatrix())
+
+        // Reset all hover and select states
+        setColumnHover(-1)
+        setRowHover(-1)
+        setSelectRow(0)
+        setSelectColumn(0)
+        setIsRowTurn(true)
+
+        // Reset buffer
+        props.setUserSelect([])
+
+        // reset sequences
+
+        // Reset timer
+        props.gameReset.current = true
+    }
 
     // Generates random rows of combinations for the code matrix
     function generateCombination() {
@@ -61,6 +84,12 @@ export default function CodeMatrix(props: Props) {
 
     // Generates the solution string based on the code matrix
     function generateSolutionString(localCombinationBoard:string[][]) {
+        try {
+            props.setGameStatus("")
+        } catch (error) {
+            console.log(error)
+        }
+
         const solutionStringLength = 7
         const solutionStringCoords: number[][] = []
         const localSolutionString:string[] = []
@@ -127,14 +156,16 @@ export default function CodeMatrix(props: Props) {
         //     props.setUserSelect((prevSelection) => [...prevSelection, val])
         // }
         
-        props.gameStart.current = true
-
+        
         // Check if it is a row or column turn
         if (isRowTurn && val !== selectPlaceholder) {
             // Disable clicking cells outside of the row
             if (rowIndex !== selectRow) {
                 return
             }
+            
+            // Start the game
+            props.gameStart.current = true
 
             // Set next turn column and change isRowTurn state
             setSelectColumn(colIndex)
@@ -237,7 +268,7 @@ export default function CodeMatrix(props: Props) {
 
     return (
         <>
-            <div className={`${props.gameStatus === "win" ? "border-[1px] border-cyber-green" : props.gameStatus === "lose" ? "border-[1px] border-cyber-red" : "border-[1px] border-cyber-green"}`}>
+            <div className={`${props.gameStatus === "win" ? "border-[1px] border-cyber-success" : props.gameStatus === "lose" ? "border-[1px] border-cyber-red" : "border-[1px] border-cyber-green"}`}>
                 <div className='relative'>
                     <div className="bg-cyber-green text-black p-2 text-xl">CODE MATRIX</div>
                     {props.gameStatus ?
@@ -294,17 +325,20 @@ export default function CodeMatrix(props: Props) {
                             <div className='bg-cyber-success h-20 flex items-center justify-center text-success-green'>
                                 DAEMONS UPLOADED
                             </div>
-                            : props.gameStatus === 'lose' ?
+                        : props.gameStatus === 'lose' ?
                             <div className='bg-cyber-red h-20 flex items-center justify-center text-fail-red'>
                                 USER TERMINATED PROCESS
                             </div>
-                            :
-                            <div></div>}
+                        :
+                        <div></div>}
                     </>
                 : <div></div>}
             </div>
             {props.gameStatus ?
-                <div className={`${props.gameStatus === "win" ? "bg-success-green border-[1px] border-cyber-success text-cyber-success" : props.gameStatus === "lose" ? "bg-fail-red border-[1px] border-cyber-red text-cyber-red" : ""} flex items-center p-2 mt-6 w-2/5 mr-0 ml-auto`}>
+                <div className={`
+                ${props.gameStatus === "win" ? "bg-success-green border-[1px] border-cyber-success text-cyber-success" 
+                : props.gameStatus === "lose" ? "bg-fail-red border-[1px] border-cyber-red text-cyber-red" : ""} 
+                flex items-center p-2 mt-6 w-2/5 mr-0 ml-auto`} onClick={() => resetGame()}>
                     EXIT INTERFACE
                 </div>
             : <div></div>}
