@@ -38,7 +38,7 @@ function App() {
             </div>
 
             <div className="w-full flex flex-row">
-                <div className="w-1/3 mx-5">
+                <div className="w-1/3 mx-4">
                     <CodeMatrix
                         userSelect={userSelect}
                         setUserSelect={setUserSelect}
@@ -52,7 +52,7 @@ function App() {
                         gameStart={gameStart}
                         gameStatus={gameStatus} />
                 </div>
-                <div className="w-2/3 mx-5">
+                <div className="w-2/3 mx-8">
                     <Sequences 
                     solutionStringArray={solutionStringArray} 
                     combinationHover={combinationHover} 

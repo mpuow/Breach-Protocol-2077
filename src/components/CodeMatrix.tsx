@@ -130,7 +130,7 @@ export default function CodeMatrix(props: Props) {
         props.gameStart.current = true
 
         // Check if it is a row or column turn
-        if (isRowTurn) {
+        if (isRowTurn && val !== selectPlaceholder) {
             // Disable clicking cells outside of the row
             if (rowIndex !== selectRow) {
                 return
@@ -139,7 +139,7 @@ export default function CodeMatrix(props: Props) {
             // Set next turn column and change isRowTurn state
             setSelectColumn(colIndex)
             setIsRowTurn(false)
-        } else {
+        } else if (val !== selectPlaceholder) {
             // Disable clicking cells outside of the column
             if (colIndex !== selectColumn) {
                 return
@@ -162,11 +162,19 @@ export default function CodeMatrix(props: Props) {
 
     // Handles the hover event for the cells
     function onHover(colIndex:number, val:string, rowIndex:number) {
+        // Return if hovering a placeholder
+        if (val === selectPlaceholder) {
+            return
+        }
+
+        // Return if the column hovered in the row contains a placeholder
+        if (combinationBoard[selectRow][colIndex] === selectPlaceholder && isRowTurn) {
+            return
+        }
+
         setColumnHover(colIndex)
         setRowHover(rowIndex)
-        if (val != selectPlaceholder) {
-            props.setMatrixHover(val)
-        }
+        props.setMatrixHover(val)
     }
 
     // Resets the state after the hover event
@@ -185,21 +193,21 @@ export default function CodeMatrix(props: Props) {
 
     // Swap board style depending on row or column turn
     function swapBoardStyle(colIndex:number, rowIndex:number, val:string) {
+
         let styleString = ""
+        
         if (isRowTurn) {
             // Row Style
-            styleString = `size-12 p-2 select-none text-center text-xl
-            ${colIndex === columnHover ? 'bg-matrix-preview' : ''} 
+            styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen
+            ${colIndex === columnHover ? 'bg-matrix-preview' : ''}
             ${val === props.combinationHover ? "inner-cell" : ""}
-            ${val === selectPlaceholder ? "text-white text-opacity-20" : "text-cyber-lightgreen"}
-            ${rowIndex === selectRow && columnHover === colIndex ? "double-border hoverGlowNoHover" : ""}`
+            ${val !== selectPlaceholder ? rowIndex === selectRow && columnHover === colIndex ? "double-border hoverGlow" : "": "text-white text-opacity-20"}`
         } else {
             // Column Style
-            styleString = `size-12 p-2 select-none text-center text-xl
+            styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen
             ${colIndex === selectColumn ? 'bg-matrix-select' : ''}
             ${val === props.combinationHover ? "inner-cell" : ""}
-            ${val === selectPlaceholder ? "text-white text-opacity-20" : "text-cyber-lightgreen"}
-            ${colIndex === selectColumn && rowHover === rowIndex ? "double-border hoverGlowNoHover" : ""}`
+            ${val !== selectPlaceholder ? colIndex === selectColumn && rowHover === rowIndex ? "double-border hoverGlow" : "" : "text-white text-opacity-20"}`
         }
 
         return styleString
@@ -210,7 +218,7 @@ export default function CodeMatrix(props: Props) {
         return (
             <>
                 {combinationBoard.map((row, rowIndex) => (
-                    <tr key={rowIndex} className={`table-auto ${rowIndex === selectRow && isRowTurn ? "bg-matrix-select" : !isRowTurn ? "hover:bg-matrix-preview" : ""}`}>
+                    <tr key={rowIndex} className={`table-auto ${rowIndex === selectRow && isRowTurn ? "bg-matrix-select" : !isRowTurn && rowIndex !== selectRow ? "hover:bg-matrix-preview" : ""}`}>
                         {row.map((val, colIndex) => (
                             <td
                                 key={colIndex}
