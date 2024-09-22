@@ -211,8 +211,6 @@ export default function Sequences(props: Props) {
         if (JSON.stringify(rowStatus) === `["completed","completed","completed"]`) {
             props.setGameStatus("win")
             props.gameStart.current = false
-
-            console.log("win case")
             return
         }
 
@@ -222,15 +220,11 @@ export default function Sequences(props: Props) {
             if (JSON.stringify(rowStatus).includes("completed")) {
                 props.setGameStatus("win")
                 props.gameStart.current = false
-
-                console.log("half win case")
             }
             // Case of failing all sequences
             else {
                 props.setGameStatus("lose")
                 props.gameStart.current = false
-
-                console.log("lose case")
             }
 
             return
@@ -240,12 +234,10 @@ export default function Sequences(props: Props) {
         if (props.userSelect.length >= props.bufferSize) {
             props.setGameStatus("lose")
             props.gameStart.current = false
-
-            console.log("buffer out case")
             return
         }
     }
-    
+
     // Check answers after every user select
     useEffect(() => {
         checkUserAnswer(cachedFinalSequenceArray, props.userSelect)
@@ -255,18 +247,40 @@ export default function Sequences(props: Props) {
 
     }, [props.userSelect])
 
+
     // Splits the solution string into 3 parts
     function splitSolutionStringArray(solutionStringArray:string[]) {
         
-        // Valid index locations to split the solution string
-        let posibleIndexVariations = [2, 2, 3]
-        shuffleArray(posibleIndexVariations)
+        // Find valid index locations to split the solution string
+        let possibleIndexVariations = [0, 0, 0]
+        let moduloResult = solutionStringArray.length % 3
+        if (moduloResult === 0) {
+        const indexLocation = solutionStringArray.length / 3
+            
+            // Evenly divided by 3, all indexes are equal
+            possibleIndexVariations = [indexLocation, indexLocation, indexLocation]
+        } else {
+            possibleIndexVariations = []
+            const indexLocation = solutionStringArray.length / 3
+
+            // Add remaining length to some indexLocations
+            for (let i = 0; i < moduloResult; i++) {
+                possibleIndexVariations.push(indexLocation + 1)
+            }
+
+            // Add indexLocations until length is 3
+            while (possibleIndexVariations.length < 3) {
+                possibleIndexVariations.push(indexLocation)
+            }
+        }
+        
+        shuffleArray(possibleIndexVariations)
         let finalSequenceArray = []
     
         // Create local copy of solutionStringArray to avoid mutating it directly
         let split3 = solutionStringArray.slice(0)
-        let split1 = (split3.splice(0, posibleIndexVariations[0]))
-        let split2 = (split3.splice(0, posibleIndexVariations[1]))
+        let split1 = (split3.splice(0, possibleIndexVariations[0]))
+        let split2 = (split3.splice(0, possibleIndexVariations[1]))
 
         // Ensuring that sequences are different
         if (split1.length > 2) {

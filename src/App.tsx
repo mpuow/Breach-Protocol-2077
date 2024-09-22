@@ -3,22 +3,35 @@ import CodeMatrix from "./components/CodeMatrix"
 import Sequences from "./components/Sequences"
 import Buffer from "./components/Buffer"
 import BreachTime from "./components/BreachTime"
+import DifficultySelector from "./components/DifficultySelector"
 
 function App() {
+    const defaultSettings = {solutionLength: 7, matrixSize: 6, initialTime: 10000}
+    // {solutionLength: 6, matrixSize: 5, initialTime: 10000}
+
     const [userSelect, setUserSelect] = useState<string[]>([])
-    const [bufferSize, _setBufferSize] = useState<number>(8)
-    const [matrixSize, _setMatrixSize] = useState<number>(6)
+    const [solutionLength, setSolutionLength] = useState<number>(defaultSettings.solutionLength)
+    const [bufferSize, setBufferSize] = useState<number>(defaultSettings.solutionLength + 1)
+    const [matrixSize, setMatrixSize] = useState<number>(defaultSettings.matrixSize)
+    const [initialTime, setInitialTime] = useState<number>(defaultSettings.initialTime)
     const [solutionStringArray, setSolutionStringArray] = useState<string[]>([])
     const [combinationHover, setCombinationHover] = useState<string>("")
     const [matrixHover, setMatrixHover] = useState<string>("")
-    const [initialTime, _setInitialTime] = useState<number>(30000)
     const gameStart = useRef(false)
     const [gameStatus, setGameStatus] = useState<string>("")
     const gameReset = useRef(false)
 
     return (
-        <div className="border-2 border-cyber-green p-2 pb-[15vh] m-12">
-            <h1 className="font-bold text-3xl mb-6">Breach Protocol</h1>
+        <div className="border-2 border-cyber-green p-2 h-[90vh] m-6 select-none">
+            {/* <h1 className="font-bold text-3xl mb-4">Breach Protocol</h1> */}
+
+            <div className="my-6">
+                <DifficultySelector
+                setSolutionLength={setSolutionLength}
+                setBufferSize={setBufferSize}
+                setMatrixSize={setMatrixSize}
+                setInitialTime={setInitialTime} />
+            </div>
 
             <div className="w-full flex flex-row h-[10vh] mb-6">
                 <div className="w-1/3 mx-4 pr-16">
@@ -56,7 +69,8 @@ function App() {
                         gameStart={gameStart}
                         gameStatus={gameStatus}
                         setGameStatus={setGameStatus}
-                        gameReset={gameReset} />
+                        gameReset={gameReset}
+                        solutionLength={solutionLength} />
                 </div>
                 <div className="w-2/3 mx-8">
                     <Sequences 

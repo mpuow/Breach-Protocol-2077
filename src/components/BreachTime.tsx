@@ -36,8 +36,10 @@ export default function BreachTime(props: Props) {
             setTimeLeft(props.initialTime)
             setBarPercent(100)
             props.gameReset.current = false
+        } else {
+            setTimeLeft(props.initialTime)
         }
-    }, [timeLeft, props.gameStart.current, props.gameReset.current])
+    }, [timeLeft, props.gameStart.current, props.gameReset.current, props.initialTime])
 
     function formatTime (timeLeft: number) {
         const seconds = Math.floor(timeLeft / 1000) % 60;
@@ -55,7 +57,7 @@ export default function BreachTime(props: Props) {
     return (
         <>
             <div className="flex flex-row justify-between mb-2 h-full">
-                <div className="text-2xl text-cyber-green">BREACH TIME REMAINING</div>
+                <div className="text-2xl text-cyber-green line-clamp-1">BREACH TIME REMAINING</div>
                 <div className="border-2 border-cyber-green w-1/4 h-11 text-cyber-green text-2xl select-none">
                     <span className="flex justify-center items-center h-full">{formatTime(timeLeft)}</span>
                 </div>

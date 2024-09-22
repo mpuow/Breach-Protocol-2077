@@ -15,6 +15,7 @@ interface Props {
     gameStatus: string
     setGameStatus: React.Dispatch<React.SetStateAction<string>>
     gameReset: React.MutableRefObject<boolean>
+    solutionLength: number
 }
 
 // Generates a random number
@@ -39,7 +40,7 @@ export default function CodeMatrix(props: Props) {
             setCombinationBoard([])
         }
 
-    }, [])
+    }, [props.matrixSize])
 
     // Reset game state
     function resetGame() {
@@ -64,8 +65,8 @@ export default function CodeMatrix(props: Props) {
     function generateCombination() {
         const possibleCombinations = ["E9", "55", "BD", "1C", "7A", "FF"]
         const combination: string[] = []
-        for (let i = 0; i < possibleCombinations.length; i++) {
-            combination.push(possibleCombinations[randomNumber(props.matrixSize)])
+        for (let i = 0; i < props.matrixSize; i++) {
+            combination.push(possibleCombinations[randomNumber(possibleCombinations.length)])
         }
         return combination
     }
@@ -88,7 +89,7 @@ export default function CodeMatrix(props: Props) {
             console.log(error)
         }
 
-        const solutionStringLength = 7
+        const solutionStringLength = props.solutionLength
         const solutionStringCoords: number[][] = []
         const localSolutionString:string[] = []
         let colIndex:number = -1
@@ -261,7 +262,7 @@ export default function CodeMatrix(props: Props) {
 
     return (
         <>
-            <div className={`${props.gameStatus === "win" ? "border-[1px] border-cyber-success" : props.gameStatus === "lose" ? "border-[1px] border-cyber-red" : "border-[1px] border-cyber-green"}`}>
+            <div className={`${props.gameStatus === "win" ? "border-[1px] border-cyber-success" : props.gameStatus === "lose" ? "border-[1px] border-cyber-red" : "border-[1px] border-cyber-green overflow-hidden"}`}>
                 <div className='relative'>
                     <div className="bg-cyber-green text-black p-2 text-xl">CODE MATRIX</div>
                     {props.gameStatus ?
