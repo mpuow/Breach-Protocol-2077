@@ -56,8 +56,6 @@ export default function CodeMatrix(props: Props) {
         // Reset buffer
         props.setUserSelect([])
 
-        // reset sequences
-
         // Reset timer
         props.gameReset.current = true
     }
@@ -149,13 +147,6 @@ export default function CodeMatrix(props: Props) {
 
     // Handles when a cell in the code matrix is clicked
     function clickCell(val: string, rowIndex:number, colIndex:number) {
-        // if (props.userSelect.length + 1 != props.bufferSize) {
-        //     props.setUserSelect((prevSelection) => [...prevSelection, val])
-        // } else {
-        //     // console.log("out of buffer")
-        //     props.setUserSelect((prevSelection) => [...prevSelection, val])
-        // }
-        
         
         // Check if it is a row or column turn
         if (isRowTurn && val !== selectPlaceholder) {
@@ -181,11 +172,12 @@ export default function CodeMatrix(props: Props) {
             setIsRowTurn(true)
         }
 
-
+        // Check val is not placeholder
         if (val !== selectPlaceholder) {
             props.setUserSelect((prevSelection) => [...prevSelection, val])
         }
 
+        // Replace coordinates with placeholder
         let tempCombinationBoard = [...combinationBoard]
         tempCombinationBoard[rowIndex][colIndex] = selectPlaceholder
         setCombinationBoard(tempCombinationBoard)
@@ -203,6 +195,7 @@ export default function CodeMatrix(props: Props) {
             return
         }
 
+        // Set hover indexes and val hover
         setColumnHover(colIndex)
         setRowHover(rowIndex)
         props.setMatrixHover(val)

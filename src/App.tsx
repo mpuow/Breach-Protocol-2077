@@ -36,7 +36,8 @@ function App() {
                     <Buffer 
                         userSelect={userSelect} 
                         bufferSize={bufferSize}
-                        matrixHover={matrixHover} />
+                        matrixHover={matrixHover}
+                        gameStatus={gameStatus} />
                 </div>
             </div>
 

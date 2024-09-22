@@ -38,6 +38,7 @@ export default function Sequences(props: Props) {
     const [lineIndex, setLineIndex] = useState<number[]>([0,0,0])
     const [invisElements, setInvisElements] = useState([<span key={-1}></span>])
 
+    // Used to reset sequences
     const handleReset = useMemo(() => {
         if (props.gameReset.current) {
             setRowStatus(["atstart", "atstart", "atstart"])
@@ -63,7 +64,6 @@ export default function Sequences(props: Props) {
                 = True
         */
         function bufferContainsSequence(sequence:string[], buffer:string[], progressCheckIndex:number) {
-
             // Turn arrays into strings
             const sequenceString = sequence.join()
             let bufferString = ""
@@ -143,6 +143,9 @@ export default function Sequences(props: Props) {
             // Set row to failed if not inprogress and not enough buffer
             if (bufferRemaining < sequences[i].length && tempStatus[i] === "atstart") {
                 tempStatus[i] = "failed"
+
+                // Check immediately in case of failing a sequence with the last user select
+                checkGameWin(tempStatus)
             }
 
             // Set line and space indexes
@@ -207,7 +210,9 @@ export default function Sequences(props: Props) {
         // Case of completing all sequences
         if (JSON.stringify(rowStatus) === `["completed","completed","completed"]`) {
             props.setGameStatus("win")
-            // stop timer, set gameStatus
+            props.gameStart.current = false
+
+            console.log("win case")
             return
         }
 
@@ -215,26 +220,30 @@ export default function Sequences(props: Props) {
         if (!JSON.stringify(rowStatus).includes("atstart") && !JSON.stringify(rowStatus).includes("inprogress")) {
             // Case of completing some sequences
             if (JSON.stringify(rowStatus).includes("completed")) {
-                console.log("handle half complete here")
-                // stop timer, set gameStatus
+                props.setGameStatus("win")
+                props.gameStart.current = false
+
+                console.log("half win case")
             }
             // Case of failing all sequences
             else {
-                console.log("handle fail here")
-                // stop timer, set gameStatus
+                props.setGameStatus("lose")
+                props.gameStart.current = false
+
+                console.log("lose case")
             }
+
             return
         }
 
         // Case of no buffer remaining
         if (props.userSelect.length >= props.bufferSize) {
-            console.log("iwengjiwog")
-            // stop timer, set gameStatus
+            props.setGameStatus("lose")
+            props.gameStart.current = false
+
+            console.log("buffer out case")
             return
         }
-
-        // props.gameStart.current = false
-        // props.setGameStatus("win")
     }
     
     // Check answers after every user select
@@ -297,8 +306,6 @@ export default function Sequences(props: Props) {
     function DisplaySequences() {
         const datamineType = ["BASIC DATAMINE", "ADVANCED DATAMINE", "EXPERT DATAMINE"]
         const datamineFlavourText = ["Extract eurodollars", "Extract eurodollars and quickhack crafting components", "Extract quickhacks and quickhack crafting specs"]
-
-        // resetSequences()
 
         return (
             <table className="w-full mb-8" onMouseLeave={() => props.setCombinationHover("")}>
