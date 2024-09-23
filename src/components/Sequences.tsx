@@ -12,6 +12,7 @@ interface Props {
     setGameStatus: React.Dispatch<React.SetStateAction<string>>
     gameStart: React.MutableRefObject<boolean>
     gameReset: React.MutableRefObject<boolean>
+    setSequenceArray: React.Dispatch<React.SetStateAction<string[][]>>
 }
 
 // Fisher-Yates Shuffle
@@ -28,6 +29,9 @@ function shuffleArray(array:number[]) {
 
 export default function Sequences(props: Props) {
 
+    // Declare before useMemo
+    const [componentSequenceArray, setComponentSequenceArray] = useState<string[][]>([])
+    
     // useMemo prevents the sequence array from being rewritten every render
     const cachedFinalSequenceArray = useMemo(() => splitSolutionStringArray(props.solutionStringArray), [props.solutionStringArray])
 
@@ -37,6 +41,7 @@ export default function Sequences(props: Props) {
     const [spaceIndex, setSpaceIndex] = useState([0,0,0])
     const [lineIndex, setLineIndex] = useState<number[]>([0,0,0])
     const [invisElements, setInvisElements] = useState([<span key={-1}></span>])
+
 
     // Used to reset sequences
     const handleReset = useMemo(() => {
@@ -245,7 +250,9 @@ export default function Sequences(props: Props) {
         // Reset variables upon game reset
         handleReset
 
-    }, [props.userSelect])
+        props.setSequenceArray(componentSequenceArray)
+
+    }, [props.userSelect, componentSequenceArray])
 
 
     // Splits the solution string into 3 parts
@@ -254,9 +261,10 @@ export default function Sequences(props: Props) {
         // Find valid index locations to split the solution string
         let possibleIndexVariations = [0, 0, 0]
         let moduloResult = solutionStringArray.length % 3
+        
         if (moduloResult === 0) {
-        const indexLocation = solutionStringArray.length / 3
-            
+            const indexLocation = solutionStringArray.length / 3
+
             // Evenly divided by 3, all indexes are equal
             possibleIndexVariations = [indexLocation, indexLocation, indexLocation]
         } else {
@@ -301,6 +309,11 @@ export default function Sequences(props: Props) {
     
         // Push results to finalSequenceArray
         finalSequenceArray.push(split1, split2, split3)
+        
+        // Steps to set variables for props, avoid bad setState
+        let tempSequenceArray = []
+        tempSequenceArray.push(split1, split2, split3)
+        setComponentSequenceArray(tempSequenceArray)
     
         return(finalSequenceArray)
     }

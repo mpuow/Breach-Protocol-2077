@@ -16,6 +16,7 @@ interface Props {
     setGameStatus: React.Dispatch<React.SetStateAction<string>>
     gameReset: React.MutableRefObject<boolean>
     solutionLength: number
+    sequenceArray: string[][]
 }
 
 // Generates a random number
@@ -31,6 +32,7 @@ export default function CodeMatrix(props: Props) {
     const [selectRow, setSelectRow] = useState<number>(0)
     const [selectColumn, setSelectColumn] = useState<number>(0)
     const [isRowTurn, setIsRowTurn] = useState<boolean>(true)
+    const [solvedArray, _setSolvedArray] = useState<number[][]>([[3,2], [0,0]])
 
     // Generates the code matrix and solution string, also loads the code matrix on mount
     useEffect(() => {
@@ -143,6 +145,8 @@ export default function CodeMatrix(props: Props) {
         // Sets solutionString with the local generated string
         props.setSolutionStringArray(localSolutionString)
 
+        console.log(solutionStringCoords)
+
         setCombinationBoard(localCombinationBoard)
     }
 
@@ -210,16 +214,37 @@ export default function CodeMatrix(props: Props) {
         props.setMatrixHover("")
     }
 
-    // Reset hover styles
-    function resetHover() {
-        setColumnHover(-1)
-        setRowHover(-1)
+    function solveClick() {
+        // let localSequenceArray = [...props.sequenceArray]
+        // let sequenceArrayIndex = [0,0,0]
+
+
+        // combinationBoard.map((row, rowIndex) => {
+        //     row.map((val, colIndex) => {
+        //         for (let i = 0; i < localSequenceArray.length; i++) {
+        //             if (val === localSequenceArray[i][sequenceArrayIndex[i]]) {
+        //                 sequenceArrayIndex[i] = sequenceArrayIndex[i] + 1
+        //                 console.log(sequenceArrayIndex)
+        //             }
+        //         }
+        //     })
+        // })
+
     }
 
     // Swap board style depending on row or column turn
     function swapBoardStyle(colIndex:number, rowIndex:number, val:string) {
 
         let styleString = ""
+
+        const solveCoords = [...solvedArray]
+        let testCoords = []
+        testCoords.push(rowIndex, colIndex)
+
+        if (JSON.stringify(solveCoords).includes(JSON.stringify(testCoords))) {
+            styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-white`
+            return styleString
+        }
         
         if (isRowTurn) {
             // Row Style
@@ -269,7 +294,7 @@ export default function CodeMatrix(props: Props) {
                         <div className={`text-black p-2 text-xl absolute top-0 left-0 w-full h-full ${props.gameStatus === "win" ? "bg-cyber-success" : props.gameStatus === "lose" ? "bg-cyber-red" : ""}`}></div>
                         : ""}
                 </div>
-                <table className={`flex justify-center py-2 ${props.gameStatus === "win" ? "bg-success-green" : props.gameStatus === "lose" ? "bg-fail-red" : ""}`} onMouseLeave={() => resetHover()}>
+                <table className={`flex justify-center py-2 ${props.gameStatus === "win" ? "bg-success-green" : props.gameStatus === "lose" ? "bg-fail-red" : ""}`} onMouseLeave={() => stopHover()}>
                     <tbody>
 
                         {props.gameStatus === "win" ?
@@ -335,7 +360,10 @@ export default function CodeMatrix(props: Props) {
                 flex items-center p-2 mt-6 w-2/5 mr-0 ml-auto`} onClick={() => resetGame()}>
                     EXIT INTERFACE
                 </div>
-            : <div></div>}
+            : 
+            <div className='flex flex-col items-center justify-center p-2 mt-6 mr-0 ml-auto text-cyber-blue-darker'>
+                <span className='border-2 border-cyber-red-menu p-2 px-6 bg-black bg-opacity-20 hover:bg-cyber-red-menu hover:bg-opacity-30' onClick={() => solveClick()}>SOLVE</span>
+            </div>}
 
         </>
     )

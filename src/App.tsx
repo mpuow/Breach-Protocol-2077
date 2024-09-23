@@ -6,7 +6,7 @@ import BreachTime from "./components/BreachTime"
 import DifficultySelector from "./components/DifficultySelector"
 
 function App() {
-    const defaultSettings = {solutionLength: 7, matrixSize: 6, initialTime: 10000}
+    const defaultSettings = {solutionLength: 6, matrixSize: 3, initialTime: 10000}
     // {solutionLength: 6, matrixSize: 5, initialTime: 10000}
 
     const [userSelect, setUserSelect] = useState<string[]>([])
@@ -20,6 +20,7 @@ function App() {
     const gameStart = useRef(false)
     const [gameStatus, setGameStatus] = useState<string>("")
     const gameReset = useRef(false)
+    const [sequenceArray, setSequenceArray] = useState<string[][]>([])
 
     return (
         <div className="border-2 border-cyber-green p-2 h-[90vh] m-6 select-none">
@@ -70,7 +71,8 @@ function App() {
                         gameStatus={gameStatus}
                         setGameStatus={setGameStatus}
                         gameReset={gameReset}
-                        solutionLength={solutionLength} />
+                        solutionLength={solutionLength}
+                        sequenceArray={sequenceArray} />
                 </div>
                 <div className="w-2/3 mx-8">
                     <Sequences 
@@ -83,7 +85,8 @@ function App() {
                     bufferSize={bufferSize}
                     setGameStatus={setGameStatus}
                     gameStart={gameStart}
-                    gameReset={gameReset} />
+                    gameReset={gameReset}
+                    setSequenceArray={setSequenceArray} />
                 </div>
             </div>
 

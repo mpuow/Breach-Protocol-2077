@@ -21,6 +21,8 @@ export default {
         "matrix-preview" : "#1F2019",
         "fail-red" : "#2B0605",
         "success-green" : "#14251A",
+        "cyber-blue-darker" : "#64CEC9",
+        "cyber-red-menu" : "#B14657"
       },
     },
   },

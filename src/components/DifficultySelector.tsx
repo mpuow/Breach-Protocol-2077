@@ -10,14 +10,15 @@ interface Props {
 export default function DifficultySelector(props: Props) {
     const [difficulty, setDifficulty] = useState("choom") // default difficulty
 
-    // {"difficultyName" : "Choom", "solutionLength" : 6, "matrixSize" : 5, "timer" : 10000,
+    // Difficulty options and their settings
     const difficultyOptions = [
-        {"difficultyName" : "Choom", "solutionLength" : 6, "matrixSize" : 5, "initialTime" : 10000, "style" : "text-cyber-success"},
-        {"difficultyName" : "Hacker", "solutionLength" : 7, "matrixSize" : 6, "initialTime" : 15000, "style" : "text-cyber-blue"},
-        {"difficultyName" : "Netrunner", "solutionLength" : 8, "matrixSize" : 7, "initialTime" : 20000, "style" : "text-cyber-yellow"},
-        {"difficultyName" : "Bartmoss", "solutionLength" : 10, "matrixSize" : 8, "initialTime" : 30000, "style" : "text-cyber-red"}
+        {"difficultyName" : "Choom", "solutionLength" : 6, "matrixSize" : 5, "initialTime" : 10000, "style" : "text-cyber-success underline"},
+        {"difficultyName" : "Hacker", "solutionLength" : 7, "matrixSize" : 6, "initialTime" : 15000, "style" : "text-cyber-blue-darker underline"},
+        {"difficultyName" : "Netrunner", "solutionLength" : 8, "matrixSize" : 7, "initialTime" : 20000, "style" : "text-cyber-yellow underline"},
+        {"difficultyName" : "Bartmoss", "solutionLength" : 10, "matrixSize" : 8, "initialTime" : 30000, "style" : "text-cyber-red underline"}
     ]
 
+    // Set state variables with difficulty settings
     const difficultySelect = (difficulty:string, solutionLength:number, matrixSize:number, initialTime:number) => {
         setDifficulty(difficulty.toLowerCase())
         props.setSolutionLength(solutionLength)
