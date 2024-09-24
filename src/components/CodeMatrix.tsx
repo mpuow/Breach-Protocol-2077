@@ -215,20 +215,78 @@ export default function CodeMatrix(props: Props) {
     }
 
     function solveClick() {
-        // let localSequenceArray = [...props.sequenceArray]
-        // let sequenceArrayIndex = [0,0,0]
+        let localSequenceArray = [...props.sequenceArray]
 
+        let searchedPath: number[][] = []
+        let searchStartPoints: number[][] = []
 
-        // combinationBoard.map((row, rowIndex) => {
-        //     row.map((val, colIndex) => {
-        //         for (let i = 0; i < localSequenceArray.length; i++) {
-        //             if (val === localSequenceArray[i][sequenceArrayIndex[i]]) {
-        //                 sequenceArrayIndex[i] = sequenceArrayIndex[i] + 1
-        //                 console.log(sequenceArrayIndex)
-        //             }
-        //         }
-        //     })
-        // })
+        // Function to search for start points
+        // Function to search cols
+        // Function to search rows
+        // Function to test final answer
+
+        /* 
+        
+        Steps:
+            1. Find all possible sequence coords, starting at row 0. (For all sequences)
+            2. Loop through all possible row 0 sequences to find the remaining sequences
+            3. Check the final array pattern to verify the solution
+        
+        */
+
+        combinationBoard.map((row, rowIndex) => {
+            if (rowIndex === 0) {
+                row.map((val, colIndex) => {
+                    for (let i = 0; i < localSequenceArray.length; i++) {
+                        // If val matches first part of sequence
+                        if (val === localSequenceArray[i][0]) {
+                            searchStartPoints.push([rowIndex, colIndex, i])
+                        }
+                    }
+    
+                })
+            }
+        })
+        
+        console.log(searchStartPoints)
+
+        function searchRows(prevRowIndex:number, i:number, arraySoFar:number[][]) {
+            combinationBoard.map((row, rowIndex) => {
+                row.map((val, colIndex) => {
+                    if (!JSON.stringify(arraySoFar).includes(`[${rowIndex},${colIndex}]`)) { // Dont search already chosen coords
+                        if (prevRowIndex === rowIndex) { // Search the row
+                            if (val === localSequenceArray[searchStartPoints[i][2]][2]) {
+                                console.log(`${rowIndex} : ${colIndex}  >>> ${val}`)
+                            }
+                        }
+                    }
+                })
+            })
+        }
+
+        combinationBoard.map((row, rowIndex) => {
+            row.map((val, colIndex) => {
+                for (let i = 0; i < searchStartPoints.length; i++) {
+                    let tempRowIndex = searchStartPoints[i][0]
+                    let tempColIndex = searchStartPoints[i][1]
+
+                    if (!JSON.stringify(searchStartPoints).includes(`[${rowIndex},${colIndex},${searchStartPoints[i][2]}]`)) { // Dont search already chosen coords
+                        if (tempColIndex === colIndex) { // Search the col
+                            if (val === localSequenceArray[searchStartPoints[i][2]][1]) { // THIS CHECK IS WRONG (needs to be specific sequences not just all valid starting points)
+                                console.log(`${tempRowIndex} : ${tempColIndex} , ${rowIndex} : ${colIndex}`) // First and second coords
+                                let arraySoFar = []
+                                arraySoFar.push([tempRowIndex, tempColIndex], [rowIndex, colIndex])
+                                searchRows(rowIndex, i, arraySoFar)
+                            }
+                        }
+                    }
+                    
+                }
+
+            })
+        })
+
+        console.log(searchedPath)
 
     }
 
@@ -242,7 +300,7 @@ export default function CodeMatrix(props: Props) {
         testCoords.push(rowIndex, colIndex)
 
         if (JSON.stringify(solveCoords).includes(JSON.stringify(testCoords))) {
-            styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-white`
+            styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-gray-500`
             return styleString
         }
         
