@@ -145,6 +145,7 @@ export default function CodeMatrix(props: Props) {
         // Sets solutionString with the local generated string
         props.setSolutionStringArray(localSolutionString)
 
+        console.log("solution string coords")
         console.log(solutionStringCoords)
 
         setCombinationBoard(localCombinationBoard)
@@ -220,73 +221,105 @@ export default function CodeMatrix(props: Props) {
         let searchedPath: number[][] = []
         let searchStartPoints: number[][] = []
 
-        // Function to search for start points
-        // Function to search cols
+        let sequenceSearchIndex = [0,0,0]
+
+        let currentRowIndex = 0
+        let currentColIndex = 0
+
+        // Function to search for first row starting points
         // Function to search rows
-        // Function to test final answer
+        // Function to search cols
 
-        /* 
-        
-        Steps:
-            1. Find all possible sequence coords, starting at row 0. (For all sequences)
-            2. Loop through all possible row 0 sequences to find the remaining sequences
-            3. Check the final array pattern to verify the solution
-        
-        */
 
-        combinationBoard.map((row, rowIndex) => {
-            if (rowIndex === 0) {
-                row.map((val, colIndex) => {
-                    for (let i = 0; i < localSequenceArray.length; i++) {
-                        // If val matches first part of sequence
-                        if (val === localSequenceArray[i][0]) {
-                            searchStartPoints.push([rowIndex, colIndex, i])
-                        }
-                    }
-    
-                })
-            }
-        })
-        
-        console.log(searchStartPoints)
-
-        function searchRows(prevRowIndex:number, i:number, arraySoFar:number[][]) {
+        function searchStartRow() {
+            let positiveMatch: number[][] = []
             combinationBoard.map((row, rowIndex) => {
-                row.map((val, colIndex) => {
-                    if (!JSON.stringify(arraySoFar).includes(`[${rowIndex},${colIndex}]`)) { // Dont search already chosen coords
-                        if (prevRowIndex === rowIndex) { // Search the row
-                            if (val === localSequenceArray[searchStartPoints[i][2]][2]) {
-                                console.log(`${rowIndex} : ${colIndex}  >>> ${val}`)
-                            }
+                if (rowIndex === currentRowIndex) {
+                    row.map((val, colIndex) => {
+                        for (let i = 0; i < localSequenceArray.length; i++) {
+                            if (val === localSequenceArray[i][sequenceSearchIndex[i]]) { // If val matches part of sequence
+                                console.log(val, rowIndex, colIndex)
+                                sequenceSearchIndex[i] = sequenceSearchIndex[i] + 1 // Increment index in sequence
+                                positiveMatch.push([rowIndex, colIndex]) // Add coords to array
+                                searchColumn(positiveMatch, i) // continue searching next column
+                                positiveMatch = [] // Clear to avoid retesting
+                            }  
                         }
-                    }
-                })
+                    })
+                }
             })
+            return positiveMatch
         }
 
-        combinationBoard.map((row, rowIndex) => {
-            row.map((val, colIndex) => {
-                for (let i = 0; i < searchStartPoints.length; i++) {
-                    let tempRowIndex = searchStartPoints[i][0]
-                    let tempColIndex = searchStartPoints[i][1]
+        // function searchStartColumn() {
+        //     let positiveMatch: number[][] = []
+        //     combinationBoard.map((row, rowIndex) => {
+        //         row.map((val, colIndex) => {
+        //                 if (colIndex === 0) {
 
-                    if (!JSON.stringify(searchStartPoints).includes(`[${rowIndex},${colIndex},${searchStartPoints[i][2]}]`)) { // Dont search already chosen coords
-                        if (tempColIndex === colIndex) { // Search the col
-                            if (val === localSequenceArray[searchStartPoints[i][2]][1]) { // THIS CHECK IS WRONG (needs to be specific sequences not just all valid starting points)
-                                console.log(`${tempRowIndex} : ${tempColIndex} , ${rowIndex} : ${colIndex}`) // First and second coords
-                                let arraySoFar = []
-                                arraySoFar.push([tempRowIndex, tempColIndex], [rowIndex, colIndex])
-                                searchRows(rowIndex, i, arraySoFar)
+        //             }
+        //         })
+        //     })
+        //     return positiveMatch
+        // }
+
+        // console.log(searchStartColumn())
+
+        function searchColumn(prevRowMatch:number[][], currentSequenceIndex:number) {
+            let positiveMatch: number[][] = []
+            let found = false
+            combinationBoard.map((row, rowIndex) => {
+                if (rowIndex !== prevRowMatch[0][0]) { // Prevents backtracking
+                    row.map((val, colIndex) => {
+                        if (colIndex === prevRowMatch[0][1]) {
+                            console.log(val + " === " + localSequenceArray[currentSequenceIndex][sequenceSearchIndex[currentSequenceIndex]])
+                            if (val === localSequenceArray[currentSequenceIndex][sequenceSearchIndex[currentSequenceIndex]]) { // If val matches part of sequence
+                                console.log(val, rowIndex, colIndex)
+                                found = true
+                                sequenceSearchIndex[currentSequenceIndex] = sequenceSearchIndex[currentSequenceIndex] + 1 // Increment index in sequence
+                                if (localSequenceArray[currentSequenceIndex].length === sequenceSearchIndex[currentSequenceIndex]) {
+                                    sequenceSearchIndex[currentSequenceIndex] = -1
+                                }
+                                positiveMatch.push([rowIndex, colIndex])
+                                // searchRow(positiveMatch, currentSequenceIndex) // continue searching next row
                             }
                         }
-                    }
-                    
+                    })
                 }
-
             })
-        })
+            if (!found) { // reset sequence search index if no matches found
+                sequenceSearchIndex[currentSequenceIndex] = 0
+                found = false
+            }
+            return positiveMatch
+        }
 
-        console.log(searchedPath)
+        // function searchRow(prevColMatch:number [][], currentSequenceIndex:number) {
+        //     let positiveMatch: number[][] = []
+        //     combinationBoard.map((row, rowIndex) => {
+        //         if (rowIndex === prevColMatch[0][0]) {
+        //             row.map((val, colIndex) => {
+        //                 if (colIndex !== prevColMatch[0][1]) { // Prevents backtracking
+        //                     let found = false
+        //                     if (val === localSequenceArray[currentSequenceIndex][sequenceSearchIndex[currentSequenceIndex]]) { // If val matches part of sequence
+        //                         console.log(val, rowIndex, colIndex)
+        //                         found = true
+        //                         sequenceSearchIndex[currentSequenceIndex] = sequenceSearchIndex[currentSequenceIndex] + 1 // Increment index in sequence
+        //                         positiveMatch.push([rowIndex, colIndex]) // Add coords to array
+        //                         searchColumn(positiveMatch, currentSequenceIndex) // continue searching next column
+        //                         positiveMatch = [] // Clear to avoid retesting
+        //                     }
+        //                     if (!found) { // reset sequence search index if no matches found
+        //                         sequenceSearchIndex[currentSequenceIndex] = 0
+        //                     }
+        //                 }
+        //             })
+        //         }
+        //     })
+        //     return positiveMatch
+        // }
+
+        console.log(searchStartRow())
 
     }
 
@@ -295,14 +328,14 @@ export default function CodeMatrix(props: Props) {
 
         let styleString = ""
 
-        const solveCoords = [...solvedArray]
-        let testCoords = []
-        testCoords.push(rowIndex, colIndex)
+        // const solveCoords = [...solvedArray]
+        // let testCoords = []
+        // testCoords.push(rowIndex, colIndex)
 
-        if (JSON.stringify(solveCoords).includes(JSON.stringify(testCoords))) {
-            styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-gray-500`
-            return styleString
-        }
+        // if (JSON.stringify(solveCoords).includes(JSON.stringify(testCoords))) {
+        //     styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-gray-500`
+        //     return styleString
+        // }
         
         if (isRowTurn) {
             // Row Style

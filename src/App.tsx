@@ -6,7 +6,7 @@ import BreachTime from "./components/BreachTime"
 import DifficultySelector from "./components/DifficultySelector"
 
 function App() {
-    const defaultSettings = {solutionLength: 6, matrixSize: 3, initialTime: 10000}
+    const defaultSettings = {solutionLength: 6, matrixSize: 4, initialTime: 10000}
     // {solutionLength: 6, matrixSize: 5, initialTime: 10000}
 
     const [userSelect, setUserSelect] = useState<string[]>([])
