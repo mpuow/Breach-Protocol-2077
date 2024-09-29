@@ -32,7 +32,7 @@ export default function CodeMatrix(props: Props) {
     const [selectRow, setSelectRow] = useState<number>(0)
     const [selectColumn, setSelectColumn] = useState<number>(0)
     const [isRowTurn, setIsRowTurn] = useState<boolean>(true)
-    const [solvedArray, _setSolvedArray] = useState<number[][]>([[3,2], [0,0]])
+    const [solvedArray, setSolvedArray] = useState<number[][]>([])
 
     // Generates the code matrix and solution string, also loads the code matrix on mount
     useEffect(() => {
@@ -218,13 +218,12 @@ export default function CodeMatrix(props: Props) {
     function solveClick() {
         let localSequenceArray = [...props.sequenceArray]
 
-        let searchedPath: number[][] = []
-        let searchStartPoints: number[][] = []
+        let foundSequencePath: number[][] = []
 
-        let sequenceSearchIndex = [0,0,0]
+        let sequenceSearchIndexArray = [0,0,0]
 
-        let currentRowIndex = 0
-        let currentColIndex = 0
+        // let currentRowIndex = 0
+        // let currentColIndex = 0
 
         // Function to search for first row starting points
         // Function to search rows
@@ -232,94 +231,104 @@ export default function CodeMatrix(props: Props) {
 
 
         function searchStartRow() {
-            let positiveMatch: number[][] = []
             combinationBoard.map((row, rowIndex) => {
-                if (rowIndex === currentRowIndex) {
+                if (rowIndex === 0) { // Starting row
                     row.map((val, colIndex) => {
                         for (let i = 0; i < localSequenceArray.length; i++) {
-                            if (val === localSequenceArray[i][sequenceSearchIndex[i]]) { // If val matches part of sequence
+                            if (foundSequencePath.length === props.solutionLength) {
+                                break
+                            } else {
+                                sequenceSearchIndexArray = [0,0,0] // Reset every search
+                                foundSequencePath = []
+                            }
+
+                            if (val === localSequenceArray[i][0]) { // If val matches first part of sequence
+                                console.log("SEQUENCE START")
                                 console.log(val, rowIndex, colIndex)
-                                sequenceSearchIndex[i] = sequenceSearchIndex[i] + 1 // Increment index in sequence
-                                positiveMatch.push([rowIndex, colIndex]) // Add coords to array
-                                searchColumn(positiveMatch, i) // continue searching next column
-                                positiveMatch = [] // Clear to avoid retesting
-                            }  
+
+                                sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
+                                searchColumn([[rowIndex, colIndex]], i) // continue searching next column
+                            }
                         }
                     })
                 }
             })
-            return positiveMatch
         }
 
-        // function searchStartColumn() {
-        //     let positiveMatch: number[][] = []
-        //     combinationBoard.map((row, rowIndex) => {
-        //         row.map((val, colIndex) => {
-        //                 if (colIndex === 0) {
+        function searchRow(currentRowIndex:number, currentSequenceIndex:number = -1, prevColMatch:number[][] = [[-1,-1]]) {
+            combinationBoard.map((row, rowIndex) => {
+                if (rowIndex === currentRowIndex) {
+                    row.map((val, colIndex) => {
+                        if (colIndex !== prevColMatch[0][1] && !JSON.stringify(foundSequencePath).includes(JSON.stringify([rowIndex, colIndex]))) { // Prevents backtracking and re-finding coords
+                            if (currentSequenceIndex !== -1) { // Default assume sequence in progress
+                                for (let i = 0; i < props.matrixSize; i++) {
+                                    if (val === localSequenceArray[currentSequenceIndex][sequenceSearchIndexArray[currentSequenceIndex]]) { // If val matches part of sequence
+                                        console.log(val, rowIndex, colIndex)
+                                        // foundSequencePath.push([rowIndex, colIndex])
+                                        sequenceSearchIndexArray[currentSequenceIndex] = sequenceSearchIndexArray[currentSequenceIndex] + 1 // Increment index in sequence
+                                        searchColumn([[rowIndex, colIndex]], currentSequenceIndex) // continue searching next column
+                                    }
+                                }
+                            } else { // If no sequence in progress, start another sequence
+                                for (let i = 0; i < localSequenceArray.length; i++) {
+                                    if (val === localSequenceArray[i][sequenceSearchIndexArray[i]]) { // If val matches part of sequence
+                                        console.log(val, rowIndex, colIndex)
+                                        // foundSequencePath.push([rowIndex, colIndex])
+                                        sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
+                                        searchColumn([[rowIndex, colIndex]], i) // Continue searching next column
+                                    }
+                                }
+                            }
+                        }
+                    })
+                }
+            })
+        }
 
-        //             }
-        //         })
-        //     })
-        //     return positiveMatch
-        // }
-
-        // console.log(searchStartColumn())
-
+        
         function searchColumn(prevRowMatch:number[][], currentSequenceIndex:number) {
-            let positiveMatch: number[][] = []
             let found = false
             combinationBoard.map((row, rowIndex) => {
                 if (rowIndex !== prevRowMatch[0][0]) { // Prevents backtracking
                     row.map((val, colIndex) => {
                         if (colIndex === prevRowMatch[0][1]) {
-                            console.log(val + " === " + localSequenceArray[currentSequenceIndex][sequenceSearchIndex[currentSequenceIndex]])
-                            if (val === localSequenceArray[currentSequenceIndex][sequenceSearchIndex[currentSequenceIndex]]) { // If val matches part of sequence
-                                console.log(val, rowIndex, colIndex)
-                                found = true
-                                sequenceSearchIndex[currentSequenceIndex] = sequenceSearchIndex[currentSequenceIndex] + 1 // Increment index in sequence
-                                if (localSequenceArray[currentSequenceIndex].length === sequenceSearchIndex[currentSequenceIndex]) {
-                                    sequenceSearchIndex[currentSequenceIndex] = -1
+                            if (!JSON.stringify(foundSequencePath).includes(JSON.stringify([rowIndex, colIndex]))) { // Prevents re-finding found coords
+                                if (val === localSequenceArray[currentSequenceIndex][sequenceSearchIndexArray[currentSequenceIndex]]) { // If val matches part of sequence
+                                    console.log(val, rowIndex, colIndex)
+                                    foundSequencePath.push([prevRowMatch[0][0], prevRowMatch[0][1]])
+                                    foundSequencePath.push([rowIndex, colIndex])
+                                    found = true
+                                    sequenceSearchIndexArray[currentSequenceIndex] = sequenceSearchIndexArray[currentSequenceIndex] + 1 // Increment index in sequence
+                                    
+                                    if (localSequenceArray[currentSequenceIndex].length === sequenceSearchIndexArray[currentSequenceIndex]) { // Checking if sequence is complete
+                                        sequenceSearchIndexArray[currentSequenceIndex] = -1
+                                        if (JSON.stringify(sequenceSearchIndexArray) === `[-1,-1,-1]`) { // Check if all sequences are complete
+                                            console.log("COMPLETE SEQUENCE FOUND")
+                                            console.log(foundSequencePath)
+                                            setSolvedArray(foundSequencePath)
+                                        } else {
+                                            console.log("NEW ROW NEW SEQUENCE")
+                                            searchRow(rowIndex, -1, [[rowIndex, colIndex]]) // Start searching new sequence
+                                        }
+                                    } else {
+                                        console.log("NEW ROW SAME SEQUENCE")
+                                        searchRow(rowIndex, currentSequenceIndex, [[rowIndex, colIndex]]) // Continue searching for sequence
+                                    }
                                 }
-                                positiveMatch.push([rowIndex, colIndex])
-                                // searchRow(positiveMatch, currentSequenceIndex) // continue searching next row
                             }
                         }
                     })
                 }
             })
             if (!found) { // reset sequence search index if no matches found
-                sequenceSearchIndex[currentSequenceIndex] = 0
+                sequenceSearchIndexArray[currentSequenceIndex] = 0
                 found = false
             }
-            return positiveMatch
         }
 
-        // function searchRow(prevColMatch:number [][], currentSequenceIndex:number) {
-        //     let positiveMatch: number[][] = []
-        //     combinationBoard.map((row, rowIndex) => {
-        //         if (rowIndex === prevColMatch[0][0]) {
-        //             row.map((val, colIndex) => {
-        //                 if (colIndex !== prevColMatch[0][1]) { // Prevents backtracking
-        //                     let found = false
-        //                     if (val === localSequenceArray[currentSequenceIndex][sequenceSearchIndex[currentSequenceIndex]]) { // If val matches part of sequence
-        //                         console.log(val, rowIndex, colIndex)
-        //                         found = true
-        //                         sequenceSearchIndex[currentSequenceIndex] = sequenceSearchIndex[currentSequenceIndex] + 1 // Increment index in sequence
-        //                         positiveMatch.push([rowIndex, colIndex]) // Add coords to array
-        //                         searchColumn(positiveMatch, currentSequenceIndex) // continue searching next column
-        //                         positiveMatch = [] // Clear to avoid retesting
-        //                     }
-        //                     if (!found) { // reset sequence search index if no matches found
-        //                         sequenceSearchIndex[currentSequenceIndex] = 0
-        //                     }
-        //                 }
-        //             })
-        //         }
-        //     })
-        //     return positiveMatch
-        // }
 
-        console.log(searchStartRow())
+        searchStartRow()
+        console.log(foundSequencePath)
 
     }
 
@@ -328,14 +337,24 @@ export default function CodeMatrix(props: Props) {
 
         let styleString = ""
 
-        // const solveCoords = [...solvedArray]
+        const solveCoords = [...solvedArray]
         // let testCoords = []
         // testCoords.push(rowIndex, colIndex)
+        let solveStartEnd = 1
 
-        // if (JSON.stringify(solveCoords).includes(JSON.stringify(testCoords))) {
-        //     styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-gray-500`
-        //     return styleString
-        // }
+        if (JSON.stringify(solveCoords).includes(JSON.stringify([rowIndex, colIndex]))) {
+            if (solveStartEnd === 1) {
+                styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-cyber-blue-darker`
+            } else if (solveStartEnd === solveCoords.length) {
+                styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-cyber-red`
+            } else {
+                styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-gray-500`
+            }
+
+            solveStartEnd++
+
+            return styleString
+        }
         
         if (isRowTurn) {
             // Row Style

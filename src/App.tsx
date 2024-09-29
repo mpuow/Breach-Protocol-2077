@@ -23,7 +23,7 @@ function App() {
     const [sequenceArray, setSequenceArray] = useState<string[][]>([])
 
     return (
-        <div className="border-2 border-cyber-green p-2 h-[90vh] m-6 select-none">
+        <div className="border-2 border-cyber-green p-2 h-[90vh] m-6 select-none overflow-hidden">
             {/* <h1 className="font-bold text-3xl mb-4">Breach Protocol</h1> */}
 
             <div className="my-6">
