@@ -116,17 +116,41 @@ export default function CodeMatrix(props: Props) {
             Eg: [0,5] -> [4,5] -> [4,2] -> [0,2]
 
         */
+
+        // Generate solution string of given length
         for (let i = 0; i < solutionStringLength; i++) {
             if (selectRow) {
                 prevRowIndex = rowIndex
-                while (rowIndex === prevRowIndex) { rowIndex = randomNumber(props.matrixSize) }
-                solutionStringCoords.push([rowIndex, colIndex])
+                while (rowIndex === prevRowIndex) {
+                    // Generate rowIndex
+                    rowIndex = randomNumber(props.matrixSize)
+
+                    // If coords are not already in solution string
+                    if (!JSON.stringify(solutionStringCoords).includes(JSON.stringify([rowIndex, colIndex]))) {
+                        solutionStringCoords.push([rowIndex, colIndex])
+                    } else {
+                        // Reset loop
+                        rowIndex = prevRowIndex
+                    }
+                }
                 selectRow = false
             } else {
                 prevColIndex = colIndex
-                while (colIndex === prevColIndex) { colIndex = randomNumber(props.matrixSize) }
-                if (rowIndex === -1) { rowIndex = 0 }
-                solutionStringCoords.push([rowIndex, colIndex])
+                while (colIndex === prevColIndex) {
+                    // Generate colIndex
+                    colIndex = randomNumber(props.matrixSize)
+
+                    // If coords are not already in solution string
+                    if (!JSON.stringify(solutionStringCoords).includes(JSON.stringify([rowIndex, colIndex]))) {
+                        // First iteration rowindex is always 0
+                        if (rowIndex === -1) { rowIndex = 0 }
+                        
+                        solutionStringCoords.push([rowIndex, colIndex])
+                    } else {
+                        // Reset loop
+                        colIndex = prevColIndex
+                    }
+                }
                 selectRow = true
             }
         }
@@ -238,6 +262,7 @@ export default function CodeMatrix(props: Props) {
                             if (foundSequencePath.length === props.solutionLength) {
                                 break
                             } else {
+                                console.log("RESET")
                                 sequenceSearchIndexArray = [0,0,0] // Reset every search
                                 foundSequencePath = []
                             }
