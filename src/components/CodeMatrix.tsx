@@ -144,7 +144,7 @@ export default function CodeMatrix(props: Props) {
                     if (!JSON.stringify(solutionStringCoords).includes(JSON.stringify([rowIndex, colIndex]))) {
                         // First iteration rowindex is always 0
                         if (rowIndex === -1) { rowIndex = 0 }
-                        
+
                         solutionStringCoords.push([rowIndex, colIndex])
                     } else {
                         // Reset loop
@@ -255,101 +255,221 @@ export default function CodeMatrix(props: Props) {
 
 
         function searchStartRow() {
-            combinationBoard.map((row, rowIndex) => {
-                if (rowIndex === 0) { // Starting row
-                    row.map((val, colIndex) => {
-                        for (let i = 0; i < localSequenceArray.length; i++) {
-                            if (foundSequencePath.length === props.solutionLength) {
-                                break
-                            } else {
-                                console.log("RESET")
-                                sequenceSearchIndexArray = [0,0,0] // Reset every search
-                                foundSequencePath = []
-                            }
+            let row = combinationBoard[0] // Default 0
+            for (let colIndex = 0; colIndex < row.length; colIndex++) {
+                for (let i = 0; i < localSequenceArray.length; i++) {
+                    if (foundSequencePath.length === props.solutionLength) {
+                        break
+                    } else {
+                        console.log("RESET")
+                        sequenceSearchIndexArray = [0,0,0] // Reset every search
+                        foundSequencePath = []
+                    }
+                    if (row[colIndex] === localSequenceArray[i][0]) { // If val matches first part of sequence
+                        console.log("SEQUENCE START")
+                        console.log(row[colIndex], 0, colIndex)
+                        foundSequencePath.push([0, colIndex])
 
-                            if (val === localSequenceArray[i][0]) { // If val matches first part of sequence
-                                console.log("SEQUENCE START")
-                                console.log(val, rowIndex, colIndex)
-
-                                sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
-                                searchColumn([[rowIndex, colIndex]], i) // continue searching next column
-                            }
-                        }
-                    })
+                        sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
+                        // searchColumn([[rowIndex, colIndex]], i) // continue searching next column
+                        searchColumn(0, colIndex, i, false)
+                    }
                 }
-            })
-        }
-
-        function searchRow(currentRowIndex:number, currentSequenceIndex:number = -1, prevColMatch:number[][] = [[-1,-1]]) {
-            combinationBoard.map((row, rowIndex) => {
-                if (rowIndex === currentRowIndex) {
-                    row.map((val, colIndex) => {
-                        if (colIndex !== prevColMatch[0][1] && !JSON.stringify(foundSequencePath).includes(JSON.stringify([rowIndex, colIndex]))) { // Prevents backtracking and re-finding coords
-                            if (currentSequenceIndex !== -1) { // Default assume sequence in progress
-                                for (let i = 0; i < props.matrixSize; i++) {
-                                    if (val === localSequenceArray[currentSequenceIndex][sequenceSearchIndexArray[currentSequenceIndex]]) { // If val matches part of sequence
-                                        console.log(val, rowIndex, colIndex)
-                                        // foundSequencePath.push([rowIndex, colIndex])
-                                        sequenceSearchIndexArray[currentSequenceIndex] = sequenceSearchIndexArray[currentSequenceIndex] + 1 // Increment index in sequence
-                                        searchColumn([[rowIndex, colIndex]], currentSequenceIndex) // continue searching next column
-                                    }
-                                }
-                            } else { // If no sequence in progress, start another sequence
-                                for (let i = 0; i < localSequenceArray.length; i++) {
-                                    if (val === localSequenceArray[i][sequenceSearchIndexArray[i]]) { // If val matches part of sequence
-                                        console.log(val, rowIndex, colIndex)
-                                        // foundSequencePath.push([rowIndex, colIndex])
-                                        sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
-                                        searchColumn([[rowIndex, colIndex]], i) // Continue searching next column
-                                    }
-                                }
-                            }
-                        }
-                    })
-                }
-            })
-        }
-
-        
-        function searchColumn(prevRowMatch:number[][], currentSequenceIndex:number) {
-            let found = false
-            combinationBoard.map((row, rowIndex) => {
-                if (rowIndex !== prevRowMatch[0][0]) { // Prevents backtracking
-                    row.map((val, colIndex) => {
-                        if (colIndex === prevRowMatch[0][1]) {
-                            if (!JSON.stringify(foundSequencePath).includes(JSON.stringify([rowIndex, colIndex]))) { // Prevents re-finding found coords
-                                if (val === localSequenceArray[currentSequenceIndex][sequenceSearchIndexArray[currentSequenceIndex]]) { // If val matches part of sequence
-                                    console.log(val, rowIndex, colIndex)
-                                    foundSequencePath.push([prevRowMatch[0][0], prevRowMatch[0][1]])
-                                    foundSequencePath.push([rowIndex, colIndex])
-                                    found = true
-                                    sequenceSearchIndexArray[currentSequenceIndex] = sequenceSearchIndexArray[currentSequenceIndex] + 1 // Increment index in sequence
-                                    
-                                    if (localSequenceArray[currentSequenceIndex].length === sequenceSearchIndexArray[currentSequenceIndex]) { // Checking if sequence is complete
-                                        sequenceSearchIndexArray[currentSequenceIndex] = -1
-                                        if (JSON.stringify(sequenceSearchIndexArray) === `[-1,-1,-1]`) { // Check if all sequences are complete
-                                            console.log("COMPLETE SEQUENCE FOUND")
-                                            console.log(foundSequencePath)
-                                            setSolvedArray(foundSequencePath)
-                                        } else {
-                                            console.log("NEW ROW NEW SEQUENCE")
-                                            searchRow(rowIndex, -1, [[rowIndex, colIndex]]) // Start searching new sequence
-                                        }
-                                    } else {
-                                        console.log("NEW ROW SAME SEQUENCE")
-                                        searchRow(rowIndex, currentSequenceIndex, [[rowIndex, colIndex]]) // Continue searching for sequence
-                                    }
-                                }
-                            }
-                        }
-                    })
-                }
-            })
-            if (!found) { // reset sequence search index if no matches found
-                sequenceSearchIndexArray[currentSequenceIndex] = 0
-                found = false
             }
         }
+
+        function getColumn(getColIndex:number) {
+            let column:string[] = []
+            combinationBoard.map((row, _rowIndex) => {
+                    row.map((val, colIndex) => {
+                        if (colIndex === getColIndex) {
+                            column.push(val)
+                        }
+                    })
+            })
+            return column
+        }
+
+        function searchRow(prevRowIndex:number, prevColIndex:number, currentSequenceIndex:number, startNewSequenceResult:boolean) {
+            let localSequenceSearchIndexArray = sequenceSearchIndexArray
+            let row = combinationBoard[prevRowIndex]
+            for (let localColIndex = 0; localColIndex < row.length; localColIndex++) {
+                sequenceSearchIndexArray = localSequenceSearchIndexArray
+
+                
+                if (localColIndex === prevColIndex) { continue } // Prevent backtracking
+                if (startNewSequenceResult) {
+                    for (let i = 0; i < localSequenceArray.length; i++) {
+                        if (row[localColIndex] === localSequenceArray[i][sequenceSearchIndexArray[i]]) { // If val matches first part of sequence
+                            console.log(">>  ROW")
+                            console.log(row[localColIndex], prevRowIndex, localColIndex)
+                            foundSequencePath.push([prevRowIndex, localColIndex])
+    
+                            sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
+
+                            searchColumn(prevRowIndex, localColIndex, i, startNewSequence(currentSequenceIndex))
+                        }
+                    }
+                } else {
+                    if (row[localColIndex] === localSequenceArray[currentSequenceIndex][sequenceSearchIndexArray[currentSequenceIndex]]) { // If val matches first part of sequence
+                        console.log(row[localColIndex], prevRowIndex, localColIndex)
+                        foundSequencePath.push([prevRowIndex, localColIndex])
+    
+                        sequenceSearchIndexArray[currentSequenceIndex] = sequenceSearchIndexArray[currentSequenceIndex] + 1 // Increment index in sequence
+    
+                        searchColumn(prevRowIndex, localColIndex, currentSequenceIndex, startNewSequence(currentSequenceIndex))
+                    }
+                }
+            }
+        }
+
+        function searchColumn(prevRowIndex:number, prevColIndex:number, currentSequenceIndex:number, startNewSequenceResult:boolean) {
+            let localSequenceSearchIndexArray = sequenceSearchIndexArray
+            let column = getColumn(prevColIndex)
+            for (let localRowIndex = 0; localRowIndex < column.length; localRowIndex++) {
+                sequenceSearchIndexArray = localSequenceSearchIndexArray
+
+                if (localRowIndex === prevRowIndex) { continue } // Prevent backtracking
+                if (startNewSequenceResult) {
+                    for (let i = 0; i < localSequenceArray.length; i++) {
+                        if (column[localRowIndex] === localSequenceArray[i][sequenceSearchIndexArray[i]]) { // If val matches first part of sequence
+                            console.log(">>  COL")
+                            console.log(column[localRowIndex], localRowIndex, prevColIndex)
+                            foundSequencePath.push([localRowIndex, prevColIndex])
+    
+                            sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
+
+                            searchRow(localRowIndex, prevColIndex, i, startNewSequence(currentSequenceIndex))
+                        }
+                    }
+                } else {
+                    console.log(column)
+                    console.log(column[localRowIndex], localSequenceArray[currentSequenceIndex][sequenceSearchIndexArray[currentSequenceIndex]])
+                    if (column[localRowIndex] === localSequenceArray[currentSequenceIndex][sequenceSearchIndexArray[currentSequenceIndex]]) { // If val matches part of sequence
+                        console.log(column[localRowIndex], localRowIndex, prevColIndex)
+                        foundSequencePath.push([localRowIndex, prevColIndex])
+    
+                        sequenceSearchIndexArray[currentSequenceIndex] = sequenceSearchIndexArray[currentSequenceIndex] + 1 // Increment index in sequence
+    
+                        searchRow(localRowIndex, prevColIndex, currentSequenceIndex, startNewSequence(currentSequenceIndex))
+                    }
+                }
+            }
+        }
+
+        function startNewSequence(currentSequenceIndex:number) {
+            if (localSequenceArray[currentSequenceIndex].length === sequenceSearchIndexArray[currentSequenceIndex]) { // Checking if sequence is complete
+                sequenceSearchIndexArray[currentSequenceIndex] = -1 // Set sequence to complete
+                if (JSON.stringify(sequenceSearchIndexArray) === `[-1,-1,-1]`) { // Check if all sequences are complete
+                    console.log("COMPLETE SEQUENCE FOUND")
+                    console.log(foundSequencePath)
+                    setSolvedArray(foundSequencePath)
+                } else {
+                    console.log("complete")
+                    return true
+                }
+            }
+            return false
+        }
+
+
+        // function searchStartRow() {
+        //     combinationBoard.map((row, rowIndex) => {
+        //         if (rowIndex === 0) { // Starting row
+        //             row.map((val, colIndex) => {
+        //                 for (let i = 0; i < localSequenceArray.length; i++) {
+        //                     if (foundSequencePath.length === props.solutionLength) {
+        //                         break
+        //                     } else {
+        //                         console.log("RESET")
+        //                         sequenceSearchIndexArray = [0,0,0] // Reset every search
+        //                         foundSequencePath = []
+        //                     }
+
+        //                     if (val === localSequenceArray[i][0]) { // If val matches first part of sequence
+        //                         console.log("SEQUENCE START")
+        //                         console.log(val, rowIndex, colIndex)
+        //                         // foundSequencePath.push([rowIndex, colIndex])
+
+        //                         sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
+        //                         searchColumn([[rowIndex, colIndex]], i) // continue searching next column
+        //                     }
+        //                 }
+        //             })
+        //         }
+        //     })
+        // }
+
+        // function searchRow(currentRowIndex:number, currentSequenceIndex:number = -1, prevColMatch:number[][] = [[-1,-1]]) {
+        //     combinationBoard.map((row, rowIndex) => {
+        //         if (rowIndex === currentRowIndex) {
+        //             row.map((val, colIndex) => {
+        //                 if (colIndex !== prevColMatch[0][1] && !JSON.stringify(foundSequencePath).includes(JSON.stringify([rowIndex, colIndex]))) { // Prevents backtracking and re-finding coords
+        //                     if (currentSequenceIndex !== -1) { // Default assume sequence in progress
+        //                         // for (let i = 0; i < props.matrixSize; i++) {
+        //                             if (val === localSequenceArray[currentSequenceIndex][sequenceSearchIndexArray[currentSequenceIndex]]) { // If val matches part of sequence
+        //                                 console.log(val, rowIndex, colIndex)
+        //                                 // foundSequencePath.push([rowIndex, colIndex])
+        //                                 sequenceSearchIndexArray[currentSequenceIndex] = sequenceSearchIndexArray[currentSequenceIndex] + 1 // Increment index in sequence
+        //                                 searchColumn([[rowIndex, colIndex]], currentSequenceIndex) // continue searching next column
+        //                             }
+        //                         // }
+        //                     } else { // If no sequence in progress, start another sequence
+        //                         for (let i = 0; i < localSequenceArray.length; i++) {
+        //                             if (val === localSequenceArray[i][sequenceSearchIndexArray[i]]) { // If val matches part of sequence
+        //                                 console.log(val, rowIndex, colIndex)
+        //                                 // foundSequencePath.push([rowIndex, colIndex])
+        //                                 sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
+        //                                 searchColumn([[rowIndex, colIndex]], i) // Continue searching next column
+        //                             }
+        //                         }
+        //                     }
+        //                 }
+        //             })
+        //         }
+        //     })
+        // }
+
+        
+        // function searchColumn(prevRowMatch:number[][], currentSequenceIndex:number) {
+        //     let found = false
+        //     combinationBoard.map((row, rowIndex) => {
+        //         if (rowIndex !== prevRowMatch[0][0]) { // Prevents backtracking
+        //             row.map((val, colIndex) => {
+        //                 if (colIndex === prevRowMatch[0][1]) {
+        //                     if (!JSON.stringify(foundSequencePath).includes(JSON.stringify([rowIndex, colIndex]))) { // Prevents re-finding found coords
+        //                         if (val === localSequenceArray[currentSequenceIndex][sequenceSearchIndexArray[currentSequenceIndex]]) { // If val matches part of sequence
+        //                             console.log(val, rowIndex, colIndex)
+        //                             foundSequencePath.push([prevRowMatch[0][0], prevRowMatch[0][1]])
+        //                             foundSequencePath.push([rowIndex, colIndex])
+        //                             found = true
+        //                             sequenceSearchIndexArray[currentSequenceIndex] = sequenceSearchIndexArray[currentSequenceIndex] + 1 // Increment index in sequence
+                                    
+        //                             if (localSequenceArray[currentSequenceIndex].length === sequenceSearchIndexArray[currentSequenceIndex]) { // Checking if sequence is complete
+        //                                 sequenceSearchIndexArray[currentSequenceIndex] = -1
+        //                                 if (JSON.stringify(sequenceSearchIndexArray) === `[-1,-1,-1]`) { // Check if all sequences are complete
+        //                                     console.log("COMPLETE SEQUENCE FOUND")
+        //                                     console.log(foundSequencePath)
+        //                                     setSolvedArray(foundSequencePath)
+        //                                 } else {
+        //                                     console.log("NEW ROW NEW SEQUENCE")
+        //                                     searchRow(rowIndex, -1, [[rowIndex, colIndex]]) // Start searching new sequence
+        //                                 }
+        //                             } else {
+        //                                 console.log("NEW ROW SAME SEQUENCE")
+        //                                 searchRow(rowIndex, currentSequenceIndex, [[rowIndex, colIndex]]) // Continue searching for sequence
+        //                             }
+        //                         }
+        //                     }
+        //                 }
+        //             })
+        //         }
+        //     })
+        //     if (!found) { // reset sequence search index if no matches found
+        //         sequenceSearchIndexArray[currentSequenceIndex] = 0
+        //         found = false
+        //     }
+        // }
 
 
         searchStartRow()
