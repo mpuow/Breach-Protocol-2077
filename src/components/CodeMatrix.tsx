@@ -242,41 +242,44 @@ export default function CodeMatrix(props: Props) {
     function solveClick() {
         let localSequenceArray = [...props.sequenceArray]
 
+        
+        interface State {
+            searchIndexArray: number[]
+            // foundSequencePath: number[][]
+        }
+
+        const defaultState: State =  {
+            searchIndexArray: [0,0,0],
+            // foundSequencePath: []
+        }
+
+        let stack = [[0,0,0]]
+        
+        let sequenceSearchIndexArray: number[] = [0,0,0]
         let foundSequencePath: number[][] = []
 
-        let sequenceSearchIndexArray = [0,0,0]
+        // function searchStartRow() {
+        //     let row = combinationBoard[0] // Default 0
+        //     for (let colIndex = 0; colIndex < row.length; colIndex++) {
+        //         for (let i = 0; i < localSequenceArray.length; i++) {
+        //             if (foundSequencePath.length === props.solutionLength) {
+        //                 break
+        //             } else {
+        //                 console.log("RESET")
+        //                 sequenceSearchIndexArray = [0,0,0] // Reset every search
+        //                 foundSequencePath = []
+        //             }
+        //             if (row[colIndex] === localSequenceArray[i][0]) { // If val matches first part of sequence
+        //                 console.log("SEQUENCE START")
+        //                 console.log(row[colIndex], 0, colIndex)
+        //                 foundSequencePath.push([0, colIndex])
 
-        // let currentRowIndex = 0
-        // let currentColIndex = 0
-
-        // Function to search for first row starting points
-        // Function to search rows
-        // Function to search cols
-
-
-        function searchStartRow() {
-            let row = combinationBoard[0] // Default 0
-            for (let colIndex = 0; colIndex < row.length; colIndex++) {
-                for (let i = 0; i < localSequenceArray.length; i++) {
-                    if (foundSequencePath.length === props.solutionLength) {
-                        break
-                    } else {
-                        console.log("RESET")
-                        sequenceSearchIndexArray = [0,0,0] // Reset every search
-                        foundSequencePath = []
-                    }
-                    if (row[colIndex] === localSequenceArray[i][0]) { // If val matches first part of sequence
-                        console.log("SEQUENCE START")
-                        console.log(row[colIndex], 0, colIndex)
-                        foundSequencePath.push([0, colIndex])
-
-                        sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
-                        // searchColumn([[rowIndex, colIndex]], i) // continue searching next column
-                        searchColumn(0, colIndex, i, false)
-                    }
-                }
-            }
-        }
+        //                 sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
+        //                 searchColumn(0, colIndex, i, false)
+        //             }
+        //         }
+        //     }
+        // }
 
         function getColumn(getColIndex:number) {
             let column:string[] = []
@@ -290,58 +293,69 @@ export default function CodeMatrix(props: Props) {
             return column
         }
 
-        function searchRow(prevRowIndex:number, prevColIndex:number, currentSequenceIndex:number, startNewSequenceResult:boolean) {
-            let localSequenceSearchIndexArray = sequenceSearchIndexArray
+        function searchRow(startNewSequenceResult:boolean, prevRowIndex:number = 0, prevColIndex:number = -1, _currentSequenceIndex:number = -1) {
             let row = combinationBoard[prevRowIndex]
-            for (let localColIndex = 0; localColIndex < row.length; localColIndex++) {
-                sequenceSearchIndexArray = localSequenceSearchIndexArray
+            for (let colIndex = 0; colIndex < row.length; colIndex++) {
 
                 
-                if (localColIndex === prevColIndex) { continue } // Prevent backtracking
+                if (colIndex === prevColIndex) { continue } // Prevent backtracking
                 if (startNewSequenceResult) {
                     for (let i = 0; i < localSequenceArray.length; i++) {
-                        if (row[localColIndex] === localSequenceArray[i][sequenceSearchIndexArray[i]]) { // If val matches first part of sequence
+                        // if (foundSequencePath.length === props.solutionLength) {
+                        //     break
+                        // } else {
+                        //     console.log("RESET")
+                        //     sequenceSearchIndexArray = [0,0,0] // Reset every search
+                        //     foundSequencePath = []
+                        // }
+                        console.log(JSON.stringify(stack))
+
+                        if (row[colIndex] === localSequenceArray[i][sequenceSearchIndexArray[i]]) { // If val matches first part of sequence
                             console.log(">>  ROW")
-                            console.log(row[localColIndex], prevRowIndex, localColIndex)
-                            foundSequencePath.push([prevRowIndex, localColIndex])
+                            console.log(row[colIndex], prevRowIndex, colIndex)
+                            foundSequencePath.push([prevRowIndex, colIndex])
     
                             sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
+                            console.log(JSON.stringify(stack))
+                            stack.push(sequenceSearchIndexArray)
 
-                            searchColumn(prevRowIndex, localColIndex, i, startNewSequence(currentSequenceIndex))
+                            searchColumn(prevRowIndex, colIndex, i, startNewSequence(i))
+
+                            console.log("ewrgreg", stack.pop())
                         }
                     }
                 } else {
-                    if (row[localColIndex] === localSequenceArray[currentSequenceIndex][sequenceSearchIndexArray[currentSequenceIndex]]) { // If val matches first part of sequence
-                        console.log(row[localColIndex], prevRowIndex, localColIndex)
-                        foundSequencePath.push([prevRowIndex, localColIndex])
+                    // if (row[localColIndex] === localSequenceArray[currentSequenceIndex][sequenceSearchIndexArray[currentSequenceIndex]]) { // If val matches first part of sequence
+                    //     console.log(row[localColIndex], prevRowIndex, localColIndex)
+                    //     foundSequencePath.push([prevRowIndex, localColIndex])
     
-                        sequenceSearchIndexArray[currentSequenceIndex] = sequenceSearchIndexArray[currentSequenceIndex] + 1 // Increment index in sequence
+                    //     sequenceSearchIndexArray[currentSequenceIndex] = sequenceSearchIndexArray[currentSequenceIndex] + 1 // Increment index in sequence
     
-                        searchColumn(prevRowIndex, localColIndex, currentSequenceIndex, startNewSequence(currentSequenceIndex))
-                    }
+                    //     searchColumn(prevRowIndex, localColIndex, currentSequenceIndex, startNewSequence(currentSequenceIndex))
+                    // }
                 }
             }
         }
 
         function searchColumn(prevRowIndex:number, prevColIndex:number, currentSequenceIndex:number, startNewSequenceResult:boolean) {
-            let localSequenceSearchIndexArray = sequenceSearchIndexArray
+            // const localSequenceSearchIndexArray: number[] = stack[stack.length - 1].sequenceSearchIndexArray
+
             let column = getColumn(prevColIndex)
             for (let localRowIndex = 0; localRowIndex < column.length; localRowIndex++) {
-                sequenceSearchIndexArray = localSequenceSearchIndexArray
 
                 if (localRowIndex === prevRowIndex) { continue } // Prevent backtracking
                 if (startNewSequenceResult) {
-                    for (let i = 0; i < localSequenceArray.length; i++) {
-                        if (column[localRowIndex] === localSequenceArray[i][sequenceSearchIndexArray[i]]) { // If val matches first part of sequence
-                            console.log(">>  COL")
-                            console.log(column[localRowIndex], localRowIndex, prevColIndex)
-                            foundSequencePath.push([localRowIndex, prevColIndex])
+                    // for (let i = 0; i < localSequenceArray.length; i++) {
+                    //     if (column[localRowIndex] === localSequenceArray[i][sequenceSearchIndexArray[i]]) { // If val matches first part of sequence
+                    //         console.log(">>  COL")
+                    //         console.log(column[localRowIndex], localRowIndex, prevColIndex)
+                    //         foundSequencePath.push([localRowIndex, prevColIndex])
     
-                            sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
+                    //         sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
 
-                            searchRow(localRowIndex, prevColIndex, i, startNewSequence(currentSequenceIndex))
-                        }
-                    }
+                    //         searchRow(localRowIndex, prevColIndex, i, startNewSequence(currentSequenceIndex))
+                    //     }
+                    // }
                 } else {
                     console.log(column)
                     console.log(column[localRowIndex], localSequenceArray[currentSequenceIndex][sequenceSearchIndexArray[currentSequenceIndex]])
@@ -351,8 +365,9 @@ export default function CodeMatrix(props: Props) {
     
                         sequenceSearchIndexArray[currentSequenceIndex] = sequenceSearchIndexArray[currentSequenceIndex] + 1 // Increment index in sequence
     
-                        searchRow(localRowIndex, prevColIndex, currentSequenceIndex, startNewSequence(currentSequenceIndex))
-                    }
+                        searchRow(startNewSequence(currentSequenceIndex), localRowIndex, prevColIndex, currentSequenceIndex)
+
+                    } 
                 }
             }
         }
@@ -361,6 +376,9 @@ export default function CodeMatrix(props: Props) {
             if (localSequenceArray[currentSequenceIndex].length === sequenceSearchIndexArray[currentSequenceIndex]) { // Checking if sequence is complete
                 sequenceSearchIndexArray[currentSequenceIndex] = -1 // Set sequence to complete
                 if (JSON.stringify(sequenceSearchIndexArray) === `[-1,-1,-1]`) { // Check if all sequences are complete
+
+                // sequenceSearchIndexArray[currentSequenceIndex] = sequenceSearchIndexArray[currentSequenceIndex] + 1
+                // if (JSON.stringify(sequenceSearchIndexArray) === `[${localSequenceArray[0].length},${localSequenceArray[1].length},${localSequenceArray[2].length}]`) { // Check if all sequences are complete
                     console.log("COMPLETE SEQUENCE FOUND")
                     console.log(foundSequencePath)
                     setSolvedArray(foundSequencePath)
@@ -371,6 +389,14 @@ export default function CodeMatrix(props: Props) {
             }
             return false
         }
+
+
+
+        searchRow(true)
+
+
+
+
 
 
         // function searchStartRow() {
@@ -472,8 +498,8 @@ export default function CodeMatrix(props: Props) {
         // }
 
 
-        searchStartRow()
-        console.log(foundSequencePath)
+        // searchStartRow()
+        // console.log(foundSequencePath)
 
     }
 
