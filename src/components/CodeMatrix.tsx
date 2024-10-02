@@ -242,20 +242,24 @@ export default function CodeMatrix(props: Props) {
     function solveClick() {
         let localSequenceArray = [...props.sequenceArray]
 
+        const finishedSequences = [localSequenceArray[0].length, localSequenceArray[1].length, localSequenceArray[2].length]
+
         
         interface State {
             searchIndexArray: number[]
-            // foundSequencePath: number[][]
+            foundSequencePath: number[][]
         }
+
+        type StateArray = Array<State>
 
         const defaultState: State =  {
             searchIndexArray: [0,0,0],
-            // foundSequencePath: []
+            foundSequencePath: []
         }
 
-        let stack = [[0,0,0]]
+        const stack:StateArray = [defaultState]
         
-        let sequenceSearchIndexArray: number[] = [0,0,0]
+        // let sequenceSearchIndexArray: number[] = [0,0,0]
         let foundSequencePath: number[][] = []
 
         // function searchStartRow() {
@@ -293,7 +297,10 @@ export default function CodeMatrix(props: Props) {
             return column
         }
 
-        function searchRow(startNewSequenceResult:boolean, prevRowIndex:number = 0, prevColIndex:number = -1, _currentSequenceIndex:number = -1) {
+        function searchRow(startNewSequenceResult:boolean, prevRowIndex:number = 0, prevColIndex:number = -1, currentSequenceIndex:number = -1) {
+            // const localStack = structuredClone(stack)
+            // let currentSequenceIndexArray = localStack[localStack.length - 1]
+
             let row = combinationBoard[prevRowIndex]
             for (let colIndex = 0; colIndex < row.length; colIndex++) {
 
@@ -301,6 +308,11 @@ export default function CodeMatrix(props: Props) {
                 if (colIndex === prevColIndex) { continue } // Prevent backtracking
                 if (startNewSequenceResult) {
                     for (let i = 0; i < localSequenceArray.length; i++) {
+                        const localStack = structuredClone(stack)
+                        let currentSequenceIndexArray = localStack[localStack.length - 1].searchIndexArray
+                        let localFoundPath = localStack[localStack.length - 1].foundSequencePath
+                        // if (currentSequenceIndexArray[i] === localSequenceArray[i].length) { continue }
+
                         // if (foundSequencePath.length === props.solutionLength) {
                         //     break
                         // } else {
@@ -310,18 +322,29 @@ export default function CodeMatrix(props: Props) {
                         // }
                         console.log(JSON.stringify(stack))
 
-                        if (row[colIndex] === localSequenceArray[i][sequenceSearchIndexArray[i]]) { // If val matches first part of sequence
-                            console.log(">>  ROW")
-                            console.log(row[colIndex], prevRowIndex, colIndex)
-                            foundSequencePath.push([prevRowIndex, colIndex])
-    
-                            sequenceSearchIndexArray[i] = sequenceSearchIndexArray[i] + 1 // Increment index in sequence
-                            console.log(JSON.stringify(stack))
-                            stack.push(sequenceSearchIndexArray)
+                        console.log(row)
+                        console.log(row[colIndex], localSequenceArray[i][currentSequenceIndexArray[i]])
 
-                            searchColumn(prevRowIndex, colIndex, i, startNewSequence(i))
+                        if (!JSON.stringify(localFoundPath).includes(JSON.stringify([prevRowIndex, colIndex]))) { // Prevents re-finding found coords
+                            if (row[colIndex] === localSequenceArray[i][currentSequenceIndexArray[i]]) { // If val matches first part of sequence
+                                console.log(">>  ROW")
+                                console.log(row[colIndex], prevRowIndex, colIndex)
+                                
+                                localFoundPath.push([prevRowIndex, colIndex])
+        
+                                currentSequenceIndexArray[i] = currentSequenceIndexArray[i] + 1 // Increment index in sequence
 
-                            console.log("ewrgreg", stack.pop())
+                                const currentState: State =  {
+                                    searchIndexArray: currentSequenceIndexArray,
+                                    foundSequencePath: localFoundPath
+                                }
+                                stack.push(currentState)
+
+                                searchColumn(startNewSequence(i), prevRowIndex, colIndex, i)
+
+                                console.log(JSON.stringify(stack))
+                                console.log("ewrgreg", stack.pop())
+                            }
                         }
                     }
                 } else {
@@ -337,13 +360,15 @@ export default function CodeMatrix(props: Props) {
             }
         }
 
-        function searchColumn(prevRowIndex:number, prevColIndex:number, currentSequenceIndex:number, startNewSequenceResult:boolean) {
-            // const localSequenceSearchIndexArray: number[] = stack[stack.length - 1].sequenceSearchIndexArray
+        function searchColumn(startNewSequenceResult:boolean, prevRowIndex:number, prevColIndex:number, currentSequenceIndex:number) {
+            // const localStack = structuredClone(stack)
+            // let currentSequenceIndexArray = localStack[localStack.length - 1].searchIndexArray
+            // let localFoundPath = localStack[localStack.length - 1].foundSequencePath
 
             let column = getColumn(prevColIndex)
-            for (let localRowIndex = 0; localRowIndex < column.length; localRowIndex++) {
+            for (let rowIndex = 0; rowIndex < column.length; rowIndex++) {
 
-                if (localRowIndex === prevRowIndex) { continue } // Prevent backtracking
+                if (rowIndex === prevRowIndex) { continue } // Prevent backtracking
                 if (startNewSequenceResult) {
                     // for (let i = 0; i < localSequenceArray.length; i++) {
                     //     if (column[localRowIndex] === localSequenceArray[i][sequenceSearchIndexArray[i]]) { // If val matches first part of sequence
@@ -357,33 +382,50 @@ export default function CodeMatrix(props: Props) {
                     //     }
                     // }
                 } else {
+                    const localStack = structuredClone(stack)
+                    let currentSequenceIndexArray = localStack[localStack.length - 1].searchIndexArray
+                    let localFoundPath = localStack[localStack.length - 1].foundSequencePath
                     console.log(column)
-                    console.log(column[localRowIndex], localSequenceArray[currentSequenceIndex][sequenceSearchIndexArray[currentSequenceIndex]])
-                    if (column[localRowIndex] === localSequenceArray[currentSequenceIndex][sequenceSearchIndexArray[currentSequenceIndex]]) { // If val matches part of sequence
-                        console.log(column[localRowIndex], localRowIndex, prevColIndex)
-                        foundSequencePath.push([localRowIndex, prevColIndex])
-    
-                        sequenceSearchIndexArray[currentSequenceIndex] = sequenceSearchIndexArray[currentSequenceIndex] + 1 // Increment index in sequence
-    
-                        searchRow(startNewSequence(currentSequenceIndex), localRowIndex, prevColIndex, currentSequenceIndex)
+                    console.log(column[rowIndex], localSequenceArray[currentSequenceIndex][currentSequenceIndexArray[currentSequenceIndex]])
 
-                    } 
+                    if (!JSON.stringify(localFoundPath).includes(JSON.stringify([rowIndex, prevColIndex]))) { // Prevents re-finding found coords
+                        if (column[rowIndex] === localSequenceArray[currentSequenceIndex][currentSequenceIndexArray[currentSequenceIndex]]) { // If val matches part of sequence
+                            console.log(column[rowIndex], rowIndex, prevColIndex)
+                            
+                            localFoundPath.push([rowIndex, prevColIndex])
+        
+                            currentSequenceIndexArray[currentSequenceIndex] = currentSequenceIndexArray[currentSequenceIndex] + 1 // Increment index in sequence
+
+                            const currentState: State =  {
+                                searchIndexArray: currentSequenceIndexArray,
+                                foundSequencePath: localFoundPath
+                            }
+                            stack.push(currentState)
+        
+                            searchRow(startNewSequence(currentSequenceIndex), rowIndex, prevColIndex, currentSequenceIndex)
+
+                            console.log(JSON.stringify(stack))
+                            console.log("colkwreogn", stack.pop())
+                        }
+                    }
                 }
             }
         }
 
         function startNewSequence(currentSequenceIndex:number) {
-            if (localSequenceArray[currentSequenceIndex].length === sequenceSearchIndexArray[currentSequenceIndex]) { // Checking if sequence is complete
-                sequenceSearchIndexArray[currentSequenceIndex] = -1 // Set sequence to complete
-                if (JSON.stringify(sequenceSearchIndexArray) === `[-1,-1,-1]`) { // Check if all sequences are complete
+            const localStack = structuredClone(stack)
+            let currentSequenceIndexArray = localStack[localStack.length - 1].searchIndexArray
+            let localFoundPath = localStack[localStack.length - 1].foundSequencePath
 
-                // sequenceSearchIndexArray[currentSequenceIndex] = sequenceSearchIndexArray[currentSequenceIndex] + 1
-                // if (JSON.stringify(sequenceSearchIndexArray) === `[${localSequenceArray[0].length},${localSequenceArray[1].length},${localSequenceArray[2].length}]`) { // Check if all sequences are complete
+            if (localSequenceArray[currentSequenceIndex].length === currentSequenceIndexArray[currentSequenceIndex]) { // Checking if sequence is complete
+                // currentSequenceIndexArray[currentSequenceIndex] = -1 // Set sequence to complete
+                if (JSON.stringify(currentSequenceIndexArray) === JSON.stringify(finishedSequences)) { // Check if all sequences are complete
                     console.log("COMPLETE SEQUENCE FOUND")
-                    console.log(foundSequencePath)
-                    setSolvedArray(foundSequencePath)
+                    console.log(localFoundPath)
+                    setSolvedArray(localFoundPath)
                 } else {
                     console.log("complete")
+                    // stack.push(currentSequenceIndexArray)
                     return true
                 }
             }
