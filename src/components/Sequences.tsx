@@ -35,7 +35,7 @@ export default function Sequences(props: Props) {
     // useMemo prevents the sequence array from being rewritten every render
     const cachedFinalSequenceArray = useMemo(() => splitSolutionStringArray(props.solutionStringArray), [props.solutionStringArray])
 
-    // Valid status: atstart, inprogress, completed, failed
+    // Valid status: atstart, inprogress (inprogressSpace), completed, failed
     const [rowStatus, setRowStatus] = useState(["atstart", "atstart", "atstart"])
     const [sequenceIndex, setSequenceIndex] = useState([0,0,0])
     const [spaceIndex, setSpaceIndex] = useState([0,0,0])
@@ -55,7 +55,7 @@ export default function Sequences(props: Props) {
         }
       }, [props.gameReset.current])
 
-
+    // Check answer and update state
     function checkUserAnswer(sequences:string[][], userSelect:string[]) {
         /*
             Buffer-Contains-Sequence algorithm works by:
@@ -116,8 +116,15 @@ export default function Sequences(props: Props) {
                     if (bufferRemaining <= sequences[i].length - 1) {
                         tempStatus[i] = "failed"
                     } else {
-                        // Reset row and row index
-                        tempStatus[i] = "atstart"
+                        // If last input started a sequence, and user selects the same combination
+                        if (userSelect[userSelect.length - 1] === sequences[i][0]) {
+                            // Set temp status to change spacing
+                            tempStatus[i] = "inprogressSpace"
+                        } else {
+                            // Reset row
+                            tempStatus[i] = "atstart"
+                        }
+                        // Reset row index
                         tempSequenceIndex[i] = 0
                     }
                 }
@@ -180,6 +187,12 @@ export default function Sequences(props: Props) {
                 // If the line is inprogress, only the select line index should change
                 if (val === "inprogress") {
                     tempLineIndex[index] = tempLineIndex[index] + 1
+                } else if (val === "inprogressSpace") {
+                    // Space out sequence that is continuing
+                    tempSpaceIndex[index] = tempSpaceIndex[index] + tempLineIndex[index]
+
+                    // Set back to inprogress
+                    rowStatus[index] = "inprogress"
                 } else {
                     // If the row has been started, but not completed or failed, add the extra spacing to the space index
                     if (tempLineIndex[index] !== 0) {
@@ -259,20 +272,19 @@ export default function Sequences(props: Props) {
     function splitSolutionStringArray(solutionStringArray:string[]) {
         
         // Find valid index locations to split the solution string
-        let possibleIndexVariations = [0, 0, 0]
-        let moduloResult = solutionStringArray.length % 3
+        let possibleIndexVariations = []
+        let moduloSolutionLength = solutionStringArray.length % 3
         
-        if (moduloResult === 0) {
+        if (moduloSolutionLength === 0) {
             const indexLocation = solutionStringArray.length / 3
 
             // Evenly divided by 3, all indexes are equal
             possibleIndexVariations = [indexLocation, indexLocation, indexLocation]
         } else {
-            possibleIndexVariations = []
             const indexLocation = solutionStringArray.length / 3
 
             // Add remaining length to some indexLocations
-            for (let i = 0; i < moduloResult; i++) {
+            for (let i = 0; i < moduloSolutionLength; i++) {
                 possibleIndexVariations.push(indexLocation + 1)
             }
 
@@ -300,11 +312,7 @@ export default function Sequences(props: Props) {
             if (split3[0] === split3[1] && split3[1] === split3[2]) {
                 splitSolutionStringArray(solutionStringArray)
             }
-
-            // Recursion to prevent 2 identical combinations. Eg: ['FF', 'FF'] and ['FF', 'FF']
-            if (JSON.stringify(split1) === JSON.stringify(split2)) {
-                splitSolutionStringArray(solutionStringArray)
-            }
+            
         }
     
         // Push results to finalSequenceArray

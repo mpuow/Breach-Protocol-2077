@@ -66,7 +66,7 @@ export default function Solve(props: Props) {
         // Array of State objects which functions as a stack
         const stack: StateArray = [defaultState]
 
-        // Function to search through rows for matches
+        // Search through rows for matches
         function searchRow(startNewSequenceResult: boolean, prevRowIndex: number = 0, prevColIndex: number = -1, currentSequenceIndex: number = -1) {
             // Set row array
             let row = props.combinationBoard[prevRowIndex]
@@ -165,7 +165,7 @@ export default function Solve(props: Props) {
             return column
         }
 
-        // Function to search through columns for matches
+        // Search through columns for matches
         function searchColumn(startNewSequenceResult: boolean, prevRowIndex: number, prevColIndex: number, currentSequenceIndex: number) {
             // Set the column array with getColumn
             let column = getColumn(prevColIndex)
@@ -251,7 +251,7 @@ export default function Solve(props: Props) {
             }
         }
 
-        // Function to determine whether to start a new sequence or not, along with checking if the algorithm has found a solution
+        // Determine whether to start a new sequence or not, along with checking if the algorithm has found a solution
         function startNewSequence(currentSequenceIndex: number) {
             // Deep clone the stack to avoid unwanted mutating
             const localStack = structuredClone(stack)

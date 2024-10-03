@@ -38,7 +38,7 @@ export default function CodeMatrix(props: Props) {
 
     // Generates the code matrix and solution string, also loads the code matrix on mount
     useEffect(() => {
-        generateSolutionString(generateCodeMatrix())
+        props.setSolutionStringArray(generateSolutionString(generateCodeMatrix()))
 
         return () => {
             setCombinationBoard([])
@@ -49,7 +49,7 @@ export default function CodeMatrix(props: Props) {
     // Reset game state
     function resetGame() {
         // Generate a new matrix and solution
-        generateSolutionString(generateCodeMatrix())
+        props.setSolutionStringArray(generateSolutionString(generateCodeMatrix()))
 
         // Reset all hover and select states
         setColumnHover(-1)
@@ -58,6 +58,7 @@ export default function CodeMatrix(props: Props) {
         setSelectColumn(0)
         setIsRowTurn(true)
         props.setSolvedArray([])
+        props.setGameStatus("")
 
         // Reset buffer
         props.setUserSelect([])
@@ -88,12 +89,6 @@ export default function CodeMatrix(props: Props) {
 
     // Generates the solution string based on the code matrix
     function generateSolutionString(localCombinationBoard:string[][]) {
-        try {
-            props.setGameStatus("")
-        } catch (error) {
-            console.log(error)
-        }
-
         const solutionStringLength = props.solutionLength
         const solutionStringCoords: number[][] = []
         const localSolutionString:string[] = []
@@ -157,7 +152,7 @@ export default function CodeMatrix(props: Props) {
                 selectRow = true
             }
         }
-
+        
         // Adds generated coordinates to localSolutionString array
         for (let i = 0; i < solutionStringCoords.length; i++) {
             {localCombinationBoard.map((row, rowIndex) => {
@@ -169,10 +164,22 @@ export default function CodeMatrix(props: Props) {
             })}
         }
 
-        // Sets solutionString with the local generated string
-        props.setSolutionStringArray(localSolutionString)
+        // Finds all unique combinations in the generated solution
+        let uniqueCombinations = new Set()
+        for (const combination of localSolutionString) {
+            if (!uniqueCombinations.has(combination)) {
+                uniqueCombinations.add(combination)
+            }
+        }
+
+        // If half the solution is not unique combinations, generate a new solution
+        if (uniqueCombinations.size <= localSolutionString.length / 2) {
+            generateSolutionString(localCombinationBoard)
+        }
 
         setCombinationBoard(localCombinationBoard)
+
+        return (localSolutionString)
     }
 
     // Handles when a cell in the code matrix is clicked

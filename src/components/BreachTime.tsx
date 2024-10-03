@@ -16,7 +16,6 @@ export default function BreachTime(props: Props) {
         if (props.gameStart.current) {
             // End game when time runs out
             if (timeLeft <= 0) {
-                console.log("Time ran out")
                 props.gameStart.current = false
                 props.setGameStatus("lose")
                 return
@@ -36,8 +35,6 @@ export default function BreachTime(props: Props) {
             setTimeLeft(props.initialTime)
             setBarPercent(100)
             props.gameReset.current = false
-        } else {
-            setTimeLeft(props.initialTime)
         }
     }, [timeLeft, props.gameStart.current, props.gameReset.current, props.initialTime])
 
