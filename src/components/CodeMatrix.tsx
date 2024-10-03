@@ -18,6 +18,8 @@ interface Props {
     gameReset: React.MutableRefObject<boolean>
     solutionLength: number
     sequenceArray: string[][]
+    solvedArray: number[][]
+    setSolvedArray: React.Dispatch<React.SetStateAction<number[][]>>
 }
 
 // Generates a random number
@@ -33,7 +35,6 @@ export default function CodeMatrix(props: Props) {
     const [selectRow, setSelectRow] = useState<number>(0)
     const [selectColumn, setSelectColumn] = useState<number>(0)
     const [isRowTurn, setIsRowTurn] = useState<boolean>(true)
-    const [solvedArray, setSolvedArray] = useState<number[][]>([])
 
     // Generates the code matrix and solution string, also loads the code matrix on mount
     useEffect(() => {
@@ -56,6 +57,7 @@ export default function CodeMatrix(props: Props) {
         setSelectRow(0)
         setSelectColumn(0)
         setIsRowTurn(true)
+        props.setSolvedArray([])
 
         // Reset buffer
         props.setUserSelect([])
@@ -170,9 +172,6 @@ export default function CodeMatrix(props: Props) {
         // Sets solutionString with the local generated string
         props.setSolutionStringArray(localSolutionString)
 
-        console.log("solution string coords")
-        console.log(solutionStringCoords)
-
         setCombinationBoard(localCombinationBoard)
     }
 
@@ -206,6 +205,14 @@ export default function CodeMatrix(props: Props) {
         // Check val is not placeholder
         if (val !== selectPlaceholder) {
             props.setUserSelect((prevSelection) => [...prevSelection, val])
+
+            // If coord is first element in solvedArray
+            if (JSON.stringify([rowIndex, colIndex]) === JSON.stringify(props.solvedArray[0])) {
+                // Remove index 0 to move position of clickable cell
+                props.solvedArray.shift()
+            } else {
+                props.setSolvedArray([])
+            }
         }
 
         // Replace coordinates with placeholder
@@ -245,21 +252,16 @@ export default function CodeMatrix(props: Props) {
 
         let styleString = ""
 
-        const solveCoords = [...solvedArray]
-        // let testCoords = []
-        // testCoords.push(rowIndex, colIndex)
-        let solveStartEnd = 1
+        const solveCoords = [...props.solvedArray]
 
+        // If coords are in solvedArray
         if (JSON.stringify(solveCoords).includes(JSON.stringify([rowIndex, colIndex]))) {
-            if (solveStartEnd === 1) {
-                styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-cyber-blue-darker`
-            } else if (solveStartEnd === solveCoords.length) {
+            // Highlight the first coord in a different colour
+            if (JSON.stringify(solveCoords[0]) === JSON.stringify([rowIndex, colIndex])) {
                 styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-cyber-red`
             } else {
-                styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-gray-500`
+                styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-[#38b0aa]`
             }
-
-            solveStartEnd++
 
             return styleString
         }
@@ -380,7 +382,11 @@ export default function CodeMatrix(props: Props) {
                 </div>
             : 
             <div className='flex flex-col items-center justify-center p-2 mt-6 mr-0 ml-auto text-cyber-blue-darker'>
-                <Solve sequenceArray={[...props.sequenceArray]} combinationBoard={combinationBoard} setSolvedArray={setSolvedArray}/>
+                {props.gameStart.current ?
+                    <span className='border-2 border-gray-500 text-gray-500 p-2 px-6 bg-black bg-opacity-20'>SOLVE</span>
+                :
+                    <Solve sequenceArray={[...props.sequenceArray]} combinationBoard={combinationBoard} setSolvedArray={props.setSolvedArray}/>
+                }
             </div>}
 
         </>

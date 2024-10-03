@@ -6,9 +6,7 @@ import BreachTime from "./components/BreachTime"
 import DifficultySelector from "./components/DifficultySelector"
 
 function App() {
-    const defaultSettings = {solutionLength: 6, matrixSize: 4, initialTime: 10000}
-    // {solutionLength: 6, matrixSize: 5, initialTime: 10000}
-
+    const defaultSettings = {solutionLength: 6, matrixSize: 5, initialTime: 10000}
     const [userSelect, setUserSelect] = useState<string[]>([])
     const [solutionLength, setSolutionLength] = useState<number>(defaultSettings.solutionLength)
     const [bufferSize, setBufferSize] = useState<number>(defaultSettings.solutionLength + 1)
@@ -21,76 +19,94 @@ function App() {
     const [gameStatus, setGameStatus] = useState<string>("")
     const gameReset = useRef(false)
     const [sequenceArray, setSequenceArray] = useState<string[][]>([])
+    const [solvedArray, setSolvedArray] = useState<number[][]>([])
 
     return (
-        <div className="border-2 border-cyber-green p-2 h-[90vh] m-6 select-none overflow-hidden">
-            {/* <h1 className="font-bold text-3xl mb-4">Breach Protocol</h1> */}
-
-            <div className="my-6">
-                <DifficultySelector
-                setSolutionLength={setSolutionLength}
-                setBufferSize={setBufferSize}
-                setMatrixSize={setMatrixSize}
-                setInitialTime={setInitialTime} />
+        <>
+            <div className="w-full h-[100vh] overflow-y-hidden flex items-center justify-center flex-col md:w-0 md:h-0">
+                <span>THIS APP IS DESIGNED FOR LARGER SCREENS.</span>
+                <span>PLEASE USE A LARGER SCREEN.</span>
             </div>
 
-            <div className="w-full flex flex-row h-[10vh] mb-6">
-                <div className="w-1/3 mx-4 pr-16">
-                    <div className="w-full">
-                        <h1 className="text-xl invisible">BUFFER</h1>
-                        <BreachTime 
-                        initialTime={initialTime}
+            <div className="border-cyber-green h-0 select-none overflow-hidden md:h-[89vh] md:border-2 md:m-4 md:p-2">
+
+                <div className="my-4">
+                    <DifficultySelector
+                        setSolutionLength={setSolutionLength}
+                        setBufferSize={setBufferSize}
+                        setMatrixSize={setMatrixSize}
+                        setInitialTime={setInitialTime}
                         gameStart={gameStart}
-                        setGameStatus={setGameStatus}
-                        gameReset={gameReset} />
+                        setSolvedArray={setSolvedArray} />
+                </div>
+
+                <div className="w-full flex flex-row h-[10vh] mb-6">
+                    <div className="w-1/3 mx-4 pr-16">
+                        <div className="w-full">
+                            <h1 className="text-xl invisible">BUFFER</h1>
+                            <BreachTime
+                                initialTime={initialTime}
+                                gameStart={gameStart}
+                                setGameStatus={setGameStatus}
+                                gameReset={gameReset} />
+                        </div>
+                    </div>
+                    <div className="">
+                        <h1 className="text-xl text-cyber-lightgreen">BUFFER</h1>
+                        <Buffer
+                            userSelect={userSelect}
+                            bufferSize={bufferSize}
+                            matrixHover={matrixHover}
+                            gameStatus={gameStatus} />
                     </div>
                 </div>
-                <div className="">
-                    <h1 className="text-xl text-cyber-lightgreen">BUFFER</h1>
-                    <Buffer 
-                        userSelect={userSelect} 
-                        bufferSize={bufferSize}
-                        matrixHover={matrixHover}
-                        gameStatus={gameStatus} />
+
+                <div className="w-full flex flex-row">
+                    <div className="w-1/3 mx-4">
+                        <CodeMatrix
+                            userSelect={userSelect}
+                            setUserSelect={setUserSelect}
+                            bufferSize={bufferSize}
+                            solutionStringArray={solutionStringArray}
+                            setSolutionStringArray={setSolutionStringArray}
+                            matrixSize={matrixSize}
+                            combinationHover={combinationHover}
+                            setCombinationHover={setCombinationHover}
+                            setMatrixHover={setMatrixHover}
+                            gameStart={gameStart}
+                            gameStatus={gameStatus}
+                            setGameStatus={setGameStatus}
+                            gameReset={gameReset}
+                            solutionLength={solutionLength}
+                            sequenceArray={sequenceArray}
+                            solvedArray={solvedArray}
+                            setSolvedArray={setSolvedArray} />
+                    </div>
+                    <div className="w-2/3 mx-8">
+                        <Sequences
+                            solutionStringArray={solutionStringArray}
+                            combinationHover={combinationHover}
+                            setCombinationHover={setCombinationHover}
+                            matrixHover={matrixHover}
+                            userSelect={userSelect}
+                            setUserSelect={setUserSelect}
+                            bufferSize={bufferSize}
+                            setGameStatus={setGameStatus}
+                            gameStart={gameStart}
+                            gameReset={gameReset}
+                            setSequenceArray={setSequenceArray} />
+                    </div>
                 </div>
+
             </div>
 
-            <div className="w-full flex flex-row">
-                <div className="w-1/3 mx-4">
-                    <CodeMatrix
-                        userSelect={userSelect}
-                        setUserSelect={setUserSelect}
-                        bufferSize={bufferSize}
-                        solutionStringArray={solutionStringArray}
-                        setSolutionStringArray={setSolutionStringArray}
-                        matrixSize={matrixSize}
-                        combinationHover={combinationHover}
-                        setCombinationHover={setCombinationHover} 
-                        setMatrixHover={setMatrixHover}
-                        gameStart={gameStart}
-                        gameStatus={gameStatus}
-                        setGameStatus={setGameStatus}
-                        gameReset={gameReset}
-                        solutionLength={solutionLength}
-                        sequenceArray={sequenceArray} />
-                </div>
-                <div className="w-2/3 mx-8">
-                    <Sequences 
-                    solutionStringArray={solutionStringArray} 
-                    combinationHover={combinationHover} 
-                    setCombinationHover={setCombinationHover} 
-                    matrixHover={matrixHover}
-                    userSelect={userSelect}
-                    setUserSelect={setUserSelect}
-                    bufferSize={bufferSize}
-                    setGameStatus={setGameStatus}
-                    gameStart={gameStart}
-                    gameReset={gameReset}
-                    setSequenceArray={setSequenceArray} />
+            <div className="bottom-0 h-[6vh] w-full fixed text-center text-sm">
+                <div className="flex items-center justify-center flex-col">
+                    <span>NOT AN OFFICIAL APP. TRADEMARK OWNED BY CD PROJEKT S.A.</span>
+                    <a className="text-cyber-red-menu w-fit hover:text-cyber-blue-darker" href="https://github.com/mpuow/2077-Hacking-Minigame">Github</a>
                 </div>
             </div>
-
-        </div>
+        </>
     )
 }
 

@@ -263,9 +263,6 @@ export default function Solve(props: Props) {
             if (localSequenceArray[currentSequenceIndex].length === currentSequenceIndexArray[currentSequenceIndex]) {
                 // Check if all sequences are complete
                 if (JSON.stringify(currentSequenceIndexArray) === JSON.stringify(finishedSequences)) {
-                    // Print found path
-                    console.log(localFoundPath)
-
                     // Set solvedArray to the found path
                     props.setSolvedArray(localFoundPath)
                 } else {

@@ -5,6 +5,8 @@ interface Props {
     setBufferSize: React.Dispatch<React.SetStateAction<number>>
     setMatrixSize: React.Dispatch<React.SetStateAction<number>>
     setInitialTime: React.Dispatch<React.SetStateAction<number>>
+    gameStart: React.MutableRefObject<boolean>
+    setSolvedArray: React.Dispatch<React.SetStateAction<number[][]>>
 }
 
 export default function DifficultySelector(props: Props) {
@@ -20,11 +22,14 @@ export default function DifficultySelector(props: Props) {
 
     // Set state variables with difficulty settings
     const difficultySelect = (difficulty:string, solutionLength:number, matrixSize:number, initialTime:number) => {
-        setDifficulty(difficulty.toLowerCase())
-        props.setSolutionLength(solutionLength)
-        props.setBufferSize(solutionLength + 1)
-        props.setMatrixSize(matrixSize)
-        props.setInitialTime(initialTime)
+        if (!props.gameStart.current) {
+            setDifficulty(difficulty.toLowerCase())
+            props.setSolutionLength(solutionLength)
+            props.setBufferSize(solutionLength + 1)
+            props.setMatrixSize(matrixSize)
+            props.setInitialTime(initialTime)
+            props.setSolvedArray([])
+        }
     }
 
     return (
@@ -32,7 +37,8 @@ export default function DifficultySelector(props: Props) {
             <h1 className="text-cyber-green text-xl">DIFFICULTY</h1>
             <ul className="flex flex-row space-x-4 text-xl">
                 {Object.values(difficultyOptions).map((d) => (
-                    <li key={d.difficultyName} onClick={() => difficultySelect(d.difficultyName, d.solutionLength, d.matrixSize, d.initialTime)} className={`${d.difficultyName.toLowerCase() === difficulty ? `${d.style}` : "" }`}>
+                    <li key={d.difficultyName} onClick={() => difficultySelect(d.difficultyName, d.solutionLength, d.matrixSize, d.initialTime)} 
+                    className={`${d.difficultyName.toLowerCase() === difficulty ? `${d.style}` : `${!props.gameStart.current ? "hover:text-cyber-green" : ""}` }`}>
                         {d.difficultyName}
                     </li>
                 ))}
