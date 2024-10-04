@@ -22,7 +22,8 @@ export default {
         "fail-red" : "#2B0605",
         "success-green" : "#14251A",
         "cyber-blue-darker" : "#64CEC9",
-        "cyber-red-menu" : "#B14657"
+        "cyber-red-menu" : "#B14657",
+        "background": "#131018"
       },
     },
   },
@@ -92,6 +93,38 @@ export default {
           '&:hover:before': {
             border: '2px double #D8DF97'
           }
+        },
+      });
+    }),
+    plugin(function({ addComponents }) {
+      addComponents({
+        '.inner-click': {
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: '2px',
+            right: '2px',
+            bottom: '2px',
+            left: '2px',
+            border: '2px double #F1524C',
+          },
+        },
+      });
+    }),
+    plugin(function({ addComponents }) {
+      addComponents({
+        '.inner-select': {
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: '2px',
+            right: '2px',
+            bottom: '2px',
+            left: '2px',
+            border: '2px double #64CEC9',
+          },
         },
       });
     }),

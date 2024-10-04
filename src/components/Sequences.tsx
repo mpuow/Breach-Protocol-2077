@@ -116,8 +116,12 @@ export default function Sequences(props: Props) {
                     if (bufferRemaining <= sequences[i].length - 1) {
                         tempStatus[i] = "failed"
                     } else {
+                        // if (userSelect.length > sequences[i].length) {
+                        // }
+                        
                         // If last input started a sequence, and user selects the same combination
-                        if (userSelect[userSelect.length - 1] === sequences[i][0]) {
+                        if (userSelect[userSelect.length - 2] === sequences[i][0] && userSelect[userSelect.length - 1] === sequences[i][0]) {
+                            console.log(userSelect[userSelect.length - 1], sequences[i][0], sequences[i][tempSequenceIndex[i]], userSelect[userSelect.length - 2])
                             // Set temp status to change spacing
                             tempStatus[i] = "inprogressSpace"
                         } else {
@@ -240,7 +244,7 @@ export default function Sequences(props: Props) {
                 props.gameStart.current = false
             }
             // Case of failing all sequences
-            else {
+            else if (JSON.stringify(rowStatus) === `["failed","failed","failed"]`) {
                 props.setGameStatus("lose")
                 props.gameStart.current = false
             }
@@ -307,11 +311,6 @@ export default function Sequences(props: Props) {
             // Shuffle around sequences
             [split1, split3] = [split3, split1];
             [split2, split3] = [split3, split2];
-
-            // Recursion to prevent 3 of the same combination. Eg: ['FF', 'FF', 'FF']
-            if (split3[0] === split3[1] && split3[1] === split3[2]) {
-                splitSolutionStringArray(solutionStringArray)
-            }
             
         }
     

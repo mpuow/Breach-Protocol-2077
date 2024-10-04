@@ -35,6 +35,7 @@ export default function CodeMatrix(props: Props) {
     const [selectRow, setSelectRow] = useState<number>(0)
     const [selectColumn, setSelectColumn] = useState<number>(0)
     const [isRowTurn, setIsRowTurn] = useState<boolean>(true)
+    const [animateClick, setAnimateClick] = useState<string>("")
 
     // Generates the code matrix and solution string, also loads the code matrix on mount
     useEffect(() => {
@@ -173,8 +174,10 @@ export default function CodeMatrix(props: Props) {
         }
 
         // If half the solution is not unique combinations, generate a new solution
-        if (uniqueCombinations.size <= localSolutionString.length / 2) {
-            generateSolutionString(localCombinationBoard)
+        if (localSolutionString.length <= 8) {
+            if (uniqueCombinations.size <= localSolutionString.length / 2) {
+                generateSolutionString(localCombinationBoard)
+            }
         }
 
         setCombinationBoard(localCombinationBoard)
@@ -184,6 +187,7 @@ export default function CodeMatrix(props: Props) {
 
     // Handles when a cell in the code matrix is clicked
     function clickCell(val: string, rowIndex:number, colIndex:number) {
+        setAnimateClick(`${rowIndex},${colIndex}`)
         
         // Check if it is a row or column turn
         if (isRowTurn && val !== selectPlaceholder) {
@@ -222,10 +226,14 @@ export default function CodeMatrix(props: Props) {
             }
         }
 
-        // Replace coordinates with placeholder
-        let tempCombinationBoard = [...combinationBoard]
-        tempCombinationBoard[rowIndex][colIndex] = selectPlaceholder
-        setCombinationBoard(tempCombinationBoard)
+        
+        setTimeout(() => {
+            setAnimateClick("")
+            // Replace coordinates with placeholder
+            let tempCombinationBoard = [...combinationBoard]
+            tempCombinationBoard[rowIndex][colIndex] = selectPlaceholder
+            setCombinationBoard(tempCombinationBoard)
+        }, 200)
     }
 
     // Handles the hover event for the cells
@@ -257,6 +265,8 @@ export default function CodeMatrix(props: Props) {
     // Swap board style depending on row or column turn
     function swapBoardStyle(colIndex:number, rowIndex:number, val:string) {
 
+        let clickedCell = `${rowIndex},${colIndex}`
+
         let styleString = ""
 
         const solveCoords = [...props.solvedArray]
@@ -265,9 +275,9 @@ export default function CodeMatrix(props: Props) {
         if (JSON.stringify(solveCoords).includes(JSON.stringify([rowIndex, colIndex]))) {
             // Highlight the first coord in a different colour
             if (JSON.stringify(solveCoords[0]) === JSON.stringify([rowIndex, colIndex])) {
-                styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-cyber-red`
+                styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen inner-click`
             } else {
-                styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen bg-[#38b0aa]`
+                styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen inner-select`
             }
 
             return styleString
@@ -278,10 +288,11 @@ export default function CodeMatrix(props: Props) {
             styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen
             ${colIndex === columnHover ? 'bg-matrix-preview' : ''}
             ${val === props.combinationHover ? "inner-cell" : ""}
-            ${val !== selectPlaceholder ? rowIndex === selectRow && columnHover === colIndex ? "double-border hoverGlow" : "": "text-white text-opacity-20"}`
+            ${val !== selectPlaceholder ? rowIndex === selectRow && columnHover === colIndex ? `double-border hoverGlow ${animateClick === clickedCell ? "animateCell" : ""}` : "": "text-white text-opacity-20"}`
         } else {
             // Column Style
             styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen
+            ${animateClick === clickedCell && colIndex === selectColumn ? "animateCell" : ""}
             ${colIndex === selectColumn ? 'bg-matrix-select' : ''}
             ${val === props.combinationHover ? "inner-cell" : ""}
             ${val !== selectPlaceholder ? colIndex === selectColumn && rowHover === rowIndex ? "double-border hoverGlow" : "" : "text-white text-opacity-20"}`

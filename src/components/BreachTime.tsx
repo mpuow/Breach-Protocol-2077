@@ -5,6 +5,7 @@ interface Props {
     gameStart: React.MutableRefObject<boolean>
     setGameStatus: React.Dispatch<React.SetStateAction<string>>
     gameReset: React.MutableRefObject<boolean>
+    gameStatus: string
 }
 
 export default function BreachTime(props: Props) {
@@ -35,6 +36,8 @@ export default function BreachTime(props: Props) {
             setTimeLeft(props.initialTime)
             setBarPercent(100)
             props.gameReset.current = false
+        } else if (props.gameStatus === ""){
+            setTimeLeft(props.initialTime)
         }
     }, [timeLeft, props.gameStart.current, props.gameReset.current, props.initialTime])
 

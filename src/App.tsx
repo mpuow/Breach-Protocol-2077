@@ -6,7 +6,7 @@ import BreachTime from "./components/BreachTime"
 import DifficultySelector from "./components/DifficultySelector"
 
 function App() {
-    const defaultSettings = {solutionLength: 6, matrixSize: 5, initialTime: 10000}
+    const defaultSettings = {solutionLength: 7, matrixSize: 5, initialTime: 10000}
     const [userSelect, setUserSelect] = useState<string[]>([])
     const [solutionLength, setSolutionLength] = useState<number>(defaultSettings.solutionLength)
     const [bufferSize, setBufferSize] = useState<number>(defaultSettings.solutionLength + 1)
@@ -37,7 +37,8 @@ function App() {
                         setMatrixSize={setMatrixSize}
                         setInitialTime={setInitialTime}
                         gameStart={gameStart}
-                        setSolvedArray={setSolvedArray} />
+                        setSolvedArray={setSolvedArray}
+                        gameStatus={gameStatus} />
                 </div>
 
                 <div className="w-full flex flex-row h-[10vh] mb-6">
@@ -48,7 +49,8 @@ function App() {
                                 initialTime={initialTime}
                                 gameStart={gameStart}
                                 setGameStatus={setGameStatus}
-                                gameReset={gameReset} />
+                                gameReset={gameReset}
+                                gameStatus={gameStatus} />
                         </div>
                     </div>
                     <div className="">
