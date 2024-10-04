@@ -282,17 +282,19 @@ export default function CodeMatrix(props: Props) {
 
             return styleString
         }
+
+        // ${animateClick === clickedCell ? "animateCell"
         
         if (isRowTurn) {
             // Row Style
             styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen
             ${colIndex === columnHover ? 'bg-matrix-preview' : ''}
             ${val === props.combinationHover ? "inner-cell" : ""}
-            ${val !== selectPlaceholder ? rowIndex === selectRow && columnHover === colIndex ? `double-border hoverGlow ${animateClick === clickedCell ? "animateCell" : ""}` : "": "text-white text-opacity-20"}`
+            ${val !== selectPlaceholder ? rowIndex === selectRow && columnHover === colIndex ? `double-border hoverGlow ${animateClick === clickedCell ? "" : ""}` : "": "text-white text-opacity-20"}`
         } else {
             // Column Style
             styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen
-            ${animateClick === clickedCell && colIndex === selectColumn ? "animateCell" : ""}
+            ${animateClick === clickedCell && colIndex === selectColumn ? "" : ""}
             ${colIndex === selectColumn ? 'bg-matrix-select' : ''}
             ${val === props.combinationHover ? "inner-cell" : ""}
             ${val !== selectPlaceholder ? colIndex === selectColumn && rowHover === rowIndex ? "double-border hoverGlow" : "" : "text-white text-opacity-20"}`

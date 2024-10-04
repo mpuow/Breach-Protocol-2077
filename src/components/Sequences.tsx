@@ -15,18 +15,6 @@ interface Props {
     setSequenceArray: React.Dispatch<React.SetStateAction<string[][]>>
 }
 
-// Fisher-Yates Shuffle
-// function shuffleArray(array:number[]) {
-//     let currentIndex = array.length
-
-//     while (currentIndex != 0) {
-//         let randomIndex = randomNumber(currentIndex)
-//         currentIndex--
-
-//         [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]
-//     }
-// }
-
 export default function Sequences(props: Props) {
 
     // Declare before useMemo
@@ -298,7 +286,6 @@ export default function Sequences(props: Props) {
             }
         }
         
-        // shuffleArray(possibleIndexVariations)
         let finalSequenceArray = []
     
         // Create local copy of solutionStringArray to avoid mutating it directly
