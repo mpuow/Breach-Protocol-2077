@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { randomNumber } from "./CodeMatrix"
+// import { randomNumber } from "./CodeMatrix"
 
 interface Props {
     solutionStringArray: string[]
@@ -16,16 +16,16 @@ interface Props {
 }
 
 // Fisher-Yates Shuffle
-function shuffleArray(array:number[]) {
-    let currentIndex = array.length
+// function shuffleArray(array:number[]) {
+//     let currentIndex = array.length
 
-    while (currentIndex != 0) {
-        let randomIndex = randomNumber(currentIndex)
-        currentIndex--
+//     while (currentIndex != 0) {
+//         let randomIndex = randomNumber(currentIndex)
+//         currentIndex--
 
-        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]
-    }
-}
+//         [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]
+//     }
+// }
 
 export default function Sequences(props: Props) {
 
@@ -118,7 +118,7 @@ export default function Sequences(props: Props) {
                     } else {
                         // if (userSelect.length > sequences[i].length) {
                         // }
-                        
+
                         // If last input started a sequence, and user selects the same combination
                         if (userSelect[userSelect.length - 2] === sequences[i][0] && userSelect[userSelect.length - 1] === sequences[i][0]) {
                             console.log(userSelect[userSelect.length - 1], sequences[i][0], sequences[i][tempSequenceIndex[i]], userSelect[userSelect.length - 2])
@@ -298,7 +298,7 @@ export default function Sequences(props: Props) {
             }
         }
         
-        shuffleArray(possibleIndexVariations)
+        // shuffleArray(possibleIndexVariations)
         let finalSequenceArray = []
     
         // Create local copy of solutionStringArray to avoid mutating it directly
