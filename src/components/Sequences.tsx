@@ -13,6 +13,7 @@ interface Props {
     gameStart: React.MutableRefObject<boolean>
     gameReset: React.MutableRefObject<boolean>
     setSequenceArray: React.Dispatch<React.SetStateAction<string[][]>>
+    gameStatus: string
 }
 
 export default function Sequences(props: Props) {
@@ -24,9 +25,9 @@ export default function Sequences(props: Props) {
     const cachedFinalSequenceArray = useMemo(() => splitSolutionStringArray(props.solutionStringArray), [props.solutionStringArray])
 
     // Valid status: atstart, inprogress (inprogressSpace), completed, failed
-    const [rowStatus, setRowStatus] = useState(["atstart", "atstart", "atstart"])
-    const [sequenceIndex, setSequenceIndex] = useState([0,0,0])
-    const [spaceIndex, setSpaceIndex] = useState([0,0,0])
+    const [rowStatus, setRowStatus] = useState<string[]>(["atstart", "atstart", "atstart"])
+    const [sequenceIndex, setSequenceIndex] = useState<number[]>([0,0,0])
+    const [spaceIndex, setSpaceIndex] = useState<number[]>([0,0,0])
     const [lineIndex, setLineIndex] = useState<number[]>([0,0,0])
     const [invisElements, setInvisElements] = useState([<span key={-1}></span>])
 
@@ -86,6 +87,11 @@ export default function Sequences(props: Props) {
         // Loop through and check each row
         for (let i = 0; i < sequences.length; i++) {
 
+            // Reset status after space correction
+            if (tempStatus[i] === "inprogressSpace") {
+                tempStatus[i] = "inprogress"
+            }
+
             // Skip unnecessary loop iterations
             if (tempStatus[i] === "completed" || tempStatus[i] === "failed") {
                 // Check if all rows are complete
@@ -104,9 +110,6 @@ export default function Sequences(props: Props) {
                     if (bufferRemaining <= sequences[i].length - 1) {
                         tempStatus[i] = "failed"
                     } else {
-                        // if (userSelect.length > sequences[i].length) {
-                        // }
-
                         // If last input started a sequence, and user selects the same combination
                         if (userSelect[userSelect.length - 2] === sequences[i][0] && userSelect[userSelect.length - 1] === sequences[i][0]) {
                             console.log(userSelect[userSelect.length - 1], sequences[i][0], sequences[i][tempSequenceIndex[i]], userSelect[userSelect.length - 2])
@@ -181,20 +184,17 @@ export default function Sequences(props: Props) {
                     tempLineIndex[index] = tempLineIndex[index] + 1
                 } else if (val === "inprogressSpace") {
                     // Space out sequence that is continuing
-                    tempSpaceIndex[index] = tempSpaceIndex[index] + tempLineIndex[index]
-
-                    // Set back to inprogress
-                    rowStatus[index] = "inprogress"
+                    tempSpaceIndex[index] = tempSpaceIndex[index] + 1
                 } else {
+                    // Skips adding space if user input doesn't change row status
+                    if (JSON.stringify(rowStatus) === '["atstart","atstart","atstart"]') {
+                        return
+                    }
+
                     // If the row has been started, but not completed or failed, add the extra spacing to the space index
                     if (tempLineIndex[index] !== 0) {
                         tempSpaceIndex[index] = tempSpaceIndex[index] + tempLineIndex[index]
                         tempLineIndex[index] = 0
-                    }
-
-                    // Skips adding space if user input doesn't change row status
-                    if (JSON.stringify(rowStatus) === '["atstart","atstart","atstart"]') {
-                        return
                     }
 
                     // Add one space if not inprogress
@@ -257,7 +257,20 @@ export default function Sequences(props: Props) {
 
         props.setSequenceArray(componentSequenceArray)
 
-    }, [props.userSelect, componentSequenceArray])
+        // Set sequences to failed if time runs out
+        if (!props.gameStart.current && props.gameStatus !== "") {
+            let localRowStatus = [...rowStatus]
+            for (let i = 0; i < localRowStatus.length; i++) {
+                if (localRowStatus[i] === "completed") {
+                    props.setGameStatus("win")
+                    continue
+                }
+                localRowStatus[i] = "failed"
+            }
+            setRowStatus(localRowStatus)
+        }
+
+    }, [props.userSelect, componentSequenceArray, props.gameStart.current, props.gameStatus, setRowStatus])
 
 
     // Splits the solution string into 3 parts
@@ -352,7 +365,7 @@ export default function Sequences(props: Props) {
                                                 key={colIndex}
                                                 className={`hover:text-cyber-blue hover:inner-sequence size-12 flex items-center justify-center 
                                                 ${val === props.matrixHover && colIndex === lineIndex[rowIndex] ? "inner-sequence text-cyber-blue" : ""}
-                                                ${colIndex < lineIndex[rowIndex] ? "inner-sequence-selected text-cyber-lightgreen hover:text-cyber-lightgreen hover:inner-sequence-selected" : ""}
+                                                ${colIndex < lineIndex[rowIndex] && rowStatus[rowIndex] !== "failed" ? "inner-sequence-selected text-cyber-lightgreen hover:text-cyber-lightgreen hover:inner-sequence-selected" : ""}
                                                 ${colIndex === lineIndex[rowIndex] ? "bg-cyber-purple" : ""}`}
                                                 onMouseEnter={() => props.setCombinationHover(val)}
                                                 onMouseLeave={() => props.setCombinationHover("")}>

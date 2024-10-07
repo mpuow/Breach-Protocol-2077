@@ -35,7 +35,7 @@ export default function CodeMatrix(props: Props) {
     const [selectRow, setSelectRow] = useState<number>(0)
     const [selectColumn, setSelectColumn] = useState<number>(0)
     const [isRowTurn, setIsRowTurn] = useState<boolean>(true)
-    const [animateClick, setAnimateClick] = useState<string>("")
+    const [animateClick, _setAnimateClick] = useState<string>("")
 
     // Generates the code matrix and solution string, also loads the code matrix on mount
     useEffect(() => {
@@ -187,7 +187,7 @@ export default function CodeMatrix(props: Props) {
 
     // Handles when a cell in the code matrix is clicked
     function clickCell(val: string, rowIndex:number, colIndex:number) {
-        setAnimateClick(`${rowIndex},${colIndex}`)
+        // setAnimateClick(`${rowIndex},${colIndex}`)
         
         // Check if it is a row or column turn
         if (isRowTurn && val !== selectPlaceholder) {
@@ -227,13 +227,15 @@ export default function CodeMatrix(props: Props) {
         }
 
         
-        setTimeout(() => {
-            setAnimateClick("")
-            // Replace coordinates with placeholder
-            let tempCombinationBoard = [...combinationBoard]
-            tempCombinationBoard[rowIndex][colIndex] = selectPlaceholder
-            setCombinationBoard(tempCombinationBoard)
-        }, 200)
+        // Replace coordinates with placeholder
+        let tempCombinationBoard = [...combinationBoard]
+        tempCombinationBoard[rowIndex][colIndex] = selectPlaceholder
+        setCombinationBoard(tempCombinationBoard)
+
+        // Part of animating cell click
+        // setTimeout(() => {
+        //     setAnimateClick("")
+        // }, 200)
     }
 
     // Handles the hover event for the cells
@@ -283,11 +285,12 @@ export default function CodeMatrix(props: Props) {
             return styleString
         }
 
+        // Animation works, but feels bad and has issues, so is not currently active
         // ${animateClick === clickedCell ? "animateCell"
         
         if (isRowTurn) {
             // Row Style
-            styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen
+            styleString = `size-12 p-2 select-none text-center text-xl text-cyber-lightgreen transition-colors duration-500 ease-in-out
             ${colIndex === columnHover ? 'bg-matrix-preview' : ''}
             ${val === props.combinationHover ? "inner-cell" : ""}
             ${val !== selectPlaceholder ? rowIndex === selectRow && columnHover === colIndex ? `double-border hoverGlow ${animateClick === clickedCell ? "" : ""}` : "": "text-white text-opacity-20"}`

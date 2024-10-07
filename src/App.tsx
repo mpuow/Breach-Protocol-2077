@@ -96,7 +96,8 @@ function App() {
                             setGameStatus={setGameStatus}
                             gameStart={gameStart}
                             gameReset={gameReset}
-                            setSequenceArray={setSequenceArray} />
+                            setSequenceArray={setSequenceArray}
+                            gameStatus={gameStatus} />
                     </div>
                 </div>
 
