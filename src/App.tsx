@@ -4,6 +4,8 @@ import Sequences from "./components/Sequences"
 import Buffer from "./components/Buffer"
 import BreachTime from "./components/BreachTime"
 import DifficultySelector from "./components/DifficultySelector"
+import './App.css'
+import HowToPlay from "./components/HowToPlay"
 
 function App() {
     const defaultSettings = {solutionLength: 7, matrixSize: 5, initialTime: 10000}
@@ -20,6 +22,7 @@ function App() {
     const gameReset = useRef(false)
     const [sequenceArray, setSequenceArray] = useState<string[][]>([])
     const [solvedArray, setSolvedArray] = useState<number[][]>([])
+    const [infoClicked, setInfoClicked] = useState<boolean>(false)
 
     return (
         <>
@@ -27,6 +30,12 @@ function App() {
                 <span>THIS APP IS DESIGNED FOR LARGER SCREENS.</span>
                 <span>PLEASE USE A LARGER SCREEN.</span>
             </div>
+
+            {/* Background blur for modal */}
+            <div className={`modal z-30 ${infoClicked ? "w-full h-full" : "w-0 h-0"}`} onClick={() => setInfoClicked(false)}></div>
+
+            <HowToPlay infoClicked={infoClicked} setInfoClicked={setInfoClicked} />
+
 
             <div className="border-cyber-green h-0 select-none overflow-hidden md:h-[89vh] md:border-2 md:m-4 md:p-2">
 
@@ -38,7 +47,8 @@ function App() {
                         setInitialTime={setInitialTime}
                         gameStart={gameStart}
                         setSolvedArray={setSolvedArray}
-                        gameStatus={gameStatus} />
+                        gameStatus={gameStatus}
+                        setInfoClicked={setInfoClicked} />
                 </div>
 
                 <div className="w-full flex flex-row h-[10vh] mb-6">

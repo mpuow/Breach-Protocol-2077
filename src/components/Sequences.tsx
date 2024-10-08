@@ -364,7 +364,7 @@ export default function Sequences(props: Props) {
                                         {row.map((val, colIndex) => (
                                             <span
                                                 key={colIndex}
-                                                className={`hover:text-cyber-blue hover:inner-sequence size-12 flex items-center justify-center 
+                                                className={`hover:text-cyber-blue hover:inner-sequence size-12 flex items-center justify-center
                                                 ${val === props.matrixHover && colIndex === lineIndex[rowIndex] ? "inner-sequence text-cyber-blue" : ""}
                                                 ${colIndex < lineIndex[rowIndex] && rowStatus[rowIndex] !== "failed" ? "inner-sequence-selected text-cyber-lightgreen hover:text-cyber-lightgreen hover:inner-sequence-selected" : ""}
                                                 ${colIndex === lineIndex[rowIndex] ? "bg-cyber-purple" : ""}`}

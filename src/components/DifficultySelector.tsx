@@ -8,6 +8,7 @@ interface Props {
     gameStart: React.MutableRefObject<boolean>
     setSolvedArray: React.Dispatch<React.SetStateAction<number[][]>>
     gameStatus: string
+    setInfoClicked: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function DifficultySelector(props: Props) {
@@ -34,16 +35,20 @@ export default function DifficultySelector(props: Props) {
     }
 
     return (
-        <div className="flex items-center justify-center flex-col select-none">
-            <h1 className="text-cyber-green text-xl">DIFFICULTY</h1>
-            <ul className="flex flex-row space-x-4 text-xl">
-                {Object.values(difficultyOptions).map((d) => (
-                    <li key={d.difficultyName} onClick={() => difficultySelect(d.difficultyName, d.solutionLength, d.matrixSize, d.initialTime)} 
-                    className={`${d.difficultyName.toLowerCase() === difficulty ? `${d.style}` : `${!props.gameStart.current && props.gameStatus === "" ? "hover:text-cyber-green" : ""}` }`}>
-                        {d.difficultyName}
-                    </li>
-                ))}
-            </ul>
+        <div className="relative">
+            <span className="border-[1px] border-transparent hover:border-cyber-blue hover:text-cyber-blue text-cyber-red-light font-semibold mb-4 p-1 absolute right-6" onClick={() => props.setInfoClicked(true)}>HOW TO PLAY</span>
+            <div className="flex items-center justify-center flex-col select-none">
+
+                <h1 className="text-cyber-green text-xl">DIFFICULTY</h1>
+                <ul className="flex flex-row space-x-4 text-xl">
+                    {Object.values(difficultyOptions).map((d) => (
+                        <li key={d.difficultyName} onClick={() => difficultySelect(d.difficultyName, d.solutionLength, d.matrixSize, d.initialTime)} 
+                        className={`${d.difficultyName.toLowerCase() === difficulty ? `${d.style}` : `${!props.gameStart.current && props.gameStatus === "" ? "hover:text-cyber-green" : ""}` }`}>
+                            {d.difficultyName}
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </div>
     )
 }

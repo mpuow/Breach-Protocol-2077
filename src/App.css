@@ -1,0 +1,28 @@
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    backdrop-filter: blur(2px);
+}
+
+.modalNoBlur {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.modalNoBlur::-webkit-scrollbar {
+    width: 5px;
+}
+
+.modalNoBlur::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modalNoBlur::-webkit-scrollbar-thumb {
+    background: #64CEC9;
+}

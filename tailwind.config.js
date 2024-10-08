@@ -23,6 +23,7 @@ export default {
         "success-green" : "#14251A",
         "cyber-blue-darker" : "#64CEC9",
         "cyber-red-menu" : "#B14657",
+        "cyber-red-light": "#FE655C",
         "background": "#131018"
       },
     },
