@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react"
-// import { randomNumber } from "./CodeMatrix"
 
 interface Props {
     solutionStringArray: string[]
@@ -87,11 +86,6 @@ export default function Sequences(props: Props) {
         // Loop through and check each row
         for (let i = 0; i < sequences.length; i++) {
 
-            // Reset status after space correction
-            if (tempStatus[i] === "inprogressSpace") {
-                tempStatus[i] = "inprogress"
-            }
-
             // Skip unnecessary loop iterations
             if (tempStatus[i] === "completed" || tempStatus[i] === "failed") {
                 // Check if all rows are complete
@@ -100,7 +94,12 @@ export default function Sequences(props: Props) {
             }
 
             // Check if inprogress or set inprogress
-            if (tempStatus[i] === "inprogress") {
+            if (tempStatus[i] === "inprogress" || tempStatus[i] === "inprogressSpace") {
+                // Reset status after space correction
+                if (tempStatus[i] === "inprogressSpace") {
+                    tempStatus[i] = "inprogress"
+                }
+
                 // Increase row index to check if row is still inprogress
                 tempSequenceIndex[i] = tempSequenceIndex[i] + 1
 
@@ -109,10 +108,12 @@ export default function Sequences(props: Props) {
                     // Check if there is no space left in the buffer
                     if (bufferRemaining <= sequences[i].length - 1) {
                         tempStatus[i] = "failed"
+
+                        // Check immediately to update properly
+                        checkGameWin(tempStatus)
                     } else {
                         // If last input started a sequence, and user selects the same combination
                         if (userSelect[userSelect.length - 2] === sequences[i][0] && userSelect[userSelect.length - 1] === sequences[i][0]) {
-                            console.log(userSelect[userSelect.length - 1], sequences[i][0], sequences[i][tempSequenceIndex[i]], userSelect[userSelect.length - 2])
                             // Set temp status to change spacing
                             tempStatus[i] = "inprogressSpace"
                         } else {
@@ -186,15 +187,15 @@ export default function Sequences(props: Props) {
                     // Space out sequence that is continuing
                     tempSpaceIndex[index] = tempSpaceIndex[index] + 1
                 } else {
-                    // Skips adding space if user input doesn't change row status
-                    if (JSON.stringify(rowStatus) === '["atstart","atstart","atstart"]') {
-                        return
-                    }
-
                     // If the row has been started, but not completed or failed, add the extra spacing to the space index
                     if (tempLineIndex[index] !== 0) {
                         tempSpaceIndex[index] = tempSpaceIndex[index] + tempLineIndex[index]
                         tempLineIndex[index] = 0
+                    }
+
+                    // Skips adding space if user input doesn't change row status
+                    if (JSON.stringify(rowStatus) === '["atstart","atstart","atstart"]') {
+                        return
                     }
 
                     // Add one space if not inprogress
