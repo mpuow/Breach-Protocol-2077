@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { motion } from "framer-motion"
 
 interface Props {
     setSolutionLength: React.Dispatch<React.SetStateAction<number>>
@@ -36,7 +37,13 @@ export default function DifficultySelector(props: Props) {
 
     return (
         <div className="relative">
-            <span className="border-[1px] border-transparent hover:border-cyber-blue hover:text-cyber-blue text-cyber-red-light font-semibold mb-4 p-1 absolute right-6" onClick={() => props.setInfoClicked(true)}>HOW TO PLAY</span>
+            <motion.span
+                whileTap={{scale: 0.95}} 
+                className="border-[1px] border-transparent hover:border-cyber-blue hover:text-cyber-blue text-cyber-red-light font-semibold mb-4 p-2 absolute right-6" 
+                onClick={() => props.setInfoClicked(true)}>
+                HOW TO PLAY
+            </motion.span>
+
             <div className="flex items-center justify-center flex-col select-none">
 
                 <h1 className="text-cyber-green text-xl">DIFFICULTY</h1>

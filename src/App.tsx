@@ -37,7 +37,7 @@ function App() {
             <HowToPlay infoClicked={infoClicked} setInfoClicked={setInfoClicked} />
 
 
-            <div className="border-cyber-green h-0 select-none overflow-hidden md:h-[89vh] md:border-2 md:m-4 md:p-2">
+            <div className="border-cyber-green h-0 select-none overflow-hidden md:h-[90vh] md:border-2 md:mt-4 md:mx-4 md:p-2">
 
                 <div className="my-4">
                     <DifficultySelector
