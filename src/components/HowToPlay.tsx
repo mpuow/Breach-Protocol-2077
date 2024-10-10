@@ -54,8 +54,6 @@ export default function HowToPlay(props: Props) {
 
 					<span>6. Use the solve button to see a possible solution to the puzzle</span>
 					<img src={solvepic} className='size-fit'></img>
-					
-
 				</div>
 				<div className='flex items-center justify-center my-10'>
 					<motion.span 

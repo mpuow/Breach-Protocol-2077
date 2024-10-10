@@ -113,7 +113,7 @@ function App() {
 
             </div>
 
-            <div className="bottom-0 h-[6vh] w-full fixed text-center text-sm">
+            <div className="bottom-0 h-[6vh] w-full fixed text-center text-sm select-none">
                 <div className="flex items-center justify-center flex-col">
                     <span>NOT AN OFFICIAL APP. TRADEMARK OWNED BY CD PROJEKT S.A.</span>
                     <a className="text-cyber-red-menu w-fit hover:text-cyber-blue-darker" href="https://github.com/mpuow/2077-Hacking-Minigame">Github</a>

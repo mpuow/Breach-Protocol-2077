@@ -1,3 +1,4 @@
+import { motion } from "framer-motion"
 
 interface Props {
     sequenceArray: string[][]
@@ -281,6 +282,6 @@ export default function Solve(props: Props) {
 
 
     return (
-        <span className='border-2 border-cyber-red-menu p-2 px-6 bg-black bg-opacity-20 hover:bg-cyber-red-menu hover:bg-opacity-30' onClick={() => searchAlgorithm()}>SOLVE</span>
+        <motion.span whileTap={{scale: 0.95}} className='border-2 border-cyber-red-menu p-2 px-6 bg-black bg-opacity-20 hover:bg-cyber-red-menu hover:bg-opacity-30' onClick={() => searchAlgorithm()}>SOLVE</motion.span>
     )
 }

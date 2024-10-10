@@ -1,3 +1,4 @@
+import { motion } from "framer-motion"
 import { useEffect, useMemo, useState } from "react"
 
 interface Props {
@@ -29,7 +30,6 @@ export default function Sequences(props: Props) {
     const [spaceIndex, setSpaceIndex] = useState<number[]>([0,0,0])
     const [lineIndex, setLineIndex] = useState<number[]>([0,0,0])
     const [invisElements, setInvisElements] = useState([<span key={-1}></span>])
-
 
     // Used to reset sequences
     const handleReset = useMemo(() => {
@@ -339,8 +339,11 @@ export default function Sequences(props: Props) {
 
     // Display the contents of the sequence section
     function DisplaySequences() {
-        const datamineType = ["BASIC DATAMINE", "ADVANCED DATAMINE", "EXPERT DATAMINE"]
-        const datamineFlavourText = ["Extract eurodollars", "Extract eurodollars and quickhack crafting components", "Extract quickhacks and quickhack crafting specs"]
+        const datamineText = [
+            {type: "BASIC DATAMINE", flavourText: "Extract eurodollars"},
+            {type: "ADVANCED DATAMINE", flavourText: "Extract eurodollars and quickhack crafting components"},
+            {type: "EXPERT DATAMINE", flavourText: "Extract quickhacks and quickhack crafting specs"}
+        ]
 
         return (
             <table className="w-full mb-8" onMouseLeave={() => props.setCombinationHover("")}>
@@ -349,12 +352,32 @@ export default function Sequences(props: Props) {
                         <td className="w-2/3 pl-4 text-white">
                             {cachedFinalSequenceArray.map((row, rowIndex) => (
                                 <div key={rowIndex + 10} className="flex flex-row relative">
-                                    <div className={`w-full absolute flex items-center pl-4 
-                                    ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60 z-100 top-0 left-0 h-full" 
-                                    : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60 z-100 top-0 left-0 h-full" 
-                                    : ""}`}>
+
+                                    <motion.div
+                                        initial={{y: -10}}
+                                        animate={{y: 0}}
+                                        className={`w-full absolute flex items-center pl-4 
+                                        ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60 z-100 top-0 left-0 h-full" 
+                                        : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60 z-100 top-0 left-0 h-full" 
+                                        : ""}`}>
                                         { rowStatus[rowIndex] === "completed" ? "INSTALLED" : rowStatus[rowIndex] === "failed" ? "FAILED" : ""}
-                                    </div>
+                                    </motion.div>
+
+                                    {/* {rowStatus[rowIndex] === "completed" && (
+                                        <motion.div
+                                            animate={{y: 0}}
+                                            className={`w-full absolute flex items-center pl-4 bg-cyber-success text-black text-opacity-60 z-100 top-0 left-0 h-full`}>
+                                            INSTALLED
+                                        </motion.div>
+                                    )}
+
+                                    {rowStatus[rowIndex] === "failed" && (
+                                        <motion.div
+                                            animate={{y: 0}}
+                                            className={`w-full absolute flex items-center pl-4 bg-cyber-red text-black text-opacity-60 z-100 top-0 left-0 h-full`}>
+                                            FAILED
+                                        </motion.div>
+                                    )} */}
                                     
                                     <span key={rowIndex + 100} className="flex flex-row">
                                         {displayInvisSequence(spaceIndex[rowIndex])}
@@ -379,15 +402,18 @@ export default function Sequences(props: Props) {
                         </td>
                         <td className="text-lg pr-4">
                             {cachedFinalSequenceArray.map((_row, rowIndex) => (
-                                <ul key={rowIndex} className={`text-base 
-                                ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
-                                : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60"
-                                : ""}`}>
-                                    <li>{datamineType[rowIndex]}</li>
+                                <motion.ul 
+                                    initial={{x:-2}}
+                                    key={rowIndex} 
+                                    className={`text-base 
+                                    ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
+                                    : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60"
+                                    : ""}`}>
+                                    <li>{datamineText[rowIndex].type}</li>
                                     <li className={`text-base ${rowStatus[rowIndex] === "completed" ? "" : rowStatus[rowIndex] === "failed" ? "" : "text-cyber-green"}`}>
-                                        <span className="line-clamp-1">{datamineFlavourText[rowIndex]}</span>
+                                        <span className="line-clamp-1">{datamineText[rowIndex].flavourText}</span>
                                     </li>
-                                </ul>
+                                </motion.ul>
                             ))}
                         </td>
                     </tr>
