@@ -1,5 +1,5 @@
-import { motion } from "framer-motion"
-import { useEffect, useMemo, useState } from "react"
+import { animate, AnimatePresence, motion, useAnimationControls } from "framer-motion"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 interface Props {
     solutionStringArray: string[]
@@ -30,6 +30,7 @@ export default function Sequences(props: Props) {
     const [spaceIndex, setSpaceIndex] = useState<number[]>([0,0,0])
     const [lineIndex, setLineIndex] = useState<number[]>([0,0,0])
     const [invisElements, setInvisElements] = useState([<span key={-1}></span>])
+    const [rowAnimate, setRowAnimate] = useState<boolean[]>([true, true, true])
 
     // Used to reset sequences
     const handleReset = useMemo(() => {
@@ -249,6 +250,15 @@ export default function Sequences(props: Props) {
         }
     }
 
+    function updateAnimation(rowIndex: number) {
+        let tempRowAnimate = [...rowAnimate]
+        if (tempRowAnimate[rowIndex] === true) {
+            tempRowAnimate[rowIndex] = false
+        }
+        setRowAnimate(tempRowAnimate)
+        console.log(rowAnimate)
+    }
+
     // Check answers after every user select
     useEffect(() => {
         checkUserAnswer(cachedFinalSequenceArray, props.userSelect)
@@ -337,6 +347,30 @@ export default function Sequences(props: Props) {
         return elements
     }
 
+    const animateOnce = useCallback((rowIndex: number) => {
+        return (
+            <AnimatePresence mode="wait">
+                {rowStatus[rowIndex] === "completed" && (
+                    <motion.div
+                        animate={rowAnimate[rowIndex] ? {y: [-5, 0]} : {}}
+                        onAnimationComplete={() => updateAnimation(rowIndex)}
+                        className={`w-full absolute flex items-center pl-4 bg-cyber-success text-black text-opacity-60 z-100 top-0 left-0 h-full`}>
+                        INSTALLED
+                    </motion.div>
+                )}
+
+                {rowStatus[rowIndex] === "failed" && (
+                    <motion.div
+                        animate={rowAnimate[rowIndex] ? {y: [-5, 0]} : {}}
+                        onAnimationComplete={() => updateAnimation(rowIndex)}
+                        className={`w-full absolute flex items-center pl-4 bg-cyber-red text-black text-opacity-60 z-100 top-0 left-0 h-full`}>
+                        FAILED
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        )
+    }, [rowAnimate, rowStatus])
+
     // Display the contents of the sequence section
     function DisplaySequences() {
         const datamineText = [
@@ -353,19 +387,24 @@ export default function Sequences(props: Props) {
                             {cachedFinalSequenceArray.map((row, rowIndex) => (
                                 <div key={rowIndex + 10} className="flex flex-row relative">
 
-                                    <motion.div
-                                        initial={{y: -10}}
-                                        animate={{y: 0}}
+                                    {/* <motion.div
+                                        initial={rowAnimate[rowIndex] ? {y: -10} : {y: 0}}
+                                        animate={rowAnimate[rowIndex] ? {y: 0} : {}}
+                                        onAnimationComplete={() => updateAnimation(rowIndex)}
                                         className={`w-full absolute flex items-center pl-4 
                                         ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60 z-100 top-0 left-0 h-full" 
                                         : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60 z-100 top-0 left-0 h-full" 
                                         : ""}`}>
                                         { rowStatus[rowIndex] === "completed" ? "INSTALLED" : rowStatus[rowIndex] === "failed" ? "FAILED" : ""}
-                                    </motion.div>
+                                    </motion.div> */}
+
+                                    {animateOnce(rowIndex)}
 
                                     {/* {rowStatus[rowIndex] === "completed" && (
                                         <motion.div
-                                            animate={{y: 0}}
+                                            animate={rowAnimate[rowIndex] ? {y: [-10, 0]} : {}}
+                                            transition={{delay: 0.5}}
+                                            onAnimationComplete={() => updateAnimation(rowIndex)}
                                             className={`w-full absolute flex items-center pl-4 bg-cyber-success text-black text-opacity-60 z-100 top-0 left-0 h-full`}>
                                             INSTALLED
                                         </motion.div>
@@ -373,7 +412,8 @@ export default function Sequences(props: Props) {
 
                                     {rowStatus[rowIndex] === "failed" && (
                                         <motion.div
-                                            animate={{y: 0}}
+                                            animate={rowAnimate[rowIndex] ? {y: [-10, 0]} : {}}
+                                            onAnimationComplete={() => updateAnimation(rowIndex)}
                                             className={`w-full absolute flex items-center pl-4 bg-cyber-red text-black text-opacity-60 z-100 top-0 left-0 h-full`}>
                                             FAILED
                                         </motion.div>

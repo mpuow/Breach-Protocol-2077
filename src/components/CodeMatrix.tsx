@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import "./CodeMatrix.css"
 import Solve from './Solve'
+import { motion } from 'framer-motion'
 
 interface Props {
     userSelect: string[]
@@ -313,14 +314,14 @@ export default function CodeMatrix(props: Props) {
                 {combinationBoard.map((row, rowIndex) => (
                     <tr key={rowIndex} className={`table-auto ${rowIndex === selectRow && isRowTurn ? "bg-matrix-select" : !isRowTurn && rowIndex !== selectRow ? "hover:bg-matrix-preview" : ""}`}>
                         {row.map((val, colIndex) => (
-                            <td
+                            <motion.td
                                 key={colIndex}
                                 className={swapBoardStyle(colIndex, rowIndex, val)}
                                 onClick={() => clickCell(val, rowIndex, colIndex)}
                                 onMouseEnter={() => onHover(colIndex, val, rowIndex)}
                                 onMouseLeave={() => stopHover()}>
                                 {val}
-                            </td> 
+                            </motion.td> 
                         ))}
                     </tr>
                 ))}
@@ -330,7 +331,8 @@ export default function CodeMatrix(props: Props) {
 
     return (
         <>
-            <div className={`${props.gameStatus === "win" ? "border-[1px] border-cyber-success" : props.gameStatus === "lose" ? "border-[1px] border-cyber-red" : "border-[1px] border-cyber-green overflow-hidden"}`}>
+            <div
+                className={`${props.gameStatus === "win" ? "border-x-[1px] border-cyber-success" : props.gameStatus === "lose" ? "border-x-[1px] border-cyber-red" : "border-[1px] border-cyber-green overflow-hidden"}`}>
                 <div className='relative'>
                     <div className="bg-cyber-green text-black p-2 text-xl">CODE MATRIX</div>
                     {props.gameStatus ?
@@ -343,7 +345,11 @@ export default function CodeMatrix(props: Props) {
                         {props.gameStatus === "win" ?
                             <tr>
                                 <td>
-                                    <div className='text-cyber-success font-semibold'>
+                                    <motion.div
+                                        initial={{y: -30}}
+                                        animate={{y: 0}}
+                                        transition={{delay: 0.2}}
+                                        className='text-cyber-success font-semibold'>
                                         //ROOT <br />
                                         //ACCESS_REQUEST <br />
                                         //ACCESS_REQUEST_SUCCESS <br />
@@ -356,13 +362,17 @@ export default function CodeMatrix(props: Props) {
                                         // <br />
                                         //UPLOAD_IN_PROGRESS <br />
                                         //UPLOAD_COMPLETE! <br />
-                                    </div>
+                                    </motion.div>
                                 </td>
                             </tr>
                         : props.gameStatus === "lose" ?
                             <tr>
                                 <td>
-                                    <div className='text-cyber-red font-semibold'>
+                                    <motion.div
+                                        initial={{y: -30}}
+                                        animate={{y: 0}}
+                                        transition={{delay: 0.2}}
+                                        className='text-cyber-red font-semibold'>
                                         //ROOT_ATTEMPT_1<br />
                                         //ROOT_ATTEMPT_2<br />
                                         //ROOT_ATTEMPT_3<br />
@@ -374,35 +384,48 @@ export default function CodeMatrix(props: Props) {
                                         //ACCESSING...............................FAILED<br />
                                         //ACCESSING...............................FAILED<br />
                                         <br />
-                                    </div>
+                                    </motion.div>
                                 </td>
                             </tr>
                         : <DisplayCodeMatrix />}
                     </tbody>
                 </table>
-
-                {props.gameStatus ?
-                    <>
-                        {props.gameStatus === "win" ?
-                            <div className='bg-cyber-success h-20 flex items-center justify-center text-success-green'>
-                                DAEMONS UPLOADED
-                            </div>
-                        : props.gameStatus === 'lose' ?
-                            <div className='bg-cyber-red h-20 flex items-center justify-center text-fail-red'>
-                                USER TERMINATED PROCESS
-                            </div>
-                        :
-                        <div></div>}
-                    </>
-                : <div></div>}
             </div>
+
             {props.gameStatus ?
-                <div className={`
-                ${props.gameStatus === "win" ? "bg-success-green border-[1px] border-cyber-success text-cyber-success" 
-                : props.gameStatus === "lose" ? "bg-fail-red border-[1px] border-cyber-red text-cyber-red" : ""} 
-                flex items-center p-2 mt-6 w-2/5 mr-0 ml-auto`} onClick={() => resetGame()}>
+                <>
+                    {props.gameStatus === "win" ?
+                        <motion.div
+                            initial={{y: -10}}
+                            animate={{y: 0}}
+                            transition={{delay: 0.3}}
+                            className='bg-cyber-success h-20 flex items-center justify-center text-success-green'>
+                            DAEMONS UPLOADED
+                        </motion.div>
+                    : props.gameStatus === 'lose' ?
+                        <motion.div
+                            initial={{y: -10}}
+                            animate={{y: 0}}
+                            transition={{delay: 0.3}}
+                            className='bg-cyber-red h-20 flex items-center justify-center text-fail-red'>
+                            USER TERMINATED PROCESS
+                        </motion.div>
+                    :
+                    <div></div>}
+                </>
+            : <div></div>}
+
+            {props.gameStatus ?
+                <motion.div
+                    initial={{y: -50, opacity: 0}}
+                    animate={{y: 0, opacity: 100}}
+                    transition={{delay: 0.4}}
+                    className={`
+                    ${props.gameStatus === "win" ? "bg-success-green border-[1px] border-cyber-success text-cyber-success" 
+                    : props.gameStatus === "lose" ? "bg-fail-red border-[1px] border-cyber-red text-cyber-red" : ""} 
+                    flex items-center p-2 mt-6 w-2/5 mr-0 ml-auto`} onClick={() => resetGame()}>
                     EXIT INTERFACE
-                </div>
+                </motion.div>
             : 
             <div className='flex flex-col items-center justify-center p-2 mt-6 mr-0 ml-auto text-cyber-blue-darker'>
                 {props.gameStart.current ?

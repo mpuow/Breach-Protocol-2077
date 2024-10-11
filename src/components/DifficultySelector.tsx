@@ -49,8 +49,11 @@ export default function DifficultySelector(props: Props) {
                 <h1 className="text-cyber-green text-xl">DIFFICULTY</h1>
                 <ul className="flex flex-row space-x-4 text-xl">
                     {Object.values(difficultyOptions).map((d) => (
-                        <motion.li whileTap={{scale: 0.95}} key={d.difficultyName} onClick={() => difficultySelect(d.difficultyName, d.solutionLength, d.matrixSize, d.initialTime)} 
-                        className={`${d.difficultyName.toLowerCase() === difficulty ? `${d.style}` : `${!props.gameStart.current && props.gameStatus === "" ? "hover:text-cyber-green" : ""}` }`}>
+                        <motion.li 
+                            whileTap={!props.gameStart.current && props.gameStatus === "" ? {scale: 0.95} : {}}
+                            key={d.difficultyName}
+                            onClick={() => difficultySelect(d.difficultyName, d.solutionLength, d.matrixSize, d.initialTime)}
+                            className={`${d.difficultyName.toLowerCase() === difficulty ? `${d.style}` : `${!props.gameStart.current && props.gameStatus === "" ? "hover:text-cyber-green" : ""}` }`}>
                             {d.difficultyName}
                         </motion.li>
                     ))}
