@@ -1,5 +1,6 @@
-import { animate, AnimatePresence, motion, useAnimationControls } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 import { useCallback, useEffect, useMemo, useState } from "react"
+import "./Sequences.css"
 
 interface Props {
     solutionStringArray: string[]
@@ -450,8 +451,11 @@ export default function Sequences(props: Props) {
                                     : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60"
                                     : ""}`}>
                                     <li>{datamineText[rowIndex].type}</li>
-                                    <li className={`text-base ${rowStatus[rowIndex] === "completed" ? "" : rowStatus[rowIndex] === "failed" ? "" : "text-cyber-green"}`}>
+                                    {/* <li className={`text-base ${rowStatus[rowIndex] === "completed" ? "" : rowStatus[rowIndex] === "failed" ? "" : "text-cyber-green"}`}>
                                         <span className="line-clamp-1">{datamineText[rowIndex].flavourText}</span>
+                                    </li> */}
+                                    <li className={`scrollContainer ${rowStatus[rowIndex] === "completed" ? "" : rowStatus[rowIndex] === "failed" ? "" : "text-cyber-green"}`}>
+                                        <span className="scrollText">{datamineText[rowIndex].flavourText}</span>
                                     </li>
                                 </motion.ul>
                             ))}

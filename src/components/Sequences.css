@@ -1,0 +1,22 @@
+.scrollContainer {
+    overflow: hidden;
+    white-space: nowrap;
+    width: 20vw;
+}
+
+.scrollText {
+    display: inline-block;
+    animation: scroll 15s linear infinite;
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0%);
+    }
+    10% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
