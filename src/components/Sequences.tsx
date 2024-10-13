@@ -1,5 +1,5 @@
-import { AnimatePresence, motion } from "framer-motion"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { motion } from "framer-motion"
+import { useEffect, useMemo, useState } from "react"
 import "./Sequences.css"
 
 interface Props {
@@ -32,6 +32,7 @@ export default function Sequences(props: Props) {
     const [lineIndex, setLineIndex] = useState<number[]>([0,0,0])
     const [invisElements, setInvisElements] = useState([<span key={-1}></span>])
     const [rowAnimate, setRowAnimate] = useState<boolean[]>([true, true, true])
+    const [inputCover, setInputCover] = useState(false)
 
     // Used to reset sequences
     const handleReset = useMemo(() => {
@@ -41,6 +42,7 @@ export default function Sequences(props: Props) {
             setSpaceIndex([0,0,0])
             setLineIndex([0,0,0])
             setInvisElements([<span key={-1}></span>])
+            setRowAnimate([true, true, true])
             console.log("Reset")
         }
       }, [props.gameReset.current])
@@ -251,15 +253,6 @@ export default function Sequences(props: Props) {
         }
     }
 
-    function updateAnimation(rowIndex: number) {
-        let tempRowAnimate = [...rowAnimate]
-        if (tempRowAnimate[rowIndex] === true) {
-            tempRowAnimate[rowIndex] = false
-        }
-        setRowAnimate(tempRowAnimate)
-        console.log(rowAnimate)
-    }
-
     // Check answers after every user select
     useEffect(() => {
         checkUserAnswer(cachedFinalSequenceArray, props.userSelect)
@@ -348,77 +341,130 @@ export default function Sequences(props: Props) {
         return elements
     }
 
-    const animateOnce = useCallback((rowIndex: number) => {
+    // Updates the animation condition for each sequence row
+    const updateAnimation = (rowIndex: number) => {
+        // Set sequence animation boolean
+        let tempRowAnimate = [...rowAnimate]
+        if (tempRowAnimate[rowIndex] === true) {
+            tempRowAnimate[rowIndex] = false
+        }
+        setRowAnimate(tempRowAnimate)
+
+        // Reset input cover to false
+        setInputCover(false)
+    }
+
+    // Sequence cover animations
+    const sequenceCoverAnimations = (rowIndex: number) => {
+        const variants = {
+            initial: { height: 0 },
+            final: { height: '100%' },
+        }
+
         return (
-            <AnimatePresence mode="wait">
+            <div>
                 {rowStatus[rowIndex] === "completed" && (
                     <motion.div
-                        animate={rowAnimate[rowIndex] ? {y: [-5, 0]} : {}}
+                        variants={variants}
+                        initial={rowAnimate[rowIndex] ? "initial" : "final" }
+                        animate={rowAnimate[rowIndex] ? "final" : {}}
+                        transition={{ duration: 0.2 }}
+                        onAnimationStart={() => setInputCover(true)}
                         onAnimationComplete={() => updateAnimation(rowIndex)}
-                        className={`w-full absolute flex items-center pl-4 bg-cyber-success text-black text-opacity-60 z-100 top-0 left-0 h-full`}>
+                        className={`w-full h-full absolute flex items-center pl-4 bg-cyber-success text-black text-opacity-60 z-100 top-0 left-0`}>
                         INSTALLED
                     </motion.div>
                 )}
 
                 {rowStatus[rowIndex] === "failed" && (
                     <motion.div
-                        animate={rowAnimate[rowIndex] ? {y: [-5, 0]} : {}}
+                        variants={variants}
+                        initial={rowAnimate[rowIndex] ? "initial" : "final" }
+                        animate={rowAnimate[rowIndex] ? "final" : {}}
+                        transition={{ duration: 0.2 }}
                         onAnimationComplete={() => updateAnimation(rowIndex)}
                         className={`w-full absolute flex items-center pl-4 bg-cyber-red text-black text-opacity-60 z-100 top-0 left-0 h-full`}>
                         FAILED
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </div>
         )
-    }, [rowAnimate, rowStatus])
+    }
 
-    // Display the contents of the sequence section
-    function DisplaySequences() {
+    const flavourTextAnimations = (rowIndex: number) => {
         const datamineText = [
             {type: "BASIC DATAMINE", flavourText: "Extract eurodollars"},
             {type: "ADVANCED DATAMINE", flavourText: "Extract eurodollars and quickhack crafting components"},
             {type: "EXPERT DATAMINE", flavourText: "Extract quickhacks and quickhack crafting specs"}
         ]
 
+        // const variants = {
+        //     initial: { height: 0 },
+        //     final: { height: '100%' },
+        // }
+
+        return (
+            <motion.ul key={rowIndex} initial={{ x: -2 }} className="relative">
+                {/* {rowStatus[rowIndex] === "completed" && (
+                    <motion.div
+                        variants={variants}
+                        initial={rowAnimate[rowIndex] ? "inital" : "final"}
+                        animate={rowAnimate[rowIndex] ? "final" : {}}
+                        transition={{ duration: 0.2 }}
+                        className={`absolute top-0 left-0 w-full h-full bg-cyber-success text-black text-opacity-60`}>
+                    </motion.div>
+                )}
+
+                {rowStatus[rowIndex] === "failed" && (
+                    <motion.div
+                    variants={variants}
+                    initial={rowAnimate[rowIndex] ? "inital" : "final"}
+                    animate={rowAnimate[rowIndex] ? "final" : {}}
+                    transition={{ duration: 0.2 }}
+                    className={`absolute top-0 left-0 w-full h-full bg-cyber-red text-black text-opacity-60`}>
+                </motion.div>
+                )} */}
+
+
+                {/* <motion.div
+                    variants={variants}
+                    initial={rowAnimate[rowIndex] && (rowStatus[rowIndex] === "completed" || rowStatus[rowIndex] === "failed") ? "inital" : (rowStatus[rowIndex] === "completed" || rowStatus[rowIndex] === "failed") ? "final" : 'initial'}
+                    animate={rowAnimate[rowIndex] && (rowStatus[rowIndex] === "completed" || rowStatus[rowIndex] === "failed") ? "final" : {}}
+                    transition={{ duration: 0.2 }}
+                    className={`absolute top-0 left-0 w-full h-full
+                        ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
+                        : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60"
+                        : ""}`}>
+                </motion.div> */}
+
+
+                <motion.div
+                    className={`text-base
+                        ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
+                        : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60"
+                        : ""}`}>
+                    <li>{datamineText[rowIndex].type}</li>
+                    <li className={`scrollContainer ${rowStatus[rowIndex] === "completed" ? "" : rowStatus[rowIndex] === "failed" ? "" : "text-cyber-green"}`}>
+                        <span className="scrollText">{datamineText[rowIndex].flavourText}</span>
+                    </li>
+                </motion.div>
+            </motion.ul>
+        )
+    }
+
+    // Display the contents of the sequence section
+    function DisplaySequences() {
         return (
             <table className="w-full mb-8" onMouseLeave={() => props.setCombinationHover("")}>
                 <tbody className="select-none">
+                    {/* Covers the screen while the animation is in progress, to avoid triggering re-renders and causing re-animate issues */}
+                    {inputCover ? <tr className="top-0 left-0 z-50 absolute w-[100vw] h-[100vh]"></tr> : <tr></tr>}     
                     <tr className="text-xl">
                         <td className="w-2/3 pl-4 text-white">
                             {cachedFinalSequenceArray.map((row, rowIndex) => (
                                 <div key={rowIndex + 10} className="flex flex-row relative">
 
-                                    {/* <motion.div
-                                        initial={rowAnimate[rowIndex] ? {y: -10} : {y: 0}}
-                                        animate={rowAnimate[rowIndex] ? {y: 0} : {}}
-                                        onAnimationComplete={() => updateAnimation(rowIndex)}
-                                        className={`w-full absolute flex items-center pl-4 
-                                        ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60 z-100 top-0 left-0 h-full" 
-                                        : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60 z-100 top-0 left-0 h-full" 
-                                        : ""}`}>
-                                        { rowStatus[rowIndex] === "completed" ? "INSTALLED" : rowStatus[rowIndex] === "failed" ? "FAILED" : ""}
-                                    </motion.div> */}
-
-                                    {animateOnce(rowIndex)}
-
-                                    {/* {rowStatus[rowIndex] === "completed" && (
-                                        <motion.div
-                                            animate={rowAnimate[rowIndex] ? {y: [-10, 0]} : {}}
-                                            transition={{delay: 0.5}}
-                                            onAnimationComplete={() => updateAnimation(rowIndex)}
-                                            className={`w-full absolute flex items-center pl-4 bg-cyber-success text-black text-opacity-60 z-100 top-0 left-0 h-full`}>
-                                            INSTALLED
-                                        </motion.div>
-                                    )}
-
-                                    {rowStatus[rowIndex] === "failed" && (
-                                        <motion.div
-                                            animate={rowAnimate[rowIndex] ? {y: [-10, 0]} : {}}
-                                            onAnimationComplete={() => updateAnimation(rowIndex)}
-                                            className={`w-full absolute flex items-center pl-4 bg-cyber-red text-black text-opacity-60 z-100 top-0 left-0 h-full`}>
-                                            FAILED
-                                        </motion.div>
-                                    )} */}
+                                    {sequenceCoverAnimations(rowIndex)}
                                     
                                     <span key={rowIndex + 100} className="flex flex-row">
                                         {displayInvisSequence(spaceIndex[rowIndex])}
@@ -443,21 +489,7 @@ export default function Sequences(props: Props) {
                         </td>
                         <td className="text-lg pr-4">
                             {cachedFinalSequenceArray.map((_row, rowIndex) => (
-                                <motion.ul 
-                                    initial={{x:-2}}
-                                    key={rowIndex} 
-                                    className={`text-base 
-                                    ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
-                                    : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60"
-                                    : ""}`}>
-                                    <li>{datamineText[rowIndex].type}</li>
-                                    {/* <li className={`text-base ${rowStatus[rowIndex] === "completed" ? "" : rowStatus[rowIndex] === "failed" ? "" : "text-cyber-green"}`}>
-                                        <span className="line-clamp-1">{datamineText[rowIndex].flavourText}</span>
-                                    </li> */}
-                                    <li className={`scrollContainer ${rowStatus[rowIndex] === "completed" ? "" : rowStatus[rowIndex] === "failed" ? "" : "text-cyber-green"}`}>
-                                        <span className="scrollText">{datamineText[rowIndex].flavourText}</span>
-                                    </li>
-                                </motion.ul>
+                                flavourTextAnimations(rowIndex)
                             ))}
                         </td>
                     </tr>
