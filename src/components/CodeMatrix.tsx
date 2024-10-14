@@ -94,7 +94,7 @@ export default function CodeMatrix(props: Props) {
     // Generates the solution string based on the code matrix
     function generateSolutionString(localCombinationBoard:string[][]) {
         const solutionStringLength = props.solutionLength
-        const solutionStringCoords: number[][] = []
+        let solutionStringCoords: number[][] = []
         const localSolutionString:string[] = []
         let colIndex:number = -1
         let rowIndex:number = -1
@@ -171,21 +171,19 @@ export default function CodeMatrix(props: Props) {
         // Finds all unique combinations in the generated solution
         let uniqueCombinations = new Set()
         for (const combination of localSolutionString) {
-            if (!uniqueCombinations.has(combination)) {
-                uniqueCombinations.add(combination)
-            }
+            uniqueCombinations.add(combination)
         }
 
-        // If half the solution is not unique combinations, generate a new solution
+        // If half the solution is not unique combinations, generate a new solution (only on the easiest difficulties, not an issue in higher difficulties)
         if (localSolutionString.length <= 8) {
             if (uniqueCombinations.size <= localSolutionString.length / 2) {
-                generateSolutionString(localCombinationBoard)
+                return generateSolutionString(localCombinationBoard)
             }
         }
 
         setCombinationBoard(localCombinationBoard)
 
-        return (localSolutionString)
+        return localSolutionString
     }
 
     // Handles when a cell in the code matrix is clicked
@@ -236,8 +234,6 @@ export default function CodeMatrix(props: Props) {
             tempCombinationBoard[rowIndex][colIndex] = ""
             setCombinationBoard(tempCombinationBoard)
         }
-        
-
     }
 
     // Handles the hover event for the cells
