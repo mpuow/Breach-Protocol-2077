@@ -57,7 +57,7 @@ export default function BreachTime(props: Props) {
     return (
         <>
             <div className="flex flex-row justify-between mb-2 h-full">
-                <div className="text-2xl text-cyber-green line-clamp-1">BREACH TIME REMAINING</div>
+                <div className="xl:text-[26px] text-cyber-green line-clamp-1">BREACH TIME REMAINING</div>
                 <div className="border-2 border-cyber-green w-1/4 h-11 text-cyber-green text-2xl select-none">
                     <span className="flex justify-center items-center h-full overflow-hidden">{formatTime(timeLeft)}</span>
                 </div>

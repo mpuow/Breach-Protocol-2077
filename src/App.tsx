@@ -23,10 +23,11 @@ function App() {
     const [sequenceArray, setSequenceArray] = useState<string[][]>([])
     const [solvedArray, setSolvedArray] = useState<number[][]>([])
     const [infoClicked, setInfoClicked] = useState<boolean>(false)
+    const [inputCover, setInputCover] = useState<boolean>(false)
 
     return (
         <>
-            <div className="w-full h-[100vh] overflow-y-hidden flex items-center justify-center flex-col md:w-0 md:h-0">
+            <div className="w-full h-[100vh] overflow-y-hidden flex items-center justify-center flex-col lg:w-0 lg:h-0">
                 <span>THIS APP IS DESIGNED FOR LARGER SCREENS.</span>
                 <span>PLEASE USE A LARGER SCREEN.</span>
             </div>
@@ -92,7 +93,8 @@ function App() {
                             solutionLength={solutionLength}
                             sequenceArray={sequenceArray}
                             solvedArray={solvedArray}
-                            setSolvedArray={setSolvedArray} />
+                            setSolvedArray={setSolvedArray}
+                            setInputCover={setInputCover} />
                     </div>
                     <div className="w-2/3 mx-8">
                         <Sequences
@@ -107,7 +109,9 @@ function App() {
                             gameStart={gameStart}
                             gameReset={gameReset}
                             setSequenceArray={setSequenceArray}
-                            gameStatus={gameStatus} />
+                            gameStatus={gameStatus}
+                            inputCover={inputCover}
+                            setInputCover={setInputCover} />
                     </div>
                 </div>
 

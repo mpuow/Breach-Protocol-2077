@@ -21,6 +21,7 @@ interface Props {
     sequenceArray: string[][]
     solvedArray: number[][]
     setSolvedArray: React.Dispatch<React.SetStateAction<number[][]>>
+    setInputCover: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 // Generates a random number
@@ -61,6 +62,7 @@ export default function CodeMatrix(props: Props) {
         setIsRowTurn(true)
         props.setSolvedArray([])
         props.setGameStatus("")
+        setAnimateClick("")
 
         // Reset buffer
         props.setUserSelect([])
@@ -188,8 +190,10 @@ export default function CodeMatrix(props: Props) {
 
     // Handles when a cell in the code matrix is clicked
     function clickCell(val: string, rowIndex:number, colIndex:number) {
-        // Set cell to be animated
-        setAnimateClick(`${rowIndex},${colIndex}`)
+        // Set cell to be animated if it is not a placeholder
+        if (val !== placeholder) {
+            setAnimateClick(`${rowIndex},${colIndex}`)
+        }
         
         // Check if it is a row or column turn
         if (isRowTurn && val !== placeholder) {
@@ -226,12 +230,13 @@ export default function CodeMatrix(props: Props) {
             } else {
                 props.setSolvedArray([])
             }
+
+            // Replace coordinates with nothing (so the click animation looks better)
+            let tempCombinationBoard = [...combinationBoard]
+            tempCombinationBoard[rowIndex][colIndex] = ""
+            setCombinationBoard(tempCombinationBoard)
         }
         
-        // Replace coordinates with placeholder
-        let tempCombinationBoard = [...combinationBoard]
-        tempCombinationBoard[rowIndex][colIndex] = placeholder
-        setCombinationBoard(tempCombinationBoard)
 
     }
 
@@ -264,8 +269,6 @@ export default function CodeMatrix(props: Props) {
     // Swap board style depending on row or column turn
     function swapBoardStyle(colIndex:number, rowIndex:number, val:string) {
 
-        let clickedCell = `${rowIndex},${colIndex}`
-
         let styleString = ""
 
         const solveCoords = [...props.solvedArray]
@@ -281,30 +284,40 @@ export default function CodeMatrix(props: Props) {
 
             return styleString
         }
-
-
-        // ${animateClick === clickedCell ? "animateCell"
         
         if (isRowTurn) {
             // Row Style
             styleString = `size-12 p-1 select-none text-center text-xl text-cyber-lightgreen transition-colors duration-500 ease-in-out
             ${colIndex === columnHover ? 'bg-matrix-preview' : ''}
-            ${val === props.combinationHover ? "inner-cell" : ""}
-            ${val !== placeholder ? rowIndex === selectRow && columnHover === colIndex ? `double-border hoverGlow ${animateClick === clickedCell ? "" : ""}` : "": "text-white text-opacity-20"}`
+            ${val === props.combinationHover && val !== "" ? "inner-cell" : ""}
+            ${val !== placeholder ? rowIndex === selectRow && columnHover === colIndex ? "double-border hoverGlow" : "": "text-white text-opacity-20"}`
         } else {
             // Column Style
             styleString = `size-12 p-1 select-none text-center text-xl text-cyber-lightgreen
-            ${animateClick === clickedCell && colIndex === selectColumn ? "" : ""}
             ${colIndex === selectColumn ? 'bg-matrix-select' : ''}
-            ${val === props.combinationHover ? "inner-cell" : ""}
+            ${val === props.combinationHover && val !== "" ? "inner-cell" : ""}
             ${val !== placeholder ? colIndex === selectColumn && rowHover === rowIndex ? "double-border hoverGlow" : "" : "text-white text-opacity-20"}`
         }
 
         return styleString
     }
 
+    const handleClickAnimation = (rowIndex:number, colIndex:number) => {
+        // Replace coordinates with placeholder
+        let tempCombinationBoard = [...combinationBoard]
+        tempCombinationBoard[rowIndex][colIndex] = placeholder
+        setCombinationBoard(tempCombinationBoard)
+
+        setAnimateClick("")
+        props.setInputCover(false)
+    }
+
     // Maps through the board and each row to display the code matrix
     function DisplayCodeMatrix() {
+        const variants = {
+            initial: { backgroundColor: "rgba(89, 217, 230, 0)" },
+            final: { backgroundColor: "rgba(89, 217, 230, 1)", transition: { duration: 0.2 }}
+        }
         return (
             <>
                 {combinationBoard.map((row, rowIndex) => (
@@ -317,9 +330,12 @@ export default function CodeMatrix(props: Props) {
                                 onMouseEnter={() => onHover(colIndex, val, rowIndex)}
                                 onMouseLeave={() => stopHover()}>
                                 <motion.div
-                                    animate={`${rowIndex},${colIndex}` === animateClick ? {backgroundColor: "#64CEC9", transition: { type: "spring", duration: 0.1}} : {}}
-                                    onAnimationComplete={() => setAnimateClick("")}
-                                    className='w-full h-full flex items-center justify-center'>
+                                    variants={variants}
+                                    initial={"inital"}
+                                    animate={`${rowIndex},${colIndex}` === animateClick ? rowIndex === selectRow && isRowTurn ? "final" : colIndex === selectColumn && !isRowTurn ? "final" : {} : {}}
+                                    onAnimationStart={() => props.setInputCover(true)}
+                                    onAnimationComplete={() => handleClickAnimation(rowIndex, colIndex)}
+                                    className={`w-full h-full flex items-center justify-center`}>
                                     {val}
                                 </motion.div>
                             </motion.td> 
@@ -333,7 +349,7 @@ export default function CodeMatrix(props: Props) {
     return (
         <>
             <div
-                className={`${props.gameStatus === "win" ? "border-x-[1px] border-cyber-success" : props.gameStatus === "lose" ? "border-x-[1px] border-cyber-red" : "border-[1px] border-cyber-green overflow-hidden"}`}>
+                className={`${props.gameStatus === "win" ? "border-x-[1px] border-cyber-success" : props.gameStatus === "lose" ? "border-x-[1px] border-cyber-red" : "border-[1px] border-cyber-green overflow-hidden min-h-[40vh]"}`}>
                 <div className='relative'>
                     <div className="bg-cyber-green text-black p-2 text-xl">CODE MATRIX</div>
                     {props.gameStatus ?
@@ -428,7 +444,7 @@ export default function CodeMatrix(props: Props) {
                     EXIT INTERFACE
                 </motion.div>
             : 
-            <div className='flex flex-col items-center justify-center p-2 mt-6 mr-0 ml-auto text-cyber-blue-darker'>
+            <div className='flex flex-col items-center justify-center p-2 mt-4 mr-0 ml-auto text-cyber-blue-darker'>
                 {props.gameStart.current ?
                     <span className='border-2 border-gray-500 text-gray-500 p-2 px-6 bg-black bg-opacity-20'>SOLVE</span>
                 :

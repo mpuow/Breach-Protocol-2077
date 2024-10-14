@@ -15,6 +15,8 @@ interface Props {
     gameReset: React.MutableRefObject<boolean>
     setSequenceArray: React.Dispatch<React.SetStateAction<string[][]>>
     gameStatus: string
+    inputCover: boolean
+    setInputCover: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function Sequences(props: Props) {
@@ -32,7 +34,7 @@ export default function Sequences(props: Props) {
     const [lineIndex, setLineIndex] = useState<number[]>([0,0,0])
     const [invisElements, setInvisElements] = useState([<span key={-1}></span>])
     const [rowAnimate, setRowAnimate] = useState<boolean[]>([true, true, true])
-    const [inputCover, setInputCover] = useState(false)
+    // const [inputCover, setInputCover] = useState(false)
 
     // Used to reset sequences
     const handleReset = useMemo(() => {
@@ -357,7 +359,7 @@ export default function Sequences(props: Props) {
         setRowAnimate(tempRowAnimate)
 
         // Reset input cover to false
-        setInputCover(false)
+        props.setInputCover(false)
     }
 
     // Sequence cover animations
@@ -375,7 +377,7 @@ export default function Sequences(props: Props) {
                         initial={rowAnimate[rowIndex] ? "initial" : "final" }
                         animate={rowAnimate[rowIndex] ? "final" : {}}
                         transition={{ duration: 0.2 }}
-                        onAnimationStart={() => setInputCover(true)}
+                        onAnimationStart={() => props.setInputCover(true)}
                         onAnimationComplete={() => updateAnimation()}
                         className={`w-full h-full absolute flex items-center pl-4 ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success" : "bg-cyber-red"} text-black text-opacity-60 z-100 top-0 left-0`}>
                         {rowStatus[rowIndex] === "completed" ? <span>INSTALLED</span> : <span>FAILED</span>}
@@ -437,7 +439,7 @@ export default function Sequences(props: Props) {
             <table className="w-full mb-8" onMouseLeave={() => props.setCombinationHover("")}>
                 <tbody className="select-none">
                     {/* Covers the screen while the animation is in progress, to avoid triggering re-renders and causing re-animate issues */}
-                    {inputCover ? <tr className="top-0 left-0 z-50 absolute w-[100vw] h-[100vh]"></tr> : <tr></tr>}     
+                    {props.inputCover ? <tr className="top-0 left-0 z-50 absolute w-[100vw] h-[100vh]"></tr> : <tr></tr>}     
                     <tr className="text-xl">
                         <td className="w-2/3 pl-4 text-white">
                             {cachedFinalSequenceArray.map((row, rowIndex) => (
