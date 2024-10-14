@@ -11,9 +11,3 @@
     75% { background-color: rgba(137,229,230, 0.75); }
     100% { background-color: #89E5E6; }
 }
-  
-.animateCell {
-    animation: animateBackground 0.2s infinite;
-    transition: 0.2s;
-    color: #89E5E6 !important
-}
