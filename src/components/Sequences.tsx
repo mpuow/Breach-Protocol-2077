@@ -342,11 +342,17 @@ export default function Sequences(props: Props) {
     }
 
     // Updates the animation condition for each sequence row
-    const updateAnimation = (rowIndex: number) => {
+    const updateAnimation = () => {
         // Set sequence animation boolean
         let tempRowAnimate = [...rowAnimate]
-        if (tempRowAnimate[rowIndex] === true) {
-            tempRowAnimate[rowIndex] = false
+
+        // Check and update current row status for all rows to avoid re-render issues
+        for (let i = 0; i < rowStatus.length; i++) {
+            if (rowStatus[i] === "completed" || rowStatus[i] === "failed") {
+                if (tempRowAnimate[i] === true) {
+                    tempRowAnimate[i] = false
+                }
+            }
         }
         setRowAnimate(tempRowAnimate)
 
@@ -363,34 +369,23 @@ export default function Sequences(props: Props) {
 
         return (
             <div>
-                {rowStatus[rowIndex] === "completed" && (
+                {rowStatus[rowIndex] === "completed" || rowStatus[rowIndex] === "failed" ? (
                     <motion.div
                         variants={variants}
                         initial={rowAnimate[rowIndex] ? "initial" : "final" }
                         animate={rowAnimate[rowIndex] ? "final" : {}}
                         transition={{ duration: 0.2 }}
                         onAnimationStart={() => setInputCover(true)}
-                        onAnimationComplete={() => updateAnimation(rowIndex)}
-                        className={`w-full h-full absolute flex items-center pl-4 bg-cyber-success text-black text-opacity-60 z-100 top-0 left-0`}>
-                        INSTALLED
+                        onAnimationComplete={() => updateAnimation()}
+                        className={`w-full h-full absolute flex items-center pl-4 ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success" : "bg-cyber-red"} text-black text-opacity-60 z-100 top-0 left-0`}>
+                        {rowStatus[rowIndex] === "completed" ? <span>INSTALLED</span> : <span>FAILED</span>}
                     </motion.div>
-                )}
-
-                {rowStatus[rowIndex] === "failed" && (
-                    <motion.div
-                        variants={variants}
-                        initial={rowAnimate[rowIndex] ? "initial" : "final" }
-                        animate={rowAnimate[rowIndex] ? "final" : {}}
-                        transition={{ duration: 0.2 }}
-                        onAnimationComplete={() => updateAnimation(rowIndex)}
-                        className={`w-full absolute flex items-center pl-4 bg-cyber-red text-black text-opacity-60 z-100 top-0 left-0 h-full`}>
-                        FAILED
-                    </motion.div>
-                )}
+                ) : <></>}
             </div>
         )
     }
 
+    // Flavour text animations (second half of the sequences)
     const flavourTextAnimations = (rowIndex: number) => {
         const datamineText = [
             {type: "BASIC DATAMINE", flavourText: "Extract eurodollars"},
@@ -398,20 +393,20 @@ export default function Sequences(props: Props) {
             {type: "EXPERT DATAMINE", flavourText: "Extract quickhacks and quickhack crafting specs"}
         ]
 
-        // const variants = {
-        //     initial: { height: 0 },
-        //     final: { height: '100%' },
-        // }
+        const variants = {
+            initial: { height: 0 },
+            final: { height: '100%' },
+        }
 
         return (
             <motion.ul key={rowIndex} initial={{ x: -2 }} className="relative">
-                {/* {rowStatus[rowIndex] === "completed" && (
+                {rowStatus[rowIndex] === "completed" && (
                     <motion.div
                         variants={variants}
-                        initial={rowAnimate[rowIndex] ? "inital" : "final"}
+                        initial={rowAnimate[rowIndex] ? "initial" : "final"}
                         animate={rowAnimate[rowIndex] ? "final" : {}}
                         transition={{ duration: 0.2 }}
-                        className={`absolute top-0 left-0 w-full h-full bg-cyber-success text-black text-opacity-60`}>
+                        className={`absolute top-0 left-0 w-full bg-cyber-success text-black text-opacity-60`}>
                     </motion.div>
                 )}
 
@@ -421,33 +416,17 @@ export default function Sequences(props: Props) {
                     initial={rowAnimate[rowIndex] ? "inital" : "final"}
                     animate={rowAnimate[rowIndex] ? "final" : {}}
                     transition={{ duration: 0.2 }}
-                    className={`absolute top-0 left-0 w-full h-full bg-cyber-red text-black text-opacity-60`}>
+                    className={`absolute top-0 left-0 w-full bg-cyber-red text-black text-opacity-60`}>
                 </motion.div>
-                )} */}
+                )}
 
-
-                {/* <motion.div
-                    variants={variants}
-                    initial={rowAnimate[rowIndex] && (rowStatus[rowIndex] === "completed" || rowStatus[rowIndex] === "failed") ? "inital" : (rowStatus[rowIndex] === "completed" || rowStatus[rowIndex] === "failed") ? "final" : 'initial'}
-                    animate={rowAnimate[rowIndex] && (rowStatus[rowIndex] === "completed" || rowStatus[rowIndex] === "failed") ? "final" : {}}
-                    transition={{ duration: 0.2 }}
-                    className={`absolute top-0 left-0 w-full h-full
-                        ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
-                        : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60"
-                        : ""}`}>
-                </motion.div> */}
-
-
-                <motion.div
-                    className={`text-base
-                        ${rowStatus[rowIndex] === "completed" ? "bg-cyber-success text-black text-opacity-60" 
-                        : rowStatus[rowIndex] === "failed" ? "bg-cyber-red text-black text-opacity-60"
-                        : ""}`}>
-                    <li>{datamineText[rowIndex].type}</li>
-                    <li className={`scrollContainer ${rowStatus[rowIndex] === "completed" ? "" : rowStatus[rowIndex] === "failed" ? "" : "text-cyber-green"}`}>
+                <div
+                    className={`text-base ${rowStatus[rowIndex] === "completed" || rowStatus[rowIndex] === "failed" ? "text-black text-opacity-60" : ""}`}>
+                    <li className="showText">{datamineText[rowIndex].type}</li>
+                    <li className={`scrollContainer ${rowStatus[rowIndex] === "completed" || rowStatus[rowIndex] === "failed" ? "" : "text-cyber-green"}`}>
                         <span className="scrollText">{datamineText[rowIndex].flavourText}</span>
                     </li>
-                </motion.div>
+                </div>
             </motion.ul>
         )
     }

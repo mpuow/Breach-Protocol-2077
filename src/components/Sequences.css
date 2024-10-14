@@ -20,3 +20,17 @@
         transform: translateX(-100%);
     }
 }
+
+.showText {
+    display: inline-block;
+    animation: show 15s linear infinite;
+}
+
+@keyframes show {
+    0% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(0%);
+    }
+}
