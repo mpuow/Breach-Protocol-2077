@@ -1,6 +1,7 @@
 import { motion } from "framer-motion"
 import { useEffect, useMemo, useState } from "react"
 import "./Sequences.css"
+import { randomNumber } from "./CodeMatrix"
 
 interface Props {
     solutionStringArray: string[]
@@ -313,20 +314,29 @@ export default function Sequences(props: Props) {
         let split1 = (split3.splice(0, possibleIndexVariations[0]))
         let split2 = (split3.splice(0, possibleIndexVariations[1]))
 
-        // Ensuring that sequences are different
+        // New array to shuffle
+        let splitArray:string[][] = []
+        splitArray.push(split1, split2, split3)
+
+        // Ensuring that sequences are in a different order every generation
         if (split1.length > 2) {
-            // Shuffle around sequences
-            [split1, split3] = [split3, split1];
-            [split2, split3] = [split3, split2];
-            
+
+            let currentIndex = splitArray.length
+            while (currentIndex != 0) {
+                let randomIndex = randomNumber(currentIndex)
+                currentIndex--
+
+                // Swap sequences
+                [splitArray[currentIndex], splitArray[randomIndex]] = [splitArray[randomIndex], splitArray[currentIndex]]
+            }
         }
     
         // Push results to finalSequenceArray
-        finalSequenceArray.push(split1, split2, split3)
+        finalSequenceArray.push(splitArray[0], splitArray[1], splitArray[2])
         
         // Steps to set variables for props, avoid bad setState
         let tempSequenceArray = []
-        tempSequenceArray.push(split1, split2, split3)
+        tempSequenceArray.push(splitArray[0], splitArray[1], splitArray[2])
         setComponentSequenceArray(tempSequenceArray)
     
         return(finalSequenceArray)
