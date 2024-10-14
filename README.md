@@ -32,7 +32,6 @@ To run the dev server:
 npm run dev
 ```
 Navigate to http://localhost:5173/ to view the application locally.
-Vite enables HMR, so changes can be viewed immediately.
 
 ## License
 > Note: This project does not have a license.
