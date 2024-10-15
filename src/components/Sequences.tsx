@@ -323,7 +323,6 @@ export default function Sequences(props: Props) {
             let currentIndex = splitArray.length
             while (currentIndex != 0) {
                 let randomIndex = randomNumber(currentIndex)
-                console.log(randomIndex)
                 currentIndex--
 
                 // Swap sequences

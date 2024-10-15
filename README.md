@@ -1,6 +1,5 @@
 # Breach-Protocol-2077
-A client side recreation of the hacking minigame Breach Protocol, from the popular game Cyberpunk 2077.
-The app is hosted here: _[Link](https://breach-protocol.vercel.app/)_
+A client side recreation of the hacking minigame Breach Protocol, from the popular game Cyberpunk 2077. _[Play Here](https://breach-protocol.vercel.app/)_
 
 ![breachapp](/src/assets/breachapp.png)
 
