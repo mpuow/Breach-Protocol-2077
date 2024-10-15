@@ -264,7 +264,7 @@ export default function CodeMatrix(props: Props) {
     const stopHover = () => {
         setColumnHover(-1)
         setRowHover(-1)
-        // props.setCombinationHover("")
+        props.setCombinationHover("")
         props.setMatrixHover("")
     }
 
