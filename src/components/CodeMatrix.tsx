@@ -187,7 +187,7 @@ export default function CodeMatrix(props: Props) {
     }
 
     // Handles when a cell in the code matrix is clicked
-    function clickCell(val: string, rowIndex:number, colIndex:number) {
+    const clickCell = (val: string, rowIndex:number, colIndex:number) => {
         // Set cell to be animated if it is not a placeholder
         if (val !== placeholder) {
             setAnimateClick(`${rowIndex},${colIndex}`)
@@ -237,7 +237,7 @@ export default function CodeMatrix(props: Props) {
     }
 
     // Handles the hover event for the cells
-    function onHover(colIndex:number, val:string, rowIndex:number) {
+    const onHover = (colIndex:number, val:string, rowIndex:number) => {
         // Return if hovering a placeholder
         if (val === placeholder) {
             return
@@ -251,19 +251,25 @@ export default function CodeMatrix(props: Props) {
         // Set hover indexes and val hover
         setColumnHover(colIndex)
         setRowHover(rowIndex)
-        props.setMatrixHover(val)
+
+        // Only display playable combination on hover (in row or column)
+        if (isRowTurn) {
+            props.setMatrixHover(combinationBoard[selectRow][colIndex])
+        } else {
+            props.setMatrixHover(combinationBoard[rowIndex][selectColumn])
+        }
     }
 
     // Resets the state after the hover event
-    function stopHover() {
+    const stopHover = () => {
         setColumnHover(-1)
         setRowHover(-1)
-        props.setCombinationHover("")
+        // props.setCombinationHover("")
         props.setMatrixHover("")
     }
 
     // Swap board style depending on row or column turn
-    function swapBoardStyle(colIndex:number, rowIndex:number, val:string) {
+    const swapBoardStyle = (colIndex:number, rowIndex:number, val:string) => {
 
         let styleString = ""
 

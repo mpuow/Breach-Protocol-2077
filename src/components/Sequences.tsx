@@ -344,7 +344,7 @@ export default function Sequences(props: Props) {
     }
 
     // Load and display extra spans to push certain sequences to stay in the select line
-    function displayInvisSequence(lineIndex:number) {
+    const displayInvisSequence = (lineIndex:number) => {
         let elements = [...invisElements]
         for (let i = 0; i < lineIndex; i++) {
             elements.push(
