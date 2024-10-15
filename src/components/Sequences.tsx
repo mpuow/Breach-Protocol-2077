@@ -320,14 +320,16 @@ export default function Sequences(props: Props) {
 
         // Ensuring that sequences are in a different order every generation
         if (split1.length > 2) {
-
             let currentIndex = splitArray.length
             while (currentIndex != 0) {
-                let randomIndex = randomNumber(currentIndex - 1)
+                let randomIndex = randomNumber(currentIndex)
+                console.log(randomIndex)
                 currentIndex--
 
                 // Swap sequences
-                [splitArray[currentIndex], splitArray[randomIndex]] = [splitArray[randomIndex], splitArray[currentIndex]]
+                let tempSplit = splitArray[currentIndex]
+                splitArray[currentIndex] = splitArray[randomIndex]
+                splitArray[randomIndex] = tempSplit
             }
         }
     
